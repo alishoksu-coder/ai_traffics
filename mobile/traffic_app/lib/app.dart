@@ -3,16 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'map_screen.dart';
 import 'navigator_screen.dart';
+import 'drive_screen.dart';
+import 'tips_screen.dart';
+import 'more_screen.dart';
+import 'splash_screen.dart';
+import 'theme_notifier.dart';
+import 'voice_query_sheet.dart';
+import 'common.dart';
 
-/// Основные цвета приложения (синхрон с темой)
 class _AppColors {
   static const primary = Color(0xFF0D7EA7);
   static const primaryDark = Color(0xFF065A82);
-  static const surface = Color(0xFFF8FAFC);
-  static const surfaceVariant = Color(0xFFE8EEF2);
-  static const onSurface = Color(0xFF1E293B);
-  static const onSurfaceVariant = Color(0xFF64748B);
-  static const outline = Color(0xFFCBD5E1);
 }
 
 class TrafficApp extends StatelessWidget {
@@ -20,128 +21,64 @@ class TrafficApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AI Traffic Monitor',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: GoogleFonts.inter().fontFamily,
-        textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
-        primaryTextTheme: GoogleFonts.interTextTheme(ThemeData.light().primaryTextTheme),
-        colorScheme: ColorScheme.light(
-          primary: _AppColors.primary,
-          onPrimary: Colors.white,
-          primaryContainer: _AppColors.primary.withOpacity(0.12),
-          onPrimaryContainer: _AppColors.primaryDark,
-          secondary: const Color(0xFF0EA5E9),
-          onSecondary: Colors.white,
-          surface: Colors.white,
-          onSurface: _AppColors.onSurface,
-          surfaceContainerHighest: _AppColors.surfaceVariant,
-          onSurfaceVariant: _AppColors.onSurfaceVariant,
-          outline: _AppColors.outline,
-          error: const Color(0xFFDC2626),
-          onError: Colors.white,
-        ),
-        scaffoldBackgroundColor: _AppColors.surface,
-        appBarTheme: AppBarTheme(
-          elevation: 0,
-          scrolledUnderElevation: 2,
-          centerTitle: false,
-          backgroundColor: Colors.white,
-          foregroundColor: _AppColors.onSurface,
-          surfaceTintColor: Colors.transparent,
-          titleTextStyle: GoogleFonts.inter(
-            color: _AppColors.onSurface,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.3,
-          ),
-          iconTheme: const IconThemeData(color: _AppColors.onSurface, size: 24),
-        ),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          color: Colors.white,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          clipBehavior: Clip.antiAlias,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: _AppColors.surfaceVariant.withOpacity(0.5),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: _AppColors.outline.withOpacity(0.6)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: _AppColors.primary, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          hintStyle: GoogleFonts.inter(color: _AppColors.onSurfaceVariant, fontSize: 15),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            backgroundColor: _AppColors.primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-        ),
-        chipTheme: ChipThemeData(
-          backgroundColor: _AppColors.surfaceVariant.withOpacity(0.8),
-          selectedColor: _AppColors.primary,
-          labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          height: 72,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          indicatorColor: _AppColors.primary.withOpacity(0.15),
-          indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          labelTextStyle: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: _AppColors.primary,
-              );
-            }
-            return GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: _AppColors.onSurfaceVariant,
-            );
-          }),
-          iconTheme: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return const IconThemeData(color: _AppColors.primary, size: 24);
-            }
-            return const IconThemeData(color: _AppColors.onSurfaceVariant, size: 24);
-          }),
-        ),
-        snackBarTheme: SnackBarThemeData(
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: _AppColors.onSurface,
-          contentTextStyle: GoogleFonts.inter(color: Colors.white),
-        ),
-        dropdownMenuTheme: DropdownMenuThemeData(
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: _AppColors.surfaceVariant.withOpacity(0.5),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          ),
+    return AnimatedBuilder(
+      animation: ThemeNotifier(),
+      builder: (context, _) {
+        final isDark = ThemeNotifier().isDarkMode;
+
+        return MaterialApp(
+          title: 'AI Traffic Monitor',
+          debugShowCheckedModeBanner: false,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          home: const SplashScreen(nextScreen: HomeShell()),
+        );
+      },
+    );
+  }
+
+  ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      fontFamily: GoogleFonts.inter().fontFamily,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: _AppColors.primary,
+        brightness: brightness,
+        surface: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      ),
+      scaffoldBackgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1E293B),
+        centerTitle: false,
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          color: isDark ? Colors.white : const Color(0xFF1E293B),
         ),
       ),
-      home: const HomeShell(),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        indicatorColor: _AppColors.primary.withOpacity(0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final color = states.contains(WidgetState.selected)
+              ? _AppColors.primary
+              : (isDark ? Colors.white70 : Colors.black54);
+          return GoogleFonts.inter(
+              fontSize: 12, fontWeight: FontWeight.w600, color: color);
+        }),
+      ),
     );
   }
 }
@@ -153,43 +90,203 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
   int _index = 0;
+  late final PageController _pageController;
+  late final AnimationController _fabAnimController;
+  late final Animation<double> _fabScale;
+
+  // Конфигурация вкладок
+  static const _tabs = <_TabConfig>[
+    _TabConfig(
+      icon: Icons.map_outlined,
+      activeIcon: Icons.map_rounded,
+      label: 'Карта',
+    ),
+    _TabConfig(
+      icon: Icons.navigation_outlined,
+      activeIcon: Icons.navigation_rounded,
+      label: 'Навигатор',
+    ),
+    _TabConfig(
+      icon: Icons.route_outlined,
+      activeIcon: Icons.route_rounded,
+      label: 'Маршруты',
+    ),
+    _TabConfig(
+      icon: Icons.lightbulb_outline_rounded,
+      activeIcon: Icons.lightbulb_rounded,
+      label: 'AI Советы',
+    ),
+    _TabConfig(
+      icon: Icons.grid_view_outlined,
+      activeIcon: Icons.grid_view_rounded,
+      label: 'Ещё',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _index);
+    _fabAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fabScale = CurvedAnimation(
+      parent: _fabAnimController,
+      curve: Curves.easeOutBack,
+    );
+    _fabAnimController.forward();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _fabAnimController.dispose();
+    super.dispose();
+  }
+
+  void _onTabSelected(int i) {
+    if (i == _index) return;
+    setState(() => _index = i);
+    _pageController.animateToPage(
+      i,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOutCubic,
+    );
+    // Bounce FAB
+    _fabAnimController.reset();
+    _fabAnimController.forward();
+  }
+
+  void _onPageChanged(int page) {
+    if (page != _index) {
+      setState(() => _index = page);
+      _fabAnimController.reset();
+      _fabAnimController.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pages = const <Widget>[
-      MapScreen(),
-      NavigatorScreen(),
-    ];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          MapScreen(),
+          NavigatorScreen(),
+          DriveScreen(),
+          TipsScreen(),
+          MoreScreen(),
+        ],
+      ),
+
+      // ─── Floating Action Button: Голосовой запрос ───
+      floatingActionButton: (_index == 0 || _index == 1)
+          ? ScaleTransition(
+              scale: _fabScale,
+              child: FloatingActionButton(
+                heroTag: 'voice_fab',
+                onPressed: () {
+                  showVoiceQuerySheet(context, onResult: (result) {
+                    // Переключаемся на Навигатор после выбора маршрута
+                    _onTabSelected(1);
+                  });
+                },
+                backgroundColor: AppColors.primary,
+                elevation: 6,
+                child: const Icon(Icons.mic_rounded, color: Colors.white, size: 26),
+              ),
+            )
+          : null,
+
+      // ─── Bottom Navigation Bar ───
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
-              destinations: const [
-                NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'Карта'),
-                NavigationDestination(icon: Icon(Icons.navigation_outlined), selectedIcon: Icon(Icons.navigation), label: 'Навигатор'),
-              ],
-            ),
-          ),
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: _onTabSelected,
+          animationDuration: const Duration(milliseconds: 400),
+          destinations: _tabs
+              .map((t) => NavigationDestination(
+                    icon: Icon(t.icon),
+                    selectedIcon: _AnimatedNavIcon(icon: t.activeIcon),
+                    label: t.label,
+                  ))
+              .toList(),
         ),
       ),
+    );
+  }
+}
+
+/// Конфигурация одной вкладки
+class _TabConfig {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+
+  const _TabConfig({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+}
+
+/// Анимированная иконка для выбранной вкладки —
+/// при переключении делает bounce + scale эффект.
+class _AnimatedNavIcon extends StatefulWidget {
+  final IconData icon;
+  const _AnimatedNavIcon({required this.icon});
+
+  @override
+  State<_AnimatedNavIcon> createState() => _AnimatedNavIconState();
+}
+
+class _AnimatedNavIconState extends State<_AnimatedNavIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.25), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.25, end: 0.95), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.0), weight: 30),
+    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scale,
+      child: Icon(widget.icon),
     );
   }
 }

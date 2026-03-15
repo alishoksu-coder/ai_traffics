@@ -1,40 +1,14 @@
 # backend/app/main.py
 import os
-import time
-import threading
-import json
-import math
 from contextlib import asynccontextmanager
-from typing import Optional
 
-import httpx
-from fastapi import FastAPI, Query, Body, HTTPException, Depends, Header
+from fastapi import FastAPI, Query
 
 from app.config import settings
 from app.db.database import get_conn
 from app.db.schema import ensure_schema
-from app.db.repository import (
-    get_locations,
-    get_location,
-    get_history,
-    insert_traffic_values,
-    get_road_segments,
-    upsert_road_segment,
-    get_friends,
-    add_friend,
-    update_friend_location,
-    get_admin_by_login,
-    create_admin,
-)
+from app.db.repository import get_locations, get_history
 from app.simulate import TrafficSimulator
-from app.seed import (
-    seed_history_if_empty,
-    seed_locations_astana_if_empty,
-    seed_segments_if_empty,
-    seed_admin_if_empty,
-)
-from app.auth import verify_admin_password, create_admin_token, verify_admin_token, hash_for_storage
-from app.vehicles import VehicleSimulator
 
 from app.predict import (
     group_by_location,
@@ -42,102 +16,12 @@ from app.predict import (
     predict_moving_avg,
     predict_trend_lr,
     mae_rmse,
+    get_trend_analysis,
 )
+from app.weather import weather_service
+import asyncio
 
 sim = TrafficSimulator(settings.db_path, tick_seconds=2.0)
-
-
-def _get_segments_for_vehicles():
-    """Список сегментов с polyline как list для симулятора транспорта."""
-    conn = get_conn(settings.db_path)
-    try:
-        segs = get_road_segments(conn)
-        out = []
-        for s in segs:
-            poly = s.get("polyline")
-            if isinstance(poly, str):
-                try:
-                    poly = json.loads(poly)
-                except Exception:
-                    poly = []
-            out.append({"id": s.get("id"), "name": s.get("name", ""), "polyline": poly or []})
-        return out
-    finally:
-        conn.close()
-
-
-vehicle_sim = VehicleSimulator(get_segments=_get_segments_for_vehicles)
-
-_writer_stop = threading.Event()
-_writer_thread: threading.Thread | None = None
-
-
-def _history_writer_loop():
-    last_min_ts = None
-    while not _writer_stop.is_set():
-        try:
-            now = int(time.time())
-            min_ts = (now // 60) * 60
-
-            if last_min_ts != min_ts:
-                snap = sim.snapshot(0)
-                rows = [
-                    {"location_id": int(p["location_id"]), "ts": min_ts, "value": float(p["value"])}
-                    for p in snap
-                    if "location_id" in p and "value" in p
-                ]
-                if rows:
-                    conn = get_conn(settings.db_path)
-                    try:
-                        insert_traffic_values(conn, rows)
-                    finally:
-                        conn.close()
-                last_min_ts = min_ts
-
-        except Exception:
-            pass
-
-        sleep_s = 60 - (int(time.time()) % 60)
-        _writer_stop.wait(float(max(1, sleep_s)))
-
-
-def _next_segment_id() -> int:
-    conn = get_conn(settings.db_path)
-    try:
-        row = conn.execute("SELECT COALESCE(MAX(id),0) + 1 FROM road_segments").fetchone()
-        return int(row[0]) if row else 1
-    finally:
-        conn.close()
-
-
-def _closest_location_id(lat: float, lon: float) -> int:
-    conn = get_conn(settings.db_path)
-    locs = []
-    try:
-        locs = get_locations(conn)
-    finally:
-        conn.close()
-
-    if not locs:
-        raise HTTPException(status_code=400, detail="no locations in DB")
-
-    def haversine_m(lat1, lon1, lat2, lon2):
-        R = 6371000.0
-        p1 = math.radians(lat1)
-        p2 = math.radians(lat2)
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlon / 2) ** 2
-        return 2 * R * math.asin(math.sqrt(a))
-
-    best_id = int(locs[0]["id"])
-    best_d = 10**18
-    for l in locs:
-        d = haversine_m(lat, lon, float(l["lat"]), float(l["lon"]))
-        if d < best_d:
-            best_d = d
-            best_id = int(l["id"])
-    return best_id
 
 
 @asynccontextmanager
@@ -145,31 +29,24 @@ async def lifespan(app: FastAPI):
     conn = get_conn(settings.db_path)
     try:
         ensure_schema(conn)
-        seed_locations_astana_if_empty(conn)
-        seed_segments_if_empty(conn)
-        seed_admin_if_empty(conn)
     finally:
         conn.close()
 
     sim.start()
-    vehicle_sim.start()
+    
+    # Background weather update task
+    async def update_weather_periodic():
+        while True:
+            w = await weather_service.get_current_weather()
+            sim.set_weather_factor(w['traffic_factor'])
+            await asyncio.sleep(600) # update every 10 min
 
-    conn = get_conn(settings.db_path)
-    try:
-        seed_history_if_empty(conn, sim, minutes=240)
-    finally:
-        conn.close()
-
-    global _writer_thread
-    _writer_stop.clear()
-    _writer_thread = threading.Thread(target=_history_writer_loop, daemon=True)
-    _writer_thread.start()
-
+    weather_task = asyncio.create_task(update_weather_periodic())
+    
     try:
         yield
     finally:
-        _writer_stop.set()
-        vehicle_sim.stop()
+        weather_task.cancel()
         sim.stop()
 
 
@@ -186,6 +63,11 @@ def health():
     }
 
 
+@app.get("/weather")
+async def get_weather():
+    return await weather_service.get_current_weather()
+
+
 @app.get("/locations")
 def locations():
     conn = get_conn(settings.db_path)
@@ -195,11 +77,33 @@ def locations():
         conn.close()
 
 
+@app.get("/weather")
+async def weather_api():
+    w = await weather_service.get_current_weather()
+    return w
+
+
 @app.get("/traffic/map")
 def traffic_map(horizon: int = Query(0, ge=0, le=60)):
     if horizon not in (0, 30, 60):
         return {"error": "horizon must be 0, 30, or 60"}
-    return {"items": sim.snapshot(horizon)}
+    items = sim.snapshot(horizon)
+    weighted = 0.0
+    if items:
+        # Используем 'value' (0-100) для более точного среднего
+        avg_val = sum(it.get('value', 0.0) for it in items) / len(items)
+        weighted = avg_val / 10.0 # переводим в 0-10
+        
+    # Округляем вверх, если есть хоть какой-то трафик > 1%, чтобы не было 0 при наличии машин
+    score = int(round(weighted))
+    if weighted > 0.1 and score == 0:
+        score = 1
+
+    return {
+        "items": items,
+        "overall_points": score,
+        "horizon": horizon
+    }
 
 
 @app.get("/traffic/history")
@@ -211,228 +115,55 @@ def traffic_history(minutes: int = Query(60, ge=5, le=720)):
         conn.close()
 
 
-@app.post("/roads/segment_from_osrm")
-async def segment_from_osrm(payload: dict = Body(...)):
-    """
-    2 режима:
-
-    A) По location_id (как у тебя сейчас):
-      {"id":1(optional), "name":"s1", "a_location_id":7, "b_location_id":17, "probe_location_id":7(optional)}
-
-    B) По координатам (для “тап A/B”):
-      {"id":1(optional), "name":"tap_seg", "a":[lat,lon], "b":[lat,lon], "probe_location_id":12(optional)}
-    """
-    seg_id = int(payload["id"]) if "id" in payload else _next_segment_id()
-    name = str(payload.get("name", f"seg{seg_id}"))
-
-    # --- берём A/B ---
-    if "a_location_id" in payload and "b_location_id" in payload:
-        a_id = int(payload["a_location_id"])
-        b_id = int(payload["b_location_id"])
-        probe_id = int(payload.get("probe_location_id", a_id))
-
-        conn = get_conn(settings.db_path)
-        try:
-            a = get_location(conn, a_id)
-            b = get_location(conn, b_id)
-        finally:
-            conn.close()
-
-        if a is None or b is None:
-            raise HTTPException(status_code=400, detail=f"location not found: a={a_id}, b={b_id}")
-
-        a_lat, a_lon = float(a["lat"]), float(a["lon"])
-        b_lat, b_lon = float(b["lat"]), float(b["lon"])
-
-    else:
-        a = payload.get("a")
-        b = payload.get("b")
-        if not a or not b or len(a) != 2 or len(b) != 2:
-            raise HTTPException(status_code=400, detail="provide a/b or a_location_id/b_location_id")
-
-        a_lat, a_lon = float(a[0]), float(a[1])
-        b_lat, b_lon = float(b[0]), float(b[1])
-
-        # чтобы сегмент получил value/цвет — привязываем к ближайшей локации к точке A
-        probe_id = int(payload.get("probe_location_id") or _closest_location_id(a_lat, a_lon))
-
-    # --- OSRM route ---
-    url = (
-        "https://router.project-osrm.org/route/v1/driving/"
-        f"{a_lon},{a_lat};{b_lon},{b_lat}"
-        "?overview=full&geometries=geojson"
-    )
-
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        r = await client.get(url)
-        r.raise_for_status()
-        data = r.json()
-
-    routes = data.get("routes") or []
-    if not routes:
-        raise HTTPException(status_code=400, detail="no route from osrm")
-
-    coords = routes[0]["geometry"]["coordinates"]  # [[lon, lat], ...]
-    polyline = [[float(lat), float(lon)] for lon, lat in coords]  # [[lat, lon], ...]
-
-    # --- save ---
-    conn = get_conn(settings.db_path)
-    try:
-        upsert_road_segment(conn, seg_id, name, probe_id, polyline)
-    finally:
-        conn.close()
-
-    return {"ok": True, "id": seg_id, "points_count": len(polyline), "probe_location_id": probe_id}
-
+import json
+from app.db.repository import get_road_segments
 
 @app.get("/roads/segments")
-def roads_segments(horizon: int = Query(0, ge=0, le=60)):
+def road_segments_api(horizon: int = Query(0, ge=0, le=60)):
     if horizon not in (0, 30, 60):
         return {"error": "horizon must be 0, 30, or 60"}
-
-    snap = sim.snapshot(horizon)
-    val_by_loc = {
-        int(p["location_id"]): float(p["value"])
-        for p in snap
-        if "location_id" in p and "value" in p
-    }
-
+        
     conn = get_conn(settings.db_path)
     try:
-        segs = get_road_segments(conn)
-        items = []
-        for s in segs:
+        raw_segs = get_road_segments(conn)
+    finally:
+        conn.close()
+
+    snapshot = sim.snapshot(horizon)
+    loc_values = { s["location_id"]: s["value"] for s in snapshot }
+
+    items = []
+    for r in raw_segs:
+        pts = []
+        if r.get("polyline"):
             try:
-                poly_str = s["polyline"]
-                if isinstance(poly_str, str):
-                    poly = json.loads(poly_str)
-                else:
-                    poly = poly_str if isinstance(poly_str, list) else []
-            except Exception as e:
-                print(f"WARNING: Failed to parse polyline for segment {s.get('id')}: {e}")
-                poly = []
-
-            loc_id = int(s["location_id"])
-            loc = get_location(conn, loc_id)
-            location_name = loc.get("name", "") if loc else ""
-            if len(poly) >= 2:  # только сегменты с минимум 2 точками
-                items.append(
-                    {
-                        "id": int(s["id"]),
-                        "name": s["name"],
-                        "location_id": loc_id,
-                        "location_name": location_name,
-                        "polyline": poly,
-                        "value": val_by_loc.get(loc_id, None),
-                    }
-                )
-        print(f"DEBUG: Returning {len(items)} segments for horizon={horizon}")
-        return {"horizon": horizon, "items": items}
-    finally:
-        conn.close()
+                pts = json.loads(r["polyline"])
+            except:
+                pass
+        
+        lid = r["location_id"]
+        val = loc_values.get(lid, 0.0)
+        
+        items.append({
+            "id": r["id"],
+            "name": r["name"],
+            "location_id": lid,
+            "polyline": pts,
+            "value": val
+        })
+        
+    return {"items": items}
 
 
-@app.get("/vehicles")
-def get_vehicles():
-    """Транспорт на карте: автобусы и машины вдоль маршрутов."""
-    return {"items": vehicle_sim.snapshot()}
 
-
-# ---------- Друзья (как реальные друзья: список + геолокация) ----------
-
-@app.get("/friends")
-def friends_list():
-    conn = get_conn(settings.db_path)
-    try:
-        return {"items": get_friends(conn)}
-    finally:
-        conn.close()
-
-
-@app.post("/friends")
-def friends_add(payload: dict = Body(...)):
-    name = (payload.get("name") or "").strip()
-    if not name:
-        raise HTTPException(status_code=400, detail="name required")
-    conn = get_conn(settings.db_path)
-    try:
-        fid = add_friend(conn, name)
-        conn.commit()
-        return {"ok": True, "id": fid, "name": name}
-    finally:
-        conn.close()
-
-
-@app.put("/friends/{friend_id}/location")
-def friends_update_location(
-    friend_id: int,
-    payload: dict = Body(...),
-):
-    lat = payload.get("lat")
-    lon = payload.get("lon")
-    if lat is None or lon is None:
-        raise HTTPException(status_code=400, detail="lat and lon required")
-    conn = get_conn(settings.db_path)
-    try:
-        update_friend_location(conn, friend_id, float(lat), float(lon))
-        conn.commit()
-        return {"ok": True}
-    finally:
-        conn.close()
-
-
-# ---------- Админ-панель (логин/пароль) ----------
-
-def require_admin(authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Authorization required")
-    token = authorization[7:].strip()
-    admin_id = verify_admin_token(token)
-    if admin_id is None:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return admin_id
-
-
-@app.post("/admin/login")
-def admin_login(payload: dict = Body(...)):
-    login = (payload.get("login") or "").strip()
-    password = payload.get("password") or ""
-    if not login or not password:
-        raise HTTPException(status_code=400, detail="login and password required")
-    conn = get_conn(settings.db_path)
-    try:
-        admin = get_admin_by_login(conn, login)
-    finally:
-        conn.close()
-    if not admin or not verify_admin_password(admin.get("password_hash"), password):
-        raise HTTPException(status_code=401, detail="Invalid login or password")
-    token = create_admin_token(int(admin["id"]))
-    return {"ok": True, "token": token, "login": login}
-
-
-@app.get("/admin/dashboard")
-def admin_dashboard(admin_id: int = Depends(require_admin)):
-    conn = get_conn(settings.db_path)
-    try:
-        locs = get_locations(conn)
-        segs = get_road_segments(conn)
-        friends = get_friends(conn)
-    finally:
-        conn.close()
-    return {
-        "locations_count": len(locs),
-        "segments_count": len(segs),
-        "friends_count": len(friends),
-        "sim_running": sim.is_running(),
-        "hotspots": sim.hotspots_count(),
-    }
-
-
-@app.get("/traffic/metrics")
-def traffic_metrics(
+@app.get("/traffic/accuracy")
+def traffic_accuracy(
     horizon: int = Query(30, ge=0, le=60),
     minutes: int = Query(120, ge=30, le=720),
 ):
+    """
+    Рассчитывает метрики точности (MAE/RMSE) для моделей прогнозирования.
+    """
     if horizon not in (0, 30, 60):
         return {"error": "horizon must be 0, 30, or 60"}
     if horizon == 0:
@@ -449,7 +180,7 @@ def traffic_metrics(
     y_true_all = {"naive": [], "ma": [], "trend": []}
     y_pred_all = {"naive": [], "ma": [], "trend": []}
 
-    for _, series in by_loc.items():
+    for lid, series in by_loc.items():
         ts_to_val = {ts: v for ts, v in series}
         ts_list = [ts for ts, _ in series]
 
@@ -484,3 +215,241 @@ def traffic_metrics(
         "moving_avg": mae_rmse(y_true_all["ma"], y_pred_all["ma"]),
         "trend_lr": mae_rmse(y_true_all["trend"], y_pred_all["trend"]),
     }
+
+
+@app.get("/traffic/metrics")
+def traffic_metrics_ui():
+    """
+    Возвращает текущий балл пробок (0-10) для мобильного приложения.
+    """
+    items = sim.snapshot(0)
+    if not items:
+        return {
+            "global_score": 0,
+            "level": "Нет данных",
+            "description": "Данные о трафике временно недоступны"
+        }
+    
+    # Считаем среднее по всем точкам города
+    avg_val = sum(it.get('value', 0.0) for it in items) / len(items)
+    score = int(round(avg_val / 10.0))
+    if avg_val > 1.0 and score == 0:
+        score = 1
+    score = max(0, min(10, score))
+    
+    levels = [
+        "Дороги свободны", "Дороги почти свободны", "Местами затруднения",
+        "Местами пробки", "Движение плотное", "Затруднения в центре",
+        "Серьёзные пробки", "Многокилометровые пробки", "Город стоит", "Транспортный коллапс"
+    ]
+    level = levels[score - 1] if 0 < score <= 10 else "Свободно"
+    
+    return {
+        "global_score": score,
+        "level": level,
+        "description": f"В среднем по городу {score} балла. {level}."
+    }
+
+
+from app.predict import (
+    group_by_location,
+    predict_naive,
+    predict_moving_avg,
+    predict_trend_lr,
+    mae_rmse,
+    get_trend_analysis,
+    detect_anomaly,
+)
+
+@app.get("/traffic/recommendation")
+async def get_traffic_recommendation(location_id: int = Query(None)):
+    """
+    Генерирует умную рекомендацию (AI-совет) для пользователя с поиском аномалий.
+    """
+    conn = get_conn(settings.db_path)
+    weather = await weather_service.get_current_weather()
+    
+    try:
+        # Для простоты берем историю за час
+        hist = get_history(conn, minutes=60)
+        by_loc = group_by_location(hist)
+        
+        # Если location_id не передан, берем самую загруженную (hotspot) или среднюю
+        if not location_id or location_id not in by_loc:
+            # Найдем локу с самым крутым трендом вверх или просто рандомную из Астаны
+            location_id = list(by_loc.keys())[0] if by_loc else 1
+            
+        loc_info = next((l for l in get_locations(conn) if l['id'] == location_id), {"name": "город"})
+        series = by_loc.get(location_id, [])
+        trend = get_trend_analysis(series)
+        anomaly = detect_anomaly(series)
+        
+        # Строим текст совета
+        wf = weather.get('traffic_factor', 1.0)
+        
+        # Если найдена аномалия - перебиваем обычный тренд
+        if anomaly["anomaly"]:
+            wait_time = anomaly["time_to_wait_min"]
+            icon = "🚨" if anomaly["severity"] == "critical" else "⚠️"
+            advice = f"{icon} AI АНАЛИЗ:\nНа участке «{loc_info['name']}» {anomaly['desc'].lower()} "
+            advice += f"Советуем переждать около {wait_time} минут или найти пути объезда."
+            
+            return {
+                "location_id": location_id,
+                "location_name": loc_info['name'],
+                "weather": weather['description'],
+                "points_impact": 10,
+                "trend": "Аномалия",
+                "message": advice
+            }
+
+        # Обычная логика
+        reason = []
+        if trend['direction'] == 'up':
+            reason.append(f"тренд на повышение трафика на {loc_info['name']}")
+        if wf > 1.2:
+            reason.append(f"прогнозируемые осадки ({weather['description']})")
+            
+        points_increase = int((wf - 1.0) * 5 + (2 if trend['direction'] == 'up' else 0))
+        
+        advice = "Рекомендую выехать сейчас."
+        if points_increase > 2:
+            advice = "Рекомендую выехать сейчас или подождать около 20-30 минут, пока ситуация стабилизируется."
+        elif points_increase > 5:
+            advice = "Ситуация сложная. Лучше воспользоваться общественным транспортом или отложить поездку на час."
+            
+        final_message = f"Судя по { ' и '.join(reason) if reason else 'текущей ситуации'}, пробка может вырасти на {points_increase} балла. {advice}"
+        
+        return {
+            "location_id": location_id,
+            "location_name": loc_info['name'],
+            "weather": weather['description'],
+            "points_impact": points_increase,
+            "trend": trend['desc'],
+            "message": final_message
+        }
+    finally:
+        conn.close()
+
+from app.vehicles import VehicleSimulator
+veh_sim = VehicleSimulator(lambda: get_road_segments(get_conn(settings.db_path)))
+veh_sim.start()
+
+@app.get("/vehicles")
+def get_vehicles():
+    """
+    Возвращает список машин и автобусов на карте.
+    """
+    return {"items": veh_sim.snapshot()}
+
+
+# ─── Admin endpoints ───
+
+from fastapi import Header, HTTPException
+from pydantic import BaseModel
+from app.auth import verify_admin_password, create_admin_token, verify_admin_token
+from app.db.repository import (
+    get_admin_by_login,
+    get_friends,
+    add_friend,
+    commit,
+)
+
+class LoginRequest(BaseModel):
+    login: str
+    password: str
+
+class AddFriendRequest(BaseModel):
+    name: str
+
+
+@app.post("/admin/login")
+def admin_login(req: LoginRequest):
+    conn = get_conn(settings.db_path)
+    try:
+        user = get_admin_by_login(conn, req.login)
+        if not user or not verify_admin_password(user.get("password_hash"), req.password):
+            raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+        token = create_admin_token(int(user["id"]))
+        return {"token": token}
+    finally:
+        conn.close()
+
+
+@app.get("/admin/dashboard")
+def admin_dashboard(authorization: str = Header(None)):
+    token = (authorization or "").replace("Bearer ", "")
+    admin_id = verify_admin_token(token)
+    if admin_id is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    conn = get_conn(settings.db_path)
+    try:
+        locations_count = conn.execute("SELECT COUNT(*) FROM locations").fetchone()[0]
+        segments_count = 0
+        try:
+            segments_count = conn.execute("SELECT COUNT(*) FROM road_segments").fetchone()[0]
+        except Exception:
+            pass
+        friends_count = 0
+        try:
+            friends_count = conn.execute("SELECT COUNT(*) FROM friends").fetchone()[0]
+        except Exception:
+            pass
+
+        # Текущий средний балл
+        items = sim.snapshot(0)
+        avg_val = 0.0
+        if items:
+            avg_val = sum(it.get('value', 0.0) for it in items) / len(items)
+
+        return {
+            "locations_count": locations_count,
+            "segments_count": segments_count,
+            "friends_count": friends_count,
+            "sim_running": sim.is_running(),
+            "hotspots": sim.hotspots_count(),
+            "avg_traffic_value": round(avg_val, 1),
+            "traffic_score": max(1, int(round(avg_val / 10.0))) if items else 0,
+            "vehicles_count": len(veh_sim.snapshot()),
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/friends")
+def friends_list():
+    conn = get_conn(settings.db_path)
+    try:
+        return {"items": get_friends(conn)}
+    finally:
+        conn.close()
+
+
+@app.post("/friends")
+def friends_add(req: AddFriendRequest):
+    conn = get_conn(settings.db_path)
+    try:
+        fid = add_friend(conn, req.name)
+        commit(conn)
+        return {"id": fid, "name": req.name}
+    finally:
+        conn.close()
+
+
+# ─── Seed data on startup ───
+
+from app.seed import seed_locations_astana_if_empty, seed_segments_if_empty, seed_history_if_empty, seed_admin_if_empty
+
+@app.on_event("startup")
+def _seed():
+    conn = get_conn(settings.db_path)
+    try:
+        seed_locations_astana_if_empty(conn)
+        seed_segments_if_empty(conn)
+        seed_history_if_empty(conn, sim)
+        seed_admin_if_empty(conn)
+    except Exception as e:
+        print(f"Seed error: {e}")
+    finally:
+        conn.close()

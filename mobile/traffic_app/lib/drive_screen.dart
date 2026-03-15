@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../api.dart';
-import '../models.dart';
+import 'api.dart';
+import 'models.dart';
 import 'package:traffic_app/common.dart';
 import 'segment_map_page.dart';
 
@@ -78,6 +78,7 @@ class _DriveScreenState extends State<DriveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final heavy = segments.where((s) => (s.value ?? 0) > 60).length;
     final medium = segments.where((s) {
       final v = s.value ?? 0;
@@ -85,7 +86,7 @@ class _DriveScreenState extends State<DriveScreen> {
     }).length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
         'Маршруты',
         actions: [
@@ -115,7 +116,7 @@ class _DriveScreenState extends State<DriveScreen> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -142,7 +143,8 @@ class _DriveScreenState extends State<DriveScreen> {
                           color: AppColors.primary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.traffic_rounded, color: AppColors.primary, size: 24),
+                        child: const Icon(Icons.traffic_rounded,
+                            color: AppColors.primary, size: 24),
                       ),
                       const SizedBox(width: 14),
                       Column(
@@ -175,20 +177,25 @@ class _DriveScreenState extends State<DriveScreen> {
                     children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.background.withOpacity(0.8),
+                            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.divider.withOpacity(0.6)),
+                            border: Border.all(
+                                color: Theme.of(context).dividerColor.withOpacity(0.4)),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<int>(
                               value: horizon,
                               isExpanded: true,
                               items: const [
-                                DropdownMenuItem(value: 0, child: Text('Сейчас')),
-                                DropdownMenuItem(value: 30, child: Text('+30 мин')),
-                                DropdownMenuItem(value: 60, child: Text('+60 мин')),
+                                DropdownMenuItem(
+                                    value: 0, child: Text('Сейчас')),
+                                DropdownMenuItem(
+                                    value: 30, child: Text('+30 мин')),
+                                DropdownMenuItem(
+                                    value: 60, child: Text('+60 мин')),
                               ],
                               onChanged: (v) {
                                 if (v == null) return;
@@ -233,12 +240,13 @@ class _DriveScreenState extends State<DriveScreen> {
                 hintText: 'Поиск по улице или названию',
                 prefixIcon: const Icon(Icons.search_rounded, size: 22),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).cardColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: (v) => setState(() => query = v),
             ),
@@ -248,7 +256,8 @@ class _DriveScreenState extends State<DriveScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF2F2),
                   borderRadius: BorderRadius.circular(12),
@@ -256,9 +265,14 @@ class _DriveScreenState extends State<DriveScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 20),
+                    const Icon(Icons.error_outline_rounded,
+                        color: Color(0xFFDC2626), size: 20),
                     const SizedBox(width: 10),
-                    Expanded(child: Text(error!, style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 13))),
+                    Expanded(
+                        child: Text(error!,
+                            style: TextStyle(
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.red.shade200 : const Color(0xFFB91C1C), 
+                                fontSize: 13))),
                   ],
                 ),
               ),
@@ -276,7 +290,7 @@ class _DriveScreenState extends State<DriveScreen> {
                 final streetName = _streetName(s);
                 final statusLabel = _trafficStatusLabel(v);
                 return Material(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   elevation: 0,
                   shadowColor: Colors.black.withOpacity(0.06),
@@ -331,7 +345,8 @@ class _DriveScreenState extends State<DriveScreen> {
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: color.withOpacity(0.15),
                                         borderRadius: BorderRadius.circular(8),
@@ -358,7 +373,8 @@ class _DriveScreenState extends State<DriveScreen> {
                               ],
                             ),
                           ),
-                          Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary, size: 24),
+                          Icon(Icons.chevron_right_rounded,
+                              color: AppColors.textSecondary, size: 24),
                         ],
                       ),
                     ),
@@ -385,7 +401,8 @@ class _DriveScreenState extends State<DriveScreen> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(label, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(label,
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
       ],
     );
   }

@@ -60,7 +60,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             autofocus: true,
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Отмена')),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, c.text.trim()),
               child: const Text('Добавить'),
@@ -85,7 +87,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
         'Друзья',
         actions: [
@@ -98,12 +100,16 @@ class _FriendsScreenState extends State<FriendsScreen> {
           if (loading)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),
       body: loading && friends.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary))
           : (error != null && friends.isEmpty)
               ? Center(
                   child: Padding(
@@ -111,7 +117,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        const Icon(Icons.error_outline,
+                            size: 64, color: Colors.red),
                         const SizedBox(height: 16),
                         Text(error!, textAlign: TextAlign.center),
                         const SizedBox(height: 24),
@@ -152,20 +159,31 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       final hasLocation = f.lat != null && f.lon != null;
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         child: ListTile(
                           leading: CircleAvatar(
                             backgroundColor: AppColors.primary.withOpacity(0.2),
-                            child: const Icon(Icons.person, color: AppColors.primary),
+                            child: const Icon(Icons.person,
+                                color: AppColors.primary),
                           ),
                           title: Text(
                             f.name,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: hasLocation
-                              ? const Text('Местоположение известно', style: TextStyle(fontSize: 12, color: AppColors.textSecondary))
-                              : const Text('Местоположение не передано', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                          trailing: hasLocation ? const Icon(Icons.location_on, color: AppColors.primary, size: 20) : null,
+                              ? const Text('Местоположение известно',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary))
+                              : const Text('Местоположение не передано',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary)),
+                          trailing: hasLocation
+                              ? const Icon(Icons.location_on,
+                                  color: AppColors.primary, size: 20)
+                              : null,
                         ),
                       );
                     }),

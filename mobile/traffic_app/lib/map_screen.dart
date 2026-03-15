@@ -6,6 +6,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'api.dart';
 import 'models.dart';
 import 'package:traffic_app/common.dart';
+import 'theme_notifier.dart';
+import 'map_styles.dart';
 
 /// Центр карты — Астана
 final gmaps.LatLng _kAstanaCenter = gmaps.LatLng(51.1694, 71.4491);
@@ -14,7 +16,8 @@ class MapScreen extends StatefulWidget {
   final bool showFriendsOnMap;
   final void Function(bool)? onShowFriendsChanged;
 
-  const MapScreen({super.key, this.showFriendsOnMap = false, this.onShowFriendsChanged});
+  const MapScreen(
+      {super.key, this.showFriendsOnMap = false, this.onShowFriendsChanged});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -28,6 +31,11 @@ class _MapScreenState extends State<MapScreen> {
   List<RoadSegment> segments = [];
   bool _loadingPlace = false;
   gmaps.GoogleMapController? _mapController;
+  int _overallPoints = 0;
+  String _trafficLevel = 'Свободно';
+  String? _weatherDesc;
+  double? _temp;
+
   /// Координаты после нажатия «Моё местоположение» — показываем маркер.
   gmaps.LatLng? _myLocation;
 
@@ -35,16 +43,58 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _load();
+    ThemeNotifier().addListener(_updateMapStyle);
+  }
+
+  @override
+  void dispose() {
+    ThemeNotifier().removeListener(_updateMapStyle);
+    super.dispose();
+  }
+
+  void _updateMapStyle() {
+    if (_mapController != null) {
+      if (ThemeNotifier().isDarkMode) {
+        _mapController!.setMapStyle(googleMapsDarkStyle);
+      } else {
+        _mapController!.setMapStyle(null);
+      }
+    }
   }
 
   Future<void> _load() async {
     setState(() => loading = true);
     try {
-      final items = await api.getRoadSegments(horizon);
-      final filtered = items.where((s) => s.points.length >= 2).toList();
+      // 1. Load overall city stats
+      int pts = 0;
+      try {
+        final data = await api.getTrafficMap(horizon);
+        pts = (data['overall_points'] as num?)?.toInt() ?? 0;
+      } catch (_) {}
+
+      // 2. Try to load detailed metrics
+      String level = 'Свободно';
+      try {
+        final metrics = await api.getTrafficMetrics();
+        pts = metrics.globalScore;
+        level = metrics.level;
+      } catch (_) {}
+
+      // 3. Weather (optional)
+      String? weatherDesc;
+      double? temp;
+      try {
+        final weather = await api.getWeatherData();
+        weatherDesc = weather['description']?.toString();
+        temp = (weather['temp'] as num?)?.toDouble();
+      } catch (_) {}
+
       if (mounted) {
         setState(() {
-          segments = filtered;
+          _overallPoints = pts;
+          _trafficLevel = level;
+          _weatherDesc = weatherDesc;
+          _temp = temp;
           loading = false;
         });
       }
@@ -70,7 +120,8 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Нужен доступ к местоположению для показа точки на карте'),
+            content:
+                Text('Нужен доступ к местоположению для показа точки на карте'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -111,7 +162,8 @@ class _MapScreenState extends State<MapScreen> {
     if (_loadingPlace) return;
     setState(() => _loadingPlace = true);
     try {
-      final placeId = await getNearbyPlaceId(position.latitude, position.longitude);
+      final placeId =
+          await getNearbyPlaceId(position.latitude, position.longitude);
       if (!mounted) return;
       setState(() => _loadingPlace = false);
       if (placeId != null) {
@@ -119,7 +171,8 @@ class _MapScreenState extends State<MapScreen> {
         if (!mounted) return;
         _showPlaceCard(place);
       } else {
-        final address = await getAddressForLatLng(position.latitude, position.longitude);
+        final address =
+            await getAddressForLatLng(position.latitude, position.longitude);
         if (!mounted) return;
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,9 +199,9 @@ class _MapScreenState extends State<MapScreen> {
         minChildSize: 0.3,
         maxChildSize: 0.92,
         builder: (_, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: ListView(
             controller: scrollController,
@@ -177,7 +230,8 @@ class _MapScreenState extends State<MapScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Color(0xFFEAB308), size: 22),
+                    const Icon(Icons.star_rounded,
+                        color: Color(0xFFEAB308), size: 22),
                     const SizedBox(width: 6),
                     Text(
                       '${place.rating!.toStringAsFixed(1)}${place.userRatingsTotal != null ? ' (${place.userRatingsTotal} отзывов)' : ''}',
@@ -198,7 +252,8 @@ class _MapScreenState extends State<MapScreen> {
                     scrollDirection: Axis.horizontal,
                     itemCount: place.photoUrls.length,
                     itemBuilder: (_, i) => Padding(
-                      padding: EdgeInsets.only(right: i < place.photoUrls.length - 1 ? 10 : 0),
+                      padding: EdgeInsets.only(
+                          right: i < place.photoUrls.length - 1 ? 10 : 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(
@@ -210,7 +265,8 @@ class _MapScreenState extends State<MapScreen> {
                             width: 280,
                             height: 180,
                             color: AppColors.surfaceVariant,
-                            child: const Icon(Icons.image_not_supported, size: 48),
+                            child:
+                                const Icon(Icons.image_not_supported, size: 48),
                           ),
                         ),
                       ),
@@ -223,7 +279,8 @@ class _MapScreenState extends State<MapScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.schedule_rounded, size: 20, color: AppColors.primary),
+                    Icon(Icons.schedule_rounded,
+                        size: 20, color: AppColors.primary),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -234,14 +291,18 @@ class _MapScreenState extends State<MapScreen> {
                               place.openNow! ? 'Открыто' : 'Закрыто',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: place.openNow! ? const Color(0xFF22C55E) : Colors.red,
+                                color: place.openNow!
+                                    ? const Color(0xFF22C55E)
+                                    : Colors.red,
                                 fontSize: 14,
                               ),
                             ),
-                          if (place.openingHoursText != null && place.openingHoursText!.isNotEmpty)
+                          if (place.openingHoursText != null &&
+                              place.openingHoursText!.isNotEmpty)
                             Text(
                               place.openingHoursText!,
-                              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                              style: TextStyle(
+                                  fontSize: 13, color: AppColors.textSecondary),
                             ),
                         ],
                       ),
@@ -262,11 +323,13 @@ class _MapScreenState extends State<MapScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.traffic_rounded, size: 18, color: AppColors.textSecondary),
+                  Icon(Icons.traffic_rounded,
+                      size: 18, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Text(
                     'Загруженность: обычно людно в часы пик',
-                    style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    style:
+                        TextStyle(fontSize: 13, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -277,7 +340,8 @@ class _MapScreenState extends State<MapScreen> {
                   // Можно передать место в Навигатор через callback или глобальное состояние
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Построить маршрут до «${place.name}» — откройте вклад Навигатор и введите адрес'),
+                      content: Text(
+                          'Построить маршрут до «${place.name}» — откройте вклад Навигатор и введите адрес'),
                       duration: const Duration(seconds: 4),
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -287,7 +351,8 @@ class _MapScreenState extends State<MapScreen> {
                 label: const Text('Построить маршрут'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
               ),
             ],
@@ -308,7 +373,8 @@ class _MapScreenState extends State<MapScreen> {
             onTap: onTap,
             child: Text(
               text,
-              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+              style:
+                  const TextStyle(fontSize: 14, color: AppColors.textPrimary),
             ),
           ),
         ),
@@ -321,9 +387,8 @@ class _MapScreenState extends State<MapScreen> {
     int idx = 0;
     for (final s in segments) {
       if (s.points.length < 2) continue;
-      final points = s.points
-          .map((p) => gmaps.LatLng(p.latitude, p.longitude))
-          .toList();
+      final points =
+          s.points.map((p) => gmaps.LatLng(p.latitude, p.longitude)).toList();
       final color = colorByValue(s.value);
       out.add(gmaps.Polyline(
         polylineId: gmaps.PolylineId('seg_shadow_$idx'),
@@ -348,7 +413,8 @@ class _MapScreenState extends State<MapScreen> {
       out.add(gmaps.Marker(
         markerId: const gmaps.MarkerId('my_location'),
         position: _myLocation!,
-        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueAzure),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+            gmaps.BitmapDescriptor.hueAzure),
         infoWindow: const gmaps.InfoWindow(title: 'Вы здесь'),
       ));
     }
@@ -369,10 +435,12 @@ class _MapScreenState extends State<MapScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary : Colors.white,
+            color: selected ? AppColors.primary : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: selected ? AppColors.primary : AppColors.divider.withOpacity(0.7),
+              color: selected
+                  ? AppColors.primary
+                  : Theme.of(context).dividerColor.withOpacity(0.7),
               width: selected ? 2 : 1,
             ),
             boxShadow: [
@@ -389,7 +457,7 @@ class _MapScreenState extends State<MapScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
-                color: selected ? Colors.white : AppColors.textPrimary,
+                color: selected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
               ),
             ),
           ),
@@ -400,13 +468,123 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: whiteAppBar('Карта трафика'),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: const Text('Карта трафика'),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => ThemeNotifier().toggleTheme(),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Stack(
         children: [
           Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Row(
+                  children: [
+                    // Traffic Points (2GIS style)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _getPointColor(_overallPoints),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                _getPointColor(_overallPoints).withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.traffic_rounded,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$_overallPoints',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'б.',
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Traffic Level Text Container
+                    if (_overallPoints > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Theme.of(context).dividerColor),
+                        ),
+                        child: Text(
+                          _trafficLevel,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: _getPointColor(_overallPoints),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    // Weather Info
+                    if (_weatherDesc != null)
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.cloud_queue_rounded,
+                                  color: AppColors.primary, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  '${_temp?.round() ?? '--'}°C • $_weatherDesc',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               RefreshIndicator(
                 onRefresh: _load,
                 child: SingleChildScrollView(
@@ -430,9 +608,14 @@ class _MapScreenState extends State<MapScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Row(
                     children: [
-                      SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                      SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2)),
                       SizedBox(width: 8),
-                      Text('Загрузка места...', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text('Загрузка места...',
+                          style: TextStyle(
+                              fontSize: 12, color: AppColors.textSecondary)),
                     ],
                   ),
                 ),
@@ -442,9 +625,12 @@ class _MapScreenState extends State<MapScreen> {
                     target: _kAstanaCenter,
                     zoom: 12,
                   ),
-                  onMapCreated: (c) => _mapController = c,
+                  onMapCreated: (c) {
+                    _mapController = c;
+                    _updateMapStyle();
+                  },
                   onTap: _onMapTap,
-                  polylines: _buildPolylines(),
+                  polylines: const {},
                   markers: _buildMarkers(),
                   mapToolbarEnabled: true,
                   myLocationButtonEnabled: false,
@@ -467,11 +653,13 @@ class _MapScreenState extends State<MapScreen> {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+                    border:
+                        Border.all(color: Theme.of(context).dividerColor.withOpacity(0.5)),
                   ),
-                  child: const Icon(Icons.my_location_rounded, color: AppColors.primary, size: 28),
+                  child: const Icon(Icons.my_location_rounded,
+                      color: AppColors.primary, size: 28),
                 ),
               ),
             ),
@@ -479,5 +667,12 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
     );
+  }
+
+  Color _getPointColor(int points) {
+    if (points <= 3) return Colors.green;
+    if (points <= 6) return Colors.orange;
+    if (points <= 8) return Colors.red;
+    return const Color(0xFF7F1D1D); // Dark red
   }
 }

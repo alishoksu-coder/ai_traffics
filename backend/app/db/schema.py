@@ -4,6 +4,7 @@ import sqlite3
 def ensure_schema(conn: sqlite3.Connection) -> None:
     cur = conn.cursor()
 
+    # locations (чтобы симулятор не падал, если таблицы нет)
     cur.execute("""
     CREATE TABLE IF NOT EXISTS locations (
         id   INTEGER PRIMARY KEY,
@@ -13,51 +14,46 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
+    # История значений трафика
     cur.execute("""
     CREATE TABLE IF NOT EXISTS traffic_values (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         location_id INTEGER NOT NULL,
-        ts INTEGER NOT NULL,
+        ts INTEGER NOT NULL,     -- Unix time (seconds)
         value REAL NOT NULL
     );
     """)
 
-    # 1 точка в минуту на локацию
-    cur.execute("""
-    CREATE UNIQUE INDEX IF NOT EXISTS ux_tv_loc_ts
-    ON traffic_values(location_id, ts);
-    """)
-
+    # Индексы
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_tv_loc_ts ON traffic_values(location_id, ts);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_tv_ts ON traffic_values(ts);")
 
-    # сегменты дорог (polyline хранится как JSON-строка [[lat,lon],...])
+    # Сегменты дорог
     cur.execute("""
     CREATE TABLE IF NOT EXISTS road_segments (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
+        id          INTEGER PRIMARY KEY,
+        name        TEXT NOT NULL DEFAULT '',
         location_id INTEGER NOT NULL,
-        polyline TEXT NOT NULL
+        polyline    TEXT NOT NULL DEFAULT '[]'
     );
     """)
 
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_rs_loc ON road_segments(location_id);")
-
-    # Друзья: список с именами и опциональной геолокацией (как реальные друзья)
+    # Друзья
     cur.execute("""
     CREATE TABLE IF NOT EXISTS friends (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        lat REAL,
-        lon REAL,
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        name       TEXT NOT NULL,
+        lat        REAL,
+        lon        REAL,
         updated_at INTEGER
     );
     """)
 
-    # Админы: логин/пароль для админ-панели
+    # Админы
     cur.execute("""
     CREATE TABLE IF NOT EXISTS admin_users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        login TEXT UNIQUE NOT NULL,
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        login         TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL
     );
     """)

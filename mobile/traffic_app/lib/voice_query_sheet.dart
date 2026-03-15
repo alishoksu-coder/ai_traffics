@@ -21,7 +21,8 @@ class VoiceQueryResult {
 }
 
 /// Нижняя панель: поле ввода + кнопка «Поехать». По результату возвращает [VoiceQueryResult].
-void showVoiceQuerySheet(BuildContext context, {required void Function(VoiceQueryResult) onResult}) {
+void showVoiceQuerySheet(BuildContext context,
+    {required void Function(VoiceQueryResult) onResult}) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -40,10 +41,12 @@ class _VoiceQuerySheetContent extends StatefulWidget {
   final void Function(VoiceQueryResult) onResult;
   final VoidCallback onCancel;
 
-  const _VoiceQuerySheetContent({required this.onResult, required this.onCancel});
+  const _VoiceQuerySheetContent(
+      {required this.onResult, required this.onCancel});
 
   @override
-  State<_VoiceQuerySheetContent> createState() => _VoiceQuerySheetContentState();
+  State<_VoiceQuerySheetContent> createState() =>
+      _VoiceQuerySheetContentState();
 }
 
 class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
@@ -87,7 +90,8 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
       if (text != null && text.isNotEmpty) {
         setState(() {
           _controller.text = text;
-          _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+          _controller.selection =
+              TextSelection.collapsed(offset: _controller.text.length);
         });
       }
     } on PlatformException catch (e) {
@@ -176,7 +180,8 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
                   color: AppColors.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.navigation_rounded, color: AppColors.primary, size: 26),
+                child: const Icon(Icons.navigation_rounded,
+                    color: AppColors.primary, size: 26),
               ),
               const SizedBox(width: 14),
               const Expanded(
@@ -206,11 +211,14 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
             focusNode: _focusNode,
             decoration: InputDecoration(
               hintText: 'Хан Шатыр, проспект Республики...',
-              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+              prefixIcon: const Icon(Icons.search_rounded,
+                  color: AppColors.textSecondary),
               suffixIcon: IconButton(
                 icon: Icon(
                   _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                  color: _isListening ? Colors.red.shade400 : AppColors.textSecondary,
+                  color: _isListening
+                      ? Colors.red.shade400
+                      : AppColors.textSecondary,
                 ),
                 onPressed: _isListening ? null : _startListening,
                 tooltip: 'Голосовой ввод',
@@ -229,12 +237,14 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline_rounded, size: 18, color: Colors.red.shade700),
+                  Icon(Icons.error_outline_rounded,
+                      size: 18, color: Colors.red.shade700),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _error!,
-                      style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                      style:
+                          TextStyle(color: Colors.red.shade700, fontSize: 13),
                     ),
                   ),
                 ],
@@ -248,7 +258,8 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.directions_car_rounded, size: 22),
             label: Text(_loading ? 'Построение маршрута...' : 'Поехать'),

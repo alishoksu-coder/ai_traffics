@@ -15,22 +15,22 @@ class AppColors {
 AppBar whiteAppBar(String title, {Widget? trailing, List<Widget>? actions}) {
   return AppBar(
     title: Text(title),
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: Colors.transparent, // Let themed Scaffold/AppBar handle it
     surfaceTintColor: Colors.transparent,
-    foregroundColor: AppColors.textPrimary,
     elevation: 0,
     actions: actions ?? (trailing != null ? [trailing] : null),
   );
 }
 
 /// Карточка в едином стиле: скругление, лёгкая тень
-BoxDecoration cardDecoration() {
+BoxDecoration cardDecoration(BuildContext context) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   return BoxDecoration(
-    color: AppColors.cardBackground,
+    color: Theme.of(context).cardColor,
     borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withOpacity(0.05),
+        color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
         blurRadius: 12,
         offset: const Offset(0, 4),
       ),

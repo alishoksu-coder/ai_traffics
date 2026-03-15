@@ -120,3 +120,23 @@ class Friend {
     );
   }
 }
+
+class TrafficMetrics {
+  final int globalScore;
+  final String level;
+  final String description;
+
+  const TrafficMetrics({
+    required this.globalScore,
+    required this.level,
+    required this.description,
+  });
+
+  factory TrafficMetrics.fromJson(Map<String, dynamic> json) {
+    return TrafficMetrics(
+      globalScore: (json['global_score'] as num?)?.toInt() ?? 0,
+      level: (json['level'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+    );
+  }
+}

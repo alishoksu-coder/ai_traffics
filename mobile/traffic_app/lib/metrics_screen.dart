@@ -60,16 +60,16 @@ class _MetricsScreenState extends State<MetricsScreen> {
     final naive = m['naive'] as Map<String, dynamic>?;
     final ma = m['moving_avg'] as Map<String, dynamic>?;
     final trend = m['trend_lr'] as Map<String, dynamic>?;
-    
+
     double? bestMae;
     String? bestName;
-    
+
     final models = [
       {'name': 'Naive', 'data': naive},
       {'name': 'Moving Avg', 'data': ma},
       {'name': 'Trend LR', 'data': trend},
     ];
-    
+
     for (final model in models) {
       final data = model['data'] as Map<String, dynamic>?;
       final mae = data?['mae'] as num?;
@@ -78,29 +78,30 @@ class _MetricsScreenState extends State<MetricsScreen> {
         bestName = model['name'] as String;
       }
     }
-    
+
     return bestName ?? '—';
   }
 
   Widget _card(String title, Map<String, dynamic>? m, IconData icon) {
     if (m == null) return const SizedBox.shrink();
 
-    Widget row(String name, String description, Map<String, dynamic> mm, Color color) {
+    Widget row(
+        String name, String description, Map<String, dynamic> mm, Color color) {
       final maeRaw = mm['mae'];
       final rmseRaw = mm['rmse'];
       final mae = maeRaw != null ? (maeRaw as num).toDouble() : null;
       final rmse = rmseRaw != null ? (rmseRaw as num).toDouble() : null;
       final n = mm['n'] as int? ?? 0;
       final isBest = _getBestModel(m) == name;
-      
+
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isBest ? AppColors.primary : AppColors.divider,
+            color: isBest ? AppColors.primary : Theme.of(context).dividerColor.withOpacity(0.5),
             width: isBest ? 2 : 1,
           ),
           boxShadow: [
@@ -142,7 +143,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
                           if (isBest) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 borderRadius: BorderRadius.circular(12),
@@ -177,16 +179,19 @@ class _MetricsScreenState extends State<MetricsScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _metricChip('MAE', mae.toStringAsFixed(2), Icons.trending_down),
+                    child: _metricChip(
+                        'MAE', mae.toStringAsFixed(2), Icons.trending_down),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: _metricChip('RMSE', rmse.toStringAsFixed(2), Icons.analytics),
+                    child: _metricChip(
+                        'RMSE', rmse.toStringAsFixed(2), Icons.analytics),
                   ),
                   if (n > 0) ...[
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _metricChip('Образцов', n.toString(), Icons.data_usage),
+                      child: _metricChip(
+                          'Образцов', n.toString(), Icons.data_usage),
                     ),
                   ],
                 ],
@@ -211,11 +216,11 @@ class _MetricsScreenState extends State<MetricsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -232,7 +237,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.psychology, color: AppColors.primary, size: 24),
+                child: const Icon(Icons.psychology,
+                    color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -263,12 +269,13 @@ class _MetricsScreenState extends State<MetricsScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                const Icon(Icons.history, size: 16, color: AppColors.textSecondary),
+                const Icon(Icons.history,
+                    size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 8),
                 Text(
                   'Данные за ${m['minutes_used'] ?? '—'} минут',
@@ -281,9 +288,18 @@ class _MetricsScreenState extends State<MetricsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          row('Naive', 'Последнее значение', m['naive'] as Map<String, dynamic>? ?? {}, const Color(0xFF8E8E93)),
-          row('Moving Avg', 'Скользящее среднее (k=5)', m['moving_avg'] as Map<String, dynamic>? ?? {}, const Color(0xFF34C759)),
-          row('Trend LR', 'Линейная регрессия', m['trend_lr'] as Map<String, dynamic>? ?? {}, AppColors.primary),
+          row(
+              'Naive',
+              'Последнее значение',
+              m['naive'] as Map<String, dynamic>? ?? {},
+              const Color(0xFF8E8E93)),
+          row(
+              'Moving Avg',
+              'Скользящее среднее (k=5)',
+              m['moving_avg'] as Map<String, dynamic>? ?? {},
+              const Color(0xFF34C759)),
+          row('Trend LR', 'Линейная регрессия',
+              m['trend_lr'] as Map<String, dynamic>? ?? {}, AppColors.primary),
         ],
       ),
     );
@@ -293,7 +309,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -330,7 +346,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
         'AI Аналитика',
         actions: [
@@ -376,7 +392,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
                         Text(
                           error!,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 24),
                         ElevatedButton.icon(

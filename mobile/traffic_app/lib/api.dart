@@ -97,7 +97,8 @@ Future<GoogleDirectionsResult> getGoogleDirections({
   final route = routes[0] as Map<String, dynamic>;
   final overview = route['overview_polyline'] as Map<String, dynamic>?;
   final encoded = overview?['points'] as String?;
-  if (encoded == null || encoded.isEmpty) throw Exception('Нет геометрии маршрута');
+  if (encoded == null || encoded.isEmpty)
+    throw Exception('Нет геометрии маршрута');
 
   final points = decodePolyline(encoded);
   final legs = route['legs'] as List?;
@@ -181,7 +182,8 @@ class PlaceResult {
   final double lon;
   final String formattedAddress;
 
-  const PlaceResult({required this.lat, required this.lon, required this.formattedAddress});
+  const PlaceResult(
+      {required this.lat, required this.lon, required this.formattedAddress});
 }
 
 /// Один вариант подсказки адреса (Google Places Autocomplete).
@@ -213,7 +215,8 @@ Future<List<PlacePrediction>> getPlaceAutocomplete(String input) async {
     final map = p as Map<String, dynamic>;
     final desc = map['description'] as String?;
     final id = map['place_id'] as String?;
-    if (desc != null && id != null) list.add(PlacePrediction(description: desc, placeId: id));
+    if (desc != null && id != null)
+      list.add(PlacePrediction(description: desc, placeId: id));
   }
   return list;
 }
@@ -228,7 +231,8 @@ Future<PlaceResult> getPlaceDetails(String placeId) async {
     '&fields=geometry,formatted_address',
   );
   final r = await http.get(uri).timeout(const Duration(seconds: 8));
-  if (r.statusCode != 200) throw Exception('Place Details: HTTP ${r.statusCode}');
+  if (r.statusCode != 200)
+    throw Exception('Place Details: HTTP ${r.statusCode}');
   final data = jsonDecode(r.body) as Map<String, dynamic>;
   if (data['status'] != 'OK') throw Exception('Место не найдено');
   final result = data['result'] as Map<String, dynamic>?;
@@ -314,7 +318,8 @@ Future<String?> getNearbyPlaceId(double lat, double lng) async {
 
 /// Полные детали места по place_id (название, рейтинг, фото, часы, телефон, сайт, адрес).
 Future<PlaceDetailsFull> getPlaceDetailsFull(String placeId) async {
-  final fields = 'name,rating,user_ratings_total,formatted_phone_number,website,'
+  final fields =
+      'name,rating,user_ratings_total,formatted_phone_number,website,'
       'formatted_address,opening_hours,photos,geometry';
   final uri = Uri.parse(
     'https://maps.googleapis.com/maps/api/place/details/json'
@@ -324,7 +329,8 @@ Future<PlaceDetailsFull> getPlaceDetailsFull(String placeId) async {
     '&fields=$fields',
   );
   final r = await http.get(uri).timeout(const Duration(seconds: 10));
-  if (r.statusCode != 200) throw Exception('Place Details: HTTP ${r.statusCode}');
+  if (r.statusCode != 200)
+    throw Exception('Place Details: HTTP ${r.statusCode}');
   final data = jsonDecode(r.body) as Map<String, dynamic>;
   if (data['status'] != 'OK') throw Exception('Место не найдено');
   final result = data['result'] as Map<String, dynamic>?;
@@ -349,7 +355,8 @@ Future<PlaceDetailsFull> getPlaceDetailsFull(String placeId) async {
   final photoUrls = <String>[];
   if (photosRaw != null) {
     for (var i = 0; i < photosRaw.length && i < 5; i++) {
-      final ref = (photosRaw[i] as Map<String, dynamic>)['photo_reference'] as String?;
+      final ref =
+          (photosRaw[i] as Map<String, dynamic>)['photo_reference'] as String?;
       if (ref != null) {
         photoUrls.add(
           'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${Uri.encodeComponent(ref)}&key=$kGoogleMapsApiKey',
@@ -390,7 +397,8 @@ Future<PlaceResult> getPlaceFromQuery(String query) async {
   final q = query.trim();
   if (q.isEmpty) throw Exception('Введите адрес или название места');
   // Добавляем «Астана» для лучшего результата по городу
-  final address = q.contains('Астана') || q.contains('Astana') ? q : '$q, Астана';
+  final address =
+      q.contains('Астана') || q.contains('Astana') ? q : '$q, Астана';
   final uri = Uri.parse(
     'https://maps.googleapis.com/maps/api/geocode/json'
     '?address=${Uri.encodeComponent(address)}'
@@ -406,7 +414,8 @@ Future<PlaceResult> getPlaceFromQuery(String query) async {
     throw Exception('Geocoding: $err');
   }
   final results = data['results'] as List?;
-  if (results == null || results.isEmpty) throw Exception('Место не найдено. Уточните запрос.');
+  if (results == null || results.isEmpty)
+    throw Exception('Место не найдено. Уточните запрос.');
   final first = results[0] as Map<String, dynamic>;
   final geo = first['geometry'] as Map<String, dynamic>?;
   final loc = geo?['location'] as Map<String, dynamic>?;
@@ -426,8 +435,14 @@ class ApiClient {
     final r = await _http.get(uri).timeout(const Duration(seconds: 10));
     if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}: ${r.body}');
     final decoded = jsonDecode(r.body);
-    final list = decoded is Map ? (decoded['items'] as List? ?? []) : (decoded as List? ?? []);
-    return list.map((e) => MapVehicle.fromJson(e is Map ? e as Map<String, dynamic> : Map<String, dynamic>.from(e as Map))).toList();
+    final list = decoded is Map
+        ? (decoded['items'] as List? ?? [])
+        : (decoded as List? ?? []);
+    return list
+        .map((e) => MapVehicle.fromJson(e is Map
+            ? e as Map<String, dynamic>
+            : Map<String, dynamic>.from(e as Map)))
+        .toList();
   }
 
   Future<List<Friend>> getFriends() async {
@@ -436,27 +451,37 @@ class ApiClient {
     if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}: ${r.body}');
     final decoded = jsonDecode(r.body);
     final list = decoded is Map ? (decoded['items'] as List? ?? []) : [];
-    return list.map((e) => Friend.fromJson(e is Map ? e as Map<String, dynamic> : Map<String, dynamic>.from(e as Map))).toList();
+    return list
+        .map((e) => Friend.fromJson(e is Map
+            ? e as Map<String, dynamic>
+            : Map<String, dynamic>.from(e as Map)))
+        .toList();
   }
 
   Future<void> addFriend(String name) async {
     final uri = Uri.parse('$kApiBaseUrl/friends');
-    final r = await _http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name}),
-    ).timeout(const Duration(seconds: 10));
-    if (r.statusCode != 200 && r.statusCode != 201) throw Exception('HTTP ${r.statusCode}: ${r.body}');
+    final r = await _http
+        .post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'name': name}),
+        )
+        .timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200 && r.statusCode != 201)
+      throw Exception('HTTP ${r.statusCode}: ${r.body}');
   }
 
   Future<String> adminLogin(String login, String password) async {
     final uri = Uri.parse('$kApiBaseUrl/admin/login');
-    final r = await _http.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'login': login, 'password': password}),
-    ).timeout(const Duration(seconds: 10));
-    if (r.statusCode != 200) throw Exception(r.body.isNotEmpty ? r.body : 'Invalid login or password');
+    final r = await _http
+        .post(
+          uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'login': login, 'password': password}),
+        )
+        .timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200)
+      throw Exception(r.body.isNotEmpty ? r.body : 'Invalid login or password');
     final decoded = jsonDecode(r.body) as Map<String, dynamic>;
     return decoded['token'] as String? ?? '';
   }
@@ -510,5 +535,35 @@ class ApiClient {
       }
     }
     return out;
+  }
+
+  Future<Map<String, dynamic>> getTrafficRecommendation(
+      {int? locationId}) async {
+    final query = locationId != null ? '?location_id=$locationId' : '';
+    final uri = Uri.parse('$kApiBaseUrl/traffic/recommendation$query');
+    final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}');
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> getWeatherData() async {
+    final uri = Uri.parse('$kApiBaseUrl/weather');
+    final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}');
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> getTrafficMap(int horizon) async {
+    final uri = Uri.parse('$kApiBaseUrl/traffic/map?horizon=$horizon');
+    final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}');
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<TrafficMetrics> getTrafficMetrics() async {
+    final uri = Uri.parse('$kApiBaseUrl/traffic/metrics');
+    final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+    if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}');
+    return TrafficMetrics.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 }

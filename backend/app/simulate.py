@@ -36,6 +36,9 @@ class TrafficSimulator:
         # ✅ чтобы писать в БД не каждый тик, а 1 раз в минуту
         self._last_store_minute: int = -1
 
+        # Погодный фактор (влияет на шум и силу пробок)
+        self._weather_factor: float = 1.0
+
     def start(self) -> None:
         with self._lock:
             if self._running:
@@ -93,11 +96,20 @@ class TrafficSimulator:
                     "lat": lat,
                     "lon": lon,
                     "value": float(pred),
+                    "points": int(round(pred / 10.0)), # 0-10 scale
                     "timestamp": iso,
                     "horizon": horizon,
                 })
 
         return result
+
+    def set_weather_factor(self, factor: float) -> None:
+        with self._lock:
+            self._weather_factor = float(factor)
+
+    def get_weather_factor(self) -> float:
+        with self._lock:
+            return self._weather_factor
 
     def _load_locations(self) -> None:
         conn = get_conn(self.db_path)
@@ -176,13 +188,17 @@ class TrafficSimulator:
                 lat = float(loc["lat"])
                 lon = float(loc["lon"])
 
+                wf = self._weather_factor
+
                 for h in self._hotspots:
                     d = math.hypot(lat - float(h["lat"]), lon - float(h["lon"]))
                     radius = float(h["radius_deg"])
                     if d < radius:
-                        jam += (1.0 - d / radius) * float(h["strength"])
+                        # Погода усиливает эффект пробки
+                        jam += (1.0 - d / radius) * float(h["strength"]) * wf
 
-                st["value"] = clamp(base + wave + noise + jam, 0.0, 100.0)
+                # Погода также увеличивает базовый шум
+                st["value"] = clamp(base + wave + noise * wf + jam, 0.0, 100.0)
 
             # ✅ --- store aggregated values once per minute ---
             current_minute = int(now // 60)

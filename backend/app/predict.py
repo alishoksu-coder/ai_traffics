@@ -65,3 +65,60 @@ def mae_rmse(y_true: List[float], y_pred: List[float]) -> Dict:
     mae = sum(abs_err) / n
     rmse = math.sqrt(sum(sq_err) / n)
     return {"mae": mae, "rmse": rmse, "n": n}
+
+
+def get_trend_analysis(series: List[Tuple[int, float]], k: int = 15) -> Dict:
+    """
+    Анализирует тренд за последние k точек.
+    Возвращает направление (up/down/stable) и описание.
+    """
+    if len(series) < 5:
+        return {"direction": "stable", "diff": 0, "desc": "Данных недостаточно"}
+
+    tail = series[-k:]
+    first_v = sum(v for _, v in tail[:len(tail)//2]) / (len(tail)//2)
+    last_v = sum(v for _, v in tail[-(len(tail)//2):]) / (len(tail)//2)
+    
+    diff = last_v - first_v
+    
+    if diff > 5:
+        return {"direction": "up", "diff": diff, "desc": "Растёт"}
+    elif diff < -5:
+        return {"direction": "down", "diff": diff, "desc": "Падает"}
+    else:
+        return {"direction": "stable", "diff": diff, "desc": "Стабильно"}
+
+def detect_anomaly(series: List[Tuple[int, float]]) -> Dict:
+    """
+    Распознавание аномалий (поиск ДТП или перегрузки).
+    Если за последние 10-15 минут трафик резко взлетел.
+    """
+    if len(series) < 3:
+        return {"anomaly": False, "severity": "normal", "desc": "Данных недостаточно", "time_to_wait_min": 0}
+
+    # Берем последние точки
+    tail = series[-5:]
+    if not tail:
+        return {"anomaly": False, "severity": "normal", "desc": "Нет данных", "time_to_wait_min": 0}
+
+    start_v = tail[0][1]
+    end_v = tail[-1][1]
+    
+    diff = end_v - start_v
+    
+    if diff > 40 or end_v > 90:
+        return {
+            "anomaly": True, 
+            "severity": "critical", 
+            "desc": "Обнаружена критическая аномалия: возможное ДТП или резкая блокировка движения.",
+            "time_to_wait_min": 45
+        }
+    elif diff > 25:
+        return {
+            "anomaly": True, 
+            "severity": "warning", 
+            "desc": "Нетипичный рост пробки: возможно мелкое ДТП или час пик начался раньше времени.",
+            "time_to_wait_min": 25
+        }
+        
+    return {"anomaly": False, "severity": "normal", "desc": "Движение в норме, аномалий не найдено.", "time_to_wait_min": 0}
