@@ -89,12 +89,15 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   }
 
   Future<void> _initIcons() async {
-    _carIcon = await _buildMarkerIcon(Icons.directions_car, const Color(0xFFF59E0B)); // Желтая/Оранжевая для машин
-    _busIcon = await _buildMarkerIcon(Icons.directions_bus, const Color(0xFF10B981)); // Зеленая для автобуса
+    _carIcon = await _buildMarkerIcon(Icons.directions_car,
+        const Color(0xFFF59E0B)); // Желтая/Оранжевая для машин
+    _busIcon = await _buildMarkerIcon(
+        Icons.directions_bus, const Color(0xFF10B981)); // Зеленая для автобуса
     if (mounted) setState(() {});
   }
 
-  Future<gmaps.BitmapDescriptor> _buildMarkerIcon(IconData iconData, Color color) async {
+  Future<gmaps.BitmapDescriptor> _buildMarkerIcon(
+      IconData iconData, Color color) async {
     final dart_ui.PictureRecorder pictureRecorder = dart_ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
     const double size = 90;
@@ -124,10 +127,13 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
+      Offset(
+          size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
     );
 
-    final img = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
+    final img = await pictureRecorder
+        .endRecording()
+        .toImage(size.toInt(), size.toInt());
     final data = await img.toByteData(format: dart_ui.ImageByteFormat.png);
     return gmaps.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
@@ -158,7 +164,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       }
     } catch (_) {}
   }
-
 
   void _onFromChanged(String value) {
     _clearRoute();
@@ -519,7 +524,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
-                color: Theme.of(context).textTheme.titleLarge?.color ?? AppColors.primaryDark,
+                color: Theme.of(context).textTheme.titleLarge?.color ??
+                    AppColors.primaryDark,
               )),
         ),
         actions: [
@@ -580,16 +586,19 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(24),
                         child: BackdropFilter(
-                          filter: dart_ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                          filter:
+                              dart_ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                           child: Container(
                             padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor.withOpacity(0.85),
+                              color:
+                                  Theme.of(context).cardColor.withOpacity(0.85),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Theme.of(context).brightness == Brightness.dark 
-                                  ? Colors.white.withOpacity(0.12)
-                                  : Colors.white.withOpacity(0.5),
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white.withOpacity(0.12)
+                                    : Colors.white.withOpacity(0.5),
                                 width: 1.5,
                               ),
                               boxShadow: [
@@ -626,7 +635,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                     prefixIconConstraints: const BoxConstraints(
                                         minWidth: 48, minHeight: 48),
                                     filled: true,
-                                    fillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+                                    fillColor: Theme.of(context)
+                                        .scaffoldBackgroundColor
+                                        .withOpacity(0.6),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
                                       borderSide: BorderSide.none,
@@ -746,7 +757,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                     prefixIconConstraints: const BoxConstraints(
                                         minWidth: 48, minHeight: 48),
                                     filled: true,
-                                    fillColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+                                    fillColor: Theme.of(context)
+                                        .scaffoldBackgroundColor
+                                        .withOpacity(0.6),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
                                       borderSide: BorderSide.none,
@@ -825,7 +838,11 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                                       p.description,
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .bodyLarge
+                                                                  ?.color,
                                                           height: 1.3),
                                                       maxLines: 2,
                                                       overflow:
@@ -841,241 +858,213 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                     ),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                                // Пешком / Автомобиль
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        AppColors.background.withOpacity(0.8),
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                        color:
-                                            AppColors.divider.withOpacity(0.5)),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Material(
-                                          color: _byCar
-                                              ? Colors.transparent
-                                              : AppColors.primary,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            onTap: () {
-                                              setState(() {
-                                                _byCar = false;
-                                                if (a == null || b == null)
-                                                  _clearRoute();
-                                              });
-                                              if (a != null && b != null)
-                                                _buildRouteFromGoogle();
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 12),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .directions_walk_rounded,
-                                                    size: 20,
-                                                    color: _byCar
-                                                        ? AppColors
-                                                            .textSecondary
-                                                        : Colors.white,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    'Пешком',
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 14,
-                                                      color: _byCar
-                                                          ? AppColors
-                                                              .textSecondary
-                                                          : Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Material(
-                                          color: _byCar
-                                              ? AppColors.primary
-                                              : Colors.transparent,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            onTap: () {
-                                              setState(() {
-                                                _byCar = true;
-                                                if (a == null || b == null)
-                                                  _clearRoute();
-                                              });
-                                              if (a != null && b != null)
-                                                _buildRouteFromGoogle();
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 12),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(
-                                                    Icons
-                                                        .directions_car_rounded,
-                                                    size: 20,
-                                                    color: _byCar
-                                                        ? Colors.white
-                                                        : AppColors
-                                                            .textSecondary,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    'Автомобиль',
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 14,
-                                                      color: _byCar
-                                                          ? Colors.white
-                                                          : AppColors
-                                                              .textSecondary,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (hasRoute) ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.primary.withOpacity(0.12),
-                                          AppColors.primary.withOpacity(0.06),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(
-                                          color: AppColors.primary
-                                              .withOpacity(0.2)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary
-                                                .withOpacity(0.15),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: const Icon(Icons.route_rounded,
-                                              color: AppColors.primary,
-                                              size: 24),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (_route!.durationInTrafficText !=
-                                                      null &&
-                                                  _byCar) ...[
-                                                Text(
-                                                  _route!
-                                                      .durationInTrafficText!,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 18,
-                                                    color: AppColors.primary,
-                                                    letterSpacing: -0.3,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  'С учётом пробок • ${_route!.durationText} без трафика${_route!.distanceText != null ? ' • ${_route!.distanceText}' : ''}',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        AppColors.textSecondary,
-                                                    height: 1.3,
-                                                  ),
-                                                ),
-                                              ] else
-                                                Text(
-                                                  _route!.durationText,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 18,
-                                                    color: AppColors.primary,
-                                                    letterSpacing: -0.3,
-                                                  ),
-                                                ),
-                                              if (_route!.distanceText !=
-                                                      null &&
-                                                  (_route!.durationInTrafficText ==
-                                                          null ||
-                                                      !_byCar))
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 2),
-                                                  child: Text(
-                                                    _route!.distanceText!,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: AppColors
-                                                            .textSecondary),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
                               ],
                             ),
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 18),
+                    // Пешком / Автомобиль
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppColors.background.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: AppColors.divider.withOpacity(0.5),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Material(
+                                color: _byCar
+                                    ? Colors.transparent
+                                    : AppColors.primary,
+                                borderRadius: BorderRadius.circular(12),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    setState(() {
+                                      _byCar = false;
+                                      if (a == null || b == null) _clearRoute();
+                                    });
+                                    if (a != null && b != null)
+                                      _buildRouteFromGoogle();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.directions_walk_rounded,
+                                          size: 20,
+                                          color: _byCar
+                                              ? AppColors.textSecondary
+                                              : Colors.white,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Пешком',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            color: _byCar
+                                                ? AppColors.textSecondary
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Material(
+                                color: _byCar
+                                    ? AppColors.primary
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    setState(() {
+                                      _byCar = true;
+                                      if (a == null || b == null) _clearRoute();
+                                    });
+                                    if (a != null && b != null)
+                                      _buildRouteFromGoogle();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.directions_car_rounded,
+                                          size: 20,
+                                          color: _byCar
+                                              ? Colors.white
+                                              : AppColors.textSecondary,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Автомобиль',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            color: _byCar
+                                                ? Colors.white
+                                                : AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (hasRoute) ...[
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.primary.withOpacity(0.12),
+                                AppColors.primary.withOpacity(0.06),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                                color: AppColors.primary.withOpacity(0.2)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.route_rounded,
+                                    color: AppColors.primary, size: 24),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (_route!.durationInTrafficText != null &&
+                                        _byCar) ...[
+                                      Text(
+                                        _route!.durationInTrafficText!,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                          color: AppColors.primary,
+                                          letterSpacing: -0.3,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'С учётом пробок • ${_route!.durationText} без трафика${_route!.distanceText != null ? ' • ${_route!.distanceText}' : ''}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ] else
+                                      Text(
+                                        _route!.durationText,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                          color: AppColors.primary,
+                                          letterSpacing: -0.3,
+                                        ),
+                                      ),
+                                    if (_route!.distanceText != null &&
+                                        (_route!.durationInTrafficText ==
+                                                null ||
+                                            !_byCar))
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: Text(
+                                          _route!.distanceText!,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                     if (_recommendation != null && _byCar)
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -1083,7 +1072,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: BackdropFilter(
-                            filter: dart_ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                            filter: dart_ui.ImageFilter.blur(
+                                sigmaX: 16, sigmaY: 16),
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -1136,14 +1126,20 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: BackdropFilter(
-                            filter: dart_ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                            filter: dart_ui.ImageFilter.blur(
+                                sigmaX: 16, sigmaY: 16),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.15 : 0.08),
+                                color: Colors.red.withOpacity(
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? 0.15
+                                        : 0.08),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                                border: Border.all(
+                                    color: Colors.red.withOpacity(0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -1160,13 +1156,16 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                      child: Text(
-                                        error!,
-                                        style: TextStyle(
-                                            color: Theme.of(context).brightness == Brightness.dark ? Colors.red.shade200 : const Color(0xFFB91C1C),
-                                            fontSize: 13,
-                                            height: 1.3),
-                                      ),
+                                    child: Text(
+                                      error!,
+                                      style: TextStyle(
+                                          color: Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.red.shade200
+                                              : const Color(0xFFB91C1C),
+                                          fontSize: 13,
+                                          height: 1.3),
+                                    ),
                                   ),
                                 ],
                               ),
