@@ -801,6 +801,39 @@ class ApiClient {
     };
   }
 
+  Future<List<Map<String, dynamic>>> getArPoints({int horizon = 30}) async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/traffic/ar_points?horizon=$horizon');
+      final r = await http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
+        final pts = data['ar_points'] as List<dynamic>? ?? [];
+        return pts.cast<Map<String, dynamic>>();
+      }
+    } catch (e) {
+      print('Render API ar_points error: $e');
+    }
+    // Fallback: Астана бойынша демо-нүктелер
+    return [
+      {
+        'lat': 51.1280, 'lng': 71.4307,
+        'segment_name': 'Кенесары көшесі',
+        'congestion_value': 78.5,
+        'level': 'warning',
+        'speed_kmh': 15,
+        'message': 'Қозғалыс баяулайды, ~15 км/сағ',
+      },
+      {
+        'lat': 51.1420, 'lng': 71.4700,
+        'segment_name': 'Сығанақ көшесі',
+        'congestion_value': 92.0,
+        'level': 'critical',
+        'speed_kmh': 5,
+        'message': 'Болжам: жылдамдық 5 км/сағ дейін төмендейді',
+      },
+    ];
+  }
+
   Future<Map<String, dynamic>> getTrafficRecommendation({int? locationId}) async {
     try {
       final locParam = locationId != null ? '?location_id=$locationId' : '';

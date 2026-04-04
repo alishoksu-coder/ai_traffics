@@ -11,6 +11,7 @@ import 'package:traffic_app/common.dart';
 import 'theme_notifier.dart';
 import 'map_styles.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({super.key});
@@ -64,6 +65,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   List<RoadSegment> _futureSegments = [];
   Map<String, dynamic>? _multimodalRec;
   bool _loadingMultimodal = false;
+  List<Map<String, dynamic>> _arPoints = [];
 
   @override
   void initState() {
@@ -716,10 +718,127 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
            ));
         }
       }
+      
+      // AR нүктелерін де жүктеу
+      final arPts = await ApiClient().getArPoints(horizon: 30);
+      if (mounted) {
+        setState(() => _arPoints = arPts);
+      }
     } catch (e) {
       if (mounted) setState(() => _loadingMultimodal = false);
       print('Multimodal Error: $e');
     }
+  }
+
+  void _openStreetView(double lat, double lng) async {
+    // Google Street View URL scheme
+    final url = Uri.parse(
+      'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=$lat,$lng'
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google Maps қосымшасы табылмады')),
+        );
+      }
+    }
+  }
+
+  void _showStreetViewSheet() {
+    if (_arPoints.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Проблемалы аймақтар табылмады — жолдар бос!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              children: [
+                Icon(Icons.streetview, color: Colors.indigo, size: 24),
+                SizedBox(width: 8),
+                Text('🔍 AR Болжам нүктелері', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text('Жүйе болжайтын кептеліс нүктелері', style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+            const SizedBox(height: 16),
+            ..._arPoints.map((pt) {
+              final isCritical = pt['level'] == 'critical';
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: isCritical ? Colors.red.withOpacity(0.08) : Colors.orange.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isCritical ? Colors.red.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+                  ),
+                ),
+                child: ListTile(
+                  leading: Container(
+                    width: 44, height: 44,
+                    decoration: BoxDecoration(
+                      color: isCritical ? Colors.red.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isCritical ? Icons.warning_rounded : Icons.speed,
+                      color: isCritical ? Colors.red : Colors.orange,
+                    ),
+                  ),
+                  title: Text(
+                    pt['segment_name'] ?? 'Белгісіз',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    '${pt['message']}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.streetview, color: Colors.indigo),
+                    tooltip: 'Street View ашу',
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _openStreetView(
+                        (pt['lat'] as num).toDouble(),
+                        (pt['lng'] as num).toDouble(),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   void _fitBoundsToRoute() {
@@ -1225,6 +1344,35 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                         ),
                                       ),
                                     ),
+                            ],
+                            if (_isForecastMode && _arPoints.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: _showStreetViewSheet,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.teal.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.streetview, size: 14, color: Colors.teal),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Street View',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.teal.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                             if (loading) ...[
                               const SizedBox(width: 12),

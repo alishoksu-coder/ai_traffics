@@ -218,6 +218,62 @@ def road_segments_api(horizon: int = Query(0, ge=0, le=60)):
     return {"items": items}
 
 
+@app.get("/traffic/ar_points")
+def traffic_ar_points(horizon: int = Query(30, ge=0, le=60)):
+    """
+    Возвращает список «проблемных зон» с координатами для AR/Street View визуализации.
+    Точки, где прогнозируется высокий уровень загруженности.
+    """
+    if horizon not in (0, 30, 60):
+        return {"error": "horizon must be 0, 30, or 60"}
+
+    conn = get_conn(settings.db_path)
+    try:
+        raw_segs = get_road_segments(conn)
+    finally:
+        conn.close()
+
+    snapshot = sim.snapshot(horizon)
+    loc_values = {s["location_id"]: s["value"] for s in snapshot}
+
+    ar_points = []
+    for r in raw_segs:
+        lid = r["location_id"]
+        val = loc_values.get(lid, 0.0)
+
+        # Только сегменты с загруженностью > 50% считаются «проблемными»
+        if val < 50:
+            continue
+
+        pts = []
+        if r.get("polyline"):
+            try:
+                pts = json.loads(r["polyline"])
+            except Exception:
+                pass
+
+        if not pts:
+            continue
+
+        # Берём середину сегмента как точку визуализации
+        mid = pts[len(pts) // 2]
+        level = "critical" if val >= 80 else "warning"
+        speed_est = max(3, int(60 * (1 - val / 100)))  # примерная скорость потока
+
+        ar_points.append({
+            "lat": mid[0] if isinstance(mid, list) else mid.get("lat", 0),
+            "lng": mid[1] if isinstance(mid, list) else mid.get("lng", 0),
+            "segment_name": r["name"],
+            "congestion_value": round(val, 1),
+            "level": level,
+            "speed_kmh": speed_est,
+            "message": f"Болжам: жылдамдық {speed_est} км/сағ дейін төмендейді" if level == "critical"
+                       else f"Қозғалыс баяулайды, ~{speed_est} км/сағ"
+        })
+
+    return {"horizon": horizon, "ar_points": ar_points}
+
+
 
 @app.get("/traffic/accuracy")
 def traffic_accuracy(
