@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic AI - Web Dashboard</title>
+  
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="back-btn">←</a>
+      <div class="logo">Traffic <strong>AI</strong></div>
+    </div>
+    
+    <div class="sidebar-search">
+      <input type="text" placeholder="Қайдан? (мысалы: Астана IT Университеті)">
+      <input type="text" placeholder="Қайда? (мысалы: Бәйтерек)">
+      <button class="btn btn-search">Маршрут құру</button>
+    </div>
+
+    <div class="sidebar-tabs">
+      <div class="tab active" data-tab="traffic">Транспорт</div>
+      <div class="tab" data-tab="ai">AI Болжам</div>
+    </div>
+
+    <!-- Panel Content -->
+    <div class="panel-content">
+      
+      <!-- Traffic Status Panel -->
+      <div id="panel-traffic" class="tab-panel active">
+        <div class="status-card">
+          <div class="status-header">
+            <h3>Қалалық трафик</h3>
+            <span class="status-badge live">LIVE</span>
+          </div>
+          <div class="traffic-index">
+            <div class="index-score" id="score-display">--</div>
+            <div class="index-text">
+              <strong>Кептеліс деңгейі</strong>
+              <span id="score-desc">Жүктелуде...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <h4>Маршрут режимдері</h4>
+          <div class="mode-toggles">
+            <button class="mode-btn active">🚗 Көлік</button>
+            <button class="mode-btn">🛴 Мультимодаль</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Forecast Panel -->
+      <div id="panel-ai" class="tab-panel">
+        <div class="ai-controls">
+          <h3>Келешек трафигін көру</h3>
+          <p>Нейрожелі арқылы алдағы уақыттағы кептелістерді көріңіз.</p>
+          
+          <div class="time-slider-container">
+            <div class="time-labels">
+              <span>Қазір</span>
+              <span>+30 мин</span>
+              <span>+60 мин</span>
+            </div>
+            <input type="range" id="horizon-slider" min="0" max="60" step="30" value="0">
+            <div id="selected-horizon" class="horizon-value">Нақты уақыт</div>
+          </div>
+
+          <button class="btn btn-primary w-100 mt-3" id="btn-ar-points">
+            Street View Болжам нүктелерін қосу
+          </button>
+        </div>
+
+        <div id="ar-points-list" class="ar-points-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- MAIN MAP CONTAINER -->
+  <main class="map-container">
+    <div id="map"></div>
+    
+    <!-- Map UI Overlays -->
+    <div class="map-controls-right">
+      <button class="map-btn" id="btn-location" title="Менің орным">🎯</button>
+      <div class="zoom-controls">
+        <button class="map-btn" id="btn-zoom-in">+</button>
+        <button class="map-btn" id="btn-zoom-out">-</button>
+      </div>
+    </div>
+    
+    <div class="map-legend">
+      <div class="legend-item"><span class="color-box" style="background:#10B981;"></span> Бос (>40 км/сағ)</div>
+      <div class="legend-item"><span class="color-box" style="background:#F59E0B;"></span> Тығыз (20-40 км/сағ)</div>
+      <div class="legend-item"><span class="color-box" style="background:#EF4444;"></span> Кептеліс (<20 км/сағ)</div>
+      <div class="legend-item"><span class="color-box" style="background:#8B5CF6;"></span> AI Болжам нүктесі</div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="map.js"></script>
+</body>
+</html>
