@@ -1,13 +1,24 @@
 # backend/app/main.py
 import os
+import json
+import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Header, HTTPException
+from pydantic import BaseModel
 
 from app.config import settings
 from app.db.database import get_conn
 from app.db.schema import ensure_schema
-from app.db.repository import get_locations, get_history
+from app.db.repository import (
+    get_locations,
+    get_history,
+    get_road_segments,
+    get_admin_by_login,
+    get_friends,
+    add_friend,
+    commit,
+)
 from app.simulate import TrafficSimulator
 
 from app.predict import (
@@ -15,13 +26,47 @@ from app.predict import (
     predict_naive,
     predict_moving_avg,
     predict_trend_lr,
+    predict_ema,
     mae_rmse,
     get_trend_analysis,
+    detect_anomaly,
 )
 from app.weather import weather_service
-import asyncio
+from app.auth import verify_admin_password, create_admin_token, verify_admin_token
+from app.vehicles import VehicleSimulator
+from app.seed import (
+    seed_locations_astana_if_empty,
+    seed_segments_if_empty,
+    seed_history_if_empty,
+    seed_admin_if_empty,
+)
+
+try:
+    from app.ai_worker import main_loop as start_ai_worker
+except ImportError:
+    start_ai_worker = None
 
 sim = TrafficSimulator(settings.db_path, tick_seconds=2.0)
+
+# --- VehicleSimulator с кэшированием соединения (фикс утечки #5) ---
+_veh_segments_cache: list = []
+_veh_cache_ts: float = 0
+
+def _get_segments_cached() -> list:
+    """Возвращает сегменты с кэшированием на 30 секунд, закрывая соединение."""
+    import time
+    global _veh_segments_cache, _veh_cache_ts
+    now = time.time()
+    if now - _veh_cache_ts > 30 or not _veh_segments_cache:
+        conn = get_conn(settings.db_path)
+        try:
+            _veh_segments_cache = get_road_segments(conn)
+        finally:
+            conn.close()
+        _veh_cache_ts = now
+    return _veh_segments_cache
+
+veh_sim = VehicleSimulator(_get_segments_cached)
 
 
 @asynccontextmanager
@@ -32,7 +77,20 @@ async def lifespan(app: FastAPI):
     finally:
         conn.close()
 
+    # ✅ Seed data (перенесено из @app.on_event, который игнорируется при lifespan)
+    conn = get_conn(settings.db_path)
+    try:
+        seed_locations_astana_if_empty(conn)
+        seed_segments_if_empty(conn)
+        seed_history_if_empty(conn, sim)
+        seed_admin_if_empty(conn)
+    except Exception as e:
+        print(f"Seed error: {e}")
+    finally:
+        conn.close()
+
     sim.start()
+    veh_sim.start()
     
     # Background weather update task
     async def update_weather_periodic():
@@ -43,10 +101,18 @@ async def lifespan(app: FastAPI):
 
     weather_task = asyncio.create_task(update_weather_periodic())
     
+    # 🤖 Запускаем ИИ-Воркера для Supabase
+    ai_task = None
+    if start_ai_worker:
+        ai_task = asyncio.create_task(start_ai_worker())
+    
     try:
         yield
     finally:
         weather_task.cancel()
+        if ai_task:
+            ai_task.cancel()
+        veh_sim.stop()
         sim.stop()
 
 
@@ -63,6 +129,12 @@ def health():
     }
 
 
+@app.get("/health")
+def health_check():
+    """Lightweight health-check for keep-alive pings (UptimeRobot / cron-job.org)."""
+    return {"status": "ok"}
+
+
 @app.get("/weather")
 async def get_weather():
     return await weather_service.get_current_weather()
@@ -75,12 +147,6 @@ def locations():
         return {"items": get_locations(conn)}
     finally:
         conn.close()
-
-
-@app.get("/weather")
-async def weather_api():
-    w = await weather_service.get_current_weather()
-    return w
 
 
 @app.get("/traffic/map")
@@ -115,9 +181,6 @@ def traffic_history(minutes: int = Query(60, ge=5, le=720)):
         conn.close()
 
 
-import json
-from app.db.repository import get_road_segments
-
 @app.get("/roads/segments")
 def road_segments_api(horizon: int = Query(0, ge=0, le=60)):
     if horizon not in (0, 30, 60):
@@ -138,7 +201,7 @@ def road_segments_api(horizon: int = Query(0, ge=0, le=60)):
         if r.get("polyline"):
             try:
                 pts = json.loads(r["polyline"])
-            except:
+            except Exception:
                 pass
         
         lid = r["location_id"]
@@ -251,49 +314,42 @@ def traffic_metrics_ui():
     }
 
 
-from app.predict import (
-    group_by_location,
-    predict_naive,
-    predict_moving_avg,
-    predict_trend_lr,
-    mae_rmse,
-    get_trend_analysis,
-    detect_anomaly,
-)
-
 @app.get("/traffic/recommendation")
 async def get_traffic_recommendation(location_id: int = Query(None)):
     """
-    Генерирует умную рекомендацию (AI-совет) для пользователя с поиском аномалий.
+    Генерирует умную рекомендацию (AI-совет) для пользователя.
     """
     conn = get_conn(settings.db_path)
     weather = await weather_service.get_current_weather()
     
     try:
-        # Для простоты берем историю за час
         hist = get_history(conn, minutes=60)
         by_loc = group_by_location(hist)
         
-        # Если location_id не передан, берем самую загруженную (hotspot) или среднюю
         if not location_id or location_id not in by_loc:
-            # Найдем локу с самым крутым трендом вверх или просто рандомную из Астаны
             location_id = list(by_loc.keys())[0] if by_loc else 1
             
         loc_info = next((l for l in get_locations(conn) if l['id'] == location_id), {"name": "город"})
         series = by_loc.get(location_id, [])
+        
+        # New analysis
         trend = get_trend_analysis(series)
         anomaly = detect_anomaly(series)
+        target_ema = predict_ema(series, alpha=0.4)
+        lr_pred = predict_trend_lr(series, k=15, horizon_min=30)
         
-        # Строим текст совета
         wf = weather.get('traffic_factor', 1.0)
+        current_val = series[-1][1] if series else 0.0
         
-        # Если найдена аномалия - перебиваем обычный тренд
+        # If there's an anomaly, completely override
         if anomaly["anomaly"]:
             wait_time = anomaly["time_to_wait_min"]
             icon = "🚨" if anomaly["severity"] == "critical" else "⚠️"
-            advice = f"{icon} AI АНАЛИЗ:\nНа участке «{loc_info['name']}» {anomaly['desc'].lower()} "
-            advice += f"Советуем переждать около {wait_time} минут или найти пути объезда."
-            
+            desc = anomaly['desc']
+            advice = (f"{icon} AI АНАЛИЗ МАРШРУТА:\n"
+                      f"Участок «{loc_info['name']}» нестабилен. {desc} "
+                      f"Модель рекомендует отложить поездку на {wait_time} минут или использовать объезд, "
+                      f"так как скользящая средняя (EMA) показывает аномальный скачок загруженности.")
             return {
                 "location_id": location_id,
                 "location_name": loc_info['name'],
@@ -303,37 +359,99 @@ async def get_traffic_recommendation(location_id: int = Query(None)):
                 "message": advice
             }
 
-        # Обычная логика
-        reason = []
-        if trend['direction'] == 'up':
-            reason.append(f"тренд на повышение трафика на {loc_info['name']}")
+        # Human-like AI generation text
+        points_increase = max(0, int((lr_pred - current_val) / 10.0))
         if wf > 1.2:
-            reason.append(f"прогнозируемые осадки ({weather['description']})")
-            
-        points_increase = int((wf - 1.0) * 5 + (2 if trend['direction'] == 'up' else 0))
+            points_increase += 2
+
+        weather_txt = f"осадков ({weather['description']})" if wf > 1.2 else "благоприятной погоды"
         
-        advice = "Рекомендую выехать сейчас."
-        if points_increase > 2:
-            advice = "Рекомендую выехать сейчас или подождать около 20-30 минут, пока ситуация стабилизируется."
-        elif points_increase > 5:
-            advice = "Ситуация сложная. Лучше воспользоваться общественным транспортом или отложить поездку на час."
-            
-        final_message = f"Судя по { ' и '.join(reason) if reason else 'текущей ситуации'}, пробка может вырасти на {points_increase} балла. {advice}"
-        
+        if current_val < 30 and points_increase < 2:
+            msg = (f"✨ AI АНАЛИЗ МАРШРУТА:\n"
+                   f"Отличные новости! Модель предсказывает свободные дороги на участке «{loc_info['name']}». "
+                   f"Тренд {trend['desc'].lower()}, а прогноз по математической регрессии не обещает заторов. "
+                   f"С учетом {weather_txt}, сейчас идеальное время для выезда.")
+        elif current_val < 60 and points_increase <= 3:
+            msg = (f"📊 AI АНАЛИЗ МАРШРУТА:\n"
+                   f"Рабочий трафик на «{loc_info['name']}». Текущая загруженность умеренная. "
+                   f"Наш алгоритм ожидает рост на ~{points_increase} балла к моменту прибытия "
+                   f"(учитывая фактор {weather_txt}). Советую выезжать сейчас, пока ситуация не ухудшилась.")
+        elif current_val >= 60 and points_increase <= 2:
+            msg = (f"⏳ AI АНАЛИЗ МАРШРУТА:\n"
+                   f"Движение на «{loc_info['name']}» уже плотное. Тренд: {trend['desc'].lower()}. "
+                   f"EMA-сглаживание графиков показывает стабильное напряжение без резких скачков. "
+                   f"Можете ехать, но заложите дополнительные 10-15 минут в пути.")
+        else:
+            msg = (f"🛑 AI АНАЛИЗ МАРШРУТА:\n"
+                   f"Не лучшее время для поездки через «{loc_info['name']}». "
+                   f"AI-модель прогнозирует дальнейшее ухудшение ситуации (тренд {trend['desc'].lower()}). "
+                   f"Ожидается рост пробки на {points_increase} балла из-за {weather_txt}. "
+                   f"Рекомендуем выпить кофе и переждать 30-40 минут.")
+
         return {
             "location_id": location_id,
             "location_name": loc_info['name'],
             "weather": weather['description'],
             "points_impact": points_increase,
             "trend": trend['desc'],
-            "message": final_message
+            "message": msg
         }
     finally:
         conn.close()
 
-from app.vehicles import VehicleSimulator
-veh_sim = VehicleSimulator(lambda: get_road_segments(get_conn(settings.db_path)))
-veh_sim.start()
+class MultimodalRequest(BaseModel):
+    duration_now_sec: int
+    distance_meters: int
+
+@app.post("/traffic/multimodal_analysis")
+async def multimodal_analysis(req: MultimodalRequest):
+    """
+    Бизнес-логика мультимодальных маршрутов.
+    T1 = Текущее время на авто
+    T2 = Время на авто через 20/30 минут (прогноз)
+    T3 = Время по мультимодальному пути (авто + самокат/пешком)
+    """
+    t1 = req.duration_now_sec
+    
+    # Симуляция: проверяем средний балл трафика впереди
+    items = sim.snapshot(30)
+    avg_future_traffic = 0.0
+    if items:
+        avg_future_traffic = sum(it.get('value', 0.0) for it in items) / len(items)
+        
+    # Если пробки будут расти (например, future traffic > 50%), время увеличится
+    traffic_multiplier = 1.0 + (avg_future_traffic / 100.0) * 0.5
+    t2 = int(t1 * traffic_multiplier)
+    
+    # Мультимодальный путь: допустим, едем на машине 60% пути, затем берем самокат.
+    # Машина (60%): без симуляции пробок на дальнем участке
+    # Самокат (40%): скорость фиксированная ~15 км/ч (4 м/с)
+    car_distance = req.distance_meters * 0.6
+    scooter_distance = req.distance_meters * 0.4
+    
+    # На авто первая часть (предположим пробки еще не собрались): 
+    # Средняя скорость ~ 30 км/ч = 8.33 м/с
+    car_time = car_distance / 8.33
+    scooter_time = scooter_distance / 4.0
+    
+    # Плюс время на пересадку ~ 3 минуты (180 сек)
+    t3 = int(car_time + scooter_time + 180)
+    
+    # Если изначально расстояние очень короткое (меньше 2 км), самокат выгоднее сразу
+    if req.distance_meters < 2000:
+        t3 = int(req.distance_meters / 4.0)
+
+    recommend = t3 < t2
+    
+    return {
+        "t1": t1,
+        "t2": t2,
+        "t3": t3,
+        "recommend_transfer": recommend,
+        "scooter_distance": int(scooter_distance),
+        "message": f"С учетом будущего затора, комбинированный маршрут сэкономит {max(0, (t2 - t3)//60)} минут." if recommend else "Оставайтесь на текущем маршруте."
+    }
+
 
 @app.get("/vehicles")
 def get_vehicles():
@@ -344,16 +462,6 @@ def get_vehicles():
 
 
 # ─── Admin endpoints ───
-
-from fastapi import Header, HTTPException
-from pydantic import BaseModel
-from app.auth import verify_admin_password, create_admin_token, verify_admin_token
-from app.db.repository import (
-    get_admin_by_login,
-    get_friends,
-    add_friend,
-    commit,
-)
 
 class LoginRequest(BaseModel):
     login: str
@@ -433,23 +541,5 @@ def friends_add(req: AddFriendRequest):
         fid = add_friend(conn, req.name)
         commit(conn)
         return {"id": fid, "name": req.name}
-    finally:
-        conn.close()
-
-
-# ─── Seed data on startup ───
-
-from app.seed import seed_locations_astana_if_empty, seed_segments_if_empty, seed_history_if_empty, seed_admin_if_empty
-
-@app.on_event("startup")
-def _seed():
-    conn = get_conn(settings.db_path)
-    try:
-        seed_locations_astana_if_empty(conn)
-        seed_segments_if_empty(conn)
-        seed_history_if_empty(conn, sim)
-        seed_admin_if_empty(conn)
-    except Exception as e:
-        print(f"Seed error: {e}")
     finally:
         conn.close()

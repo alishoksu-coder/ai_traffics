@@ -24,6 +24,18 @@ def predict_moving_avg(series: List[Tuple[int, float]], k: int = 5) -> float:
     tail = series[-k:]
     return sum(v for _, v in tail) / len(tail)
 
+def predict_ema(series: List[Tuple[int, float]], alpha: float = 0.3) -> float:
+    """
+    Экспоненциальное скользящее среднее (EMA) придает больший вес свежим данным.
+    Полезно для резких изменений в трафике.
+    """
+    if not series:
+        return 0.0
+    ema = series[0][1]
+    for _, val in series[1:]:
+        ema = alpha * val + (1 - alpha) * ema
+    return max(0.0, min(100.0, ema))
+
 
 def predict_trend_lr(series: List[Tuple[int, float]], k: int = 10, horizon_min: int = 30) -> float:
     """
@@ -90,35 +102,44 @@ def get_trend_analysis(series: List[Tuple[int, float]], k: int = 15) -> Dict:
 
 def detect_anomaly(series: List[Tuple[int, float]]) -> Dict:
     """
-    Распознавание аномалий (поиск ДТП или перегрузки).
-    Если за последние 10-15 минут трафик резко взлетел.
+    Улучшенное распознавание аномалий (поиск ДТП, перекрытий или аномального роста).
     """
     if len(series) < 3:
         return {"anomaly": False, "severity": "normal", "desc": "Данных недостаточно", "time_to_wait_min": 0}
 
-    # Берем последние точки
-    tail = series[-5:]
+    tail = series[-10:]  # анализируем последние 10 точек (около 20 минут)
     if not tail:
         return {"anomaly": False, "severity": "normal", "desc": "Нет данных", "time_to_wait_min": 0}
 
     start_v = tail[0][1]
     end_v = tail[-1][1]
+    max_v = max(v for _, v in tail)
     
     diff = end_v - start_v
     
-    if diff > 40 or end_v > 90:
+    # Резкий скачок внутри окна
+    sudden_spike = any(tail[i][1] - tail[i-1][1] > 25 for i in range(1, len(tail)))
+
+    if sudden_spike and end_v > 70:
         return {
             "anomaly": True, 
             "severity": "critical", 
-            "desc": "Обнаружена критическая аномалия: возможное ДТП или резкая блокировка движения.",
+            "desc": "Обнаружена критическая аномалия: возможное ДТП. Скорость потока резко упала.",
             "time_to_wait_min": 45
         }
-    elif diff > 25:
+    elif diff > 35 or end_v > 90:
+        return {
+            "anomaly": True, 
+            "severity": "critical", 
+            "desc": "Ситуация близка к коллапсу. Трафик почти остановился (возможно перекрытие).",
+            "time_to_wait_min": 60
+        }
+    elif diff > 20:
         return {
             "anomaly": True, 
             "severity": "warning", 
-            "desc": "Нетипичный рост пробки: возможно мелкое ДТП или час пик начался раньше времени.",
+            "desc": "Слишком быстрый рост заторов. Час пик формируется активнее прогноза.",
             "time_to_wait_min": 25
         }
         
-    return {"anomaly": False, "severity": "normal", "desc": "Движение в норме, аномалий не найдено.", "time_to_wait_min": 0}
+    return {"anomaly": False, "severity": "normal", "desc": "Движение в пределах ожидаемого", "time_to_wait_min": 0}

@@ -133,6 +133,9 @@ class TrafficSimulator:
     def _loop(self) -> None:
         next_hotspot_at = time.time() + 5.0
 
+        # Сразу делаем первый тик, чтобы база не была пустой при старте
+        self._tick()
+
         while True:
             with self._lock:
                 if not self._running:
@@ -165,13 +168,37 @@ class TrafficSimulator:
         with self._lock:
             self._hotspots.append(hotspot)
 
+    def _get_rush_hour_factor(self, hour: int) -> float:
+        """Множитель пробок в зависимости от времени суток в Астане"""
+        # Утренний пик (до 8-9:30)
+        if 7 <= hour <= 9: return 2.5
+        # Вечерний пик (с 17:30 до 19:30)
+        if 17 <= hour <= 19: return 3.0
+        # Обед
+        if 12 <= hour <= 14: return 1.5
+        # Ночь
+        if 0 <= hour <= 5: return 0.2
+        return 1.0
+
+    def _get_loc_importance(self, lid: int) -> float:
+        """Некоторые улицы Астаны (мосты, центр) более загружены"""
+        # Улицы с ID из seed.py, которые являются магистралями (Индикативно)
+        important_ids = [1, 2, 3, 4, 10, 15, 20] 
+        if lid in important_ids: return 1.4
+        return 1.0
+
     def _tick(self) -> None:
         now = time.time()
+        dt_now = datetime.fromtimestamp(now)
+        hour = dt_now.hour
         rows_to_store: Optional[List[Dict]] = None
 
         with self._lock:
             # чистим истёкшие пробки
             self._hotspots = [h for h in self._hotspots if float(h["ttl"]) > now]
+
+            rush_f = self._get_rush_hour_factor(hour)
+            wf = self._weather_factor
 
             # обновляем value для всех локаций
             for loc in self._locations:
@@ -180,15 +207,19 @@ class TrafficSimulator:
                 if st is None:
                     continue
 
+                loc_f = self._get_loc_importance(lid)
                 base = float(st["base"])
-                wave = math.sin(now * 0.15 + float(st["phase"])) * 8.0
-                noise = random.uniform(-3.0, 3.0)
+                
+                # Реалистичная волна + часы пик
+                wave = math.sin(now * 0.1) * 5.0
+                noise = random.uniform(-5.0, 5.0)
+                
+                # Итоговый базовый уровень пробок
+                target_val = (base * rush_f * loc_f) + wave + (noise * wf)
 
                 jam = 0.0
                 lat = float(loc["lat"])
                 lon = float(loc["lon"])
-
-                wf = self._weather_factor
 
                 for h in self._hotspots:
                     d = math.hypot(lat - float(h["lat"]), lon - float(h["lon"]))
@@ -197,8 +228,7 @@ class TrafficSimulator:
                         # Погода усиливает эффект пробки
                         jam += (1.0 - d / radius) * float(h["strength"]) * wf
 
-                # Погода также увеличивает базовый шум
-                st["value"] = clamp(base + wave + noise * wf + jam, 0.0, 100.0)
+                st["value"] = clamp(target_val + jam, 0.0, 100.0)
 
             # ✅ --- store aggregated values once per minute ---
             current_minute = int(now // 60)
@@ -212,7 +242,12 @@ class TrafficSimulator:
                     st = self._state.get(lid)
                     if st is None:
                         continue
-                    rows.append({"location_id": lid, "ts": ts, "value": float(st["value"])})
+                    rows.append({
+                        "location_id": lid, 
+                        "ts": ts, 
+                        "value": float(st["value"]),
+                        "weather_factor": float(self._weather_factor)
+                    })
 
                 rows_to_store = rows  # сохраним после выхода из lock
 
@@ -221,6 +256,7 @@ class TrafficSimulator:
             conn = get_conn(self.db_path)
             try:
                 insert_traffic_values(conn, rows_to_store)
+                print(f"[СИМУЛЯТОР] Сохранено {len(rows_to_store)} записей в БД {self.db_path}")
             except Exception as e:
                 # чтобы симулятор не падал из-за БД
                 print("TrafficSimulator: store error:", e)

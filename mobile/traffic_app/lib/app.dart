@@ -10,6 +10,7 @@ import 'splash_screen.dart';
 import 'theme_notifier.dart';
 import 'voice_query_sheet.dart';
 import 'common.dart';
+import 'auth_wrapper.dart';
 
 class _AppColors {
   static const primary = Color(0xFF0D7EA7);
@@ -21,18 +22,18 @@ class TrafficApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: ThemeNotifier(),
+    return ListenableBuilder(
+      listenable: ThemeNotifier(),
       builder: (context, _) {
-        final isDark = ThemeNotifier().isDarkMode;
+        final themeMode = ThemeNotifier().themeMode;
 
         return MaterialApp(
           title: 'AI Traffic Monitor',
           debugShowCheckedModeBanner: false,
-          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          themeMode: themeMode,
           theme: _buildTheme(Brightness.light),
           darkTheme: _buildTheme(Brightness.dark),
-          home: const SplashScreen(nextScreen: HomeShell()),
+          home: const SplashScreen(nextScreen: AuthWrapper(child: HomeShell())),
         );
       },
     );
@@ -106,28 +107,29 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
     _TabConfig(
       icon: Icons.navigation_outlined,
       activeIcon: Icons.navigation_rounded,
-      label: 'Навигатор',
+      label: 'Бағдарлау',
     ),
     _TabConfig(
       icon: Icons.route_outlined,
       activeIcon: Icons.route_rounded,
-      label: 'Маршруты',
+      label: 'Маршруттар',
     ),
     _TabConfig(
       icon: Icons.lightbulb_outline_rounded,
       activeIcon: Icons.lightbulb_rounded,
-      label: 'AI Советы',
+      label: 'AI Кеңестері',
     ),
     _TabConfig(
       icon: Icons.grid_view_outlined,
       activeIcon: Icons.grid_view_rounded,
-      label: 'Ещё',
+      label: 'Қосымша',
     ),
   ];
 
   @override
   void initState() {
     super.initState();
+    globalTabIndex.addListener(_onGlobalTabChanged);
     _pageController = PageController(initialPage: _index);
     _fabAnimController = AnimationController(
       vsync: this,
@@ -140,8 +142,15 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
     _fabAnimController.forward();
   }
 
+  void _onGlobalTabChanged() {
+    if (globalTabIndex.value != _index) {
+      _onTabSelected(globalTabIndex.value);
+    }
+  }
+
   @override
   void dispose() {
+    globalTabIndex.removeListener(_onGlobalTabChanged);
     _pageController.dispose();
     _fabAnimController.dispose();
     super.dispose();
@@ -150,6 +159,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
   void _onTabSelected(int i) {
     if (i == _index) return;
     setState(() => _index = i);
+    globalTabIndex.value = i;
     _pageController.animateToPage(
       i,
       duration: const Duration(milliseconds: 350),
@@ -163,6 +173,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
   void _onPageChanged(int page) {
     if (page != _index) {
       setState(() => _index = page);
+      globalTabIndex.value = page;
       _fabAnimController.reset();
       _fabAnimController.forward();
     }
@@ -173,6 +184,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBody: true, // Позволяет контенту (особенно карте) быть под навигацией
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
@@ -187,14 +199,13 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
       ),
 
       // ─── Floating Action Button: Голосовой запрос ───
-      floatingActionButton: (_index == 0 || _index == 1)
+      floatingActionButton: (_index == 1)
           ? ScaleTransition(
               scale: _fabScale,
               child: FloatingActionButton(
                 heroTag: 'voice_fab',
                 onPressed: () {
                   showVoiceQuerySheet(context, onResult: (result) {
-                    // Переключаемся на Навигатор после выбора маршрута
                     _onTabSelected(1);
                   });
                 },
@@ -205,28 +216,68 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
             )
           : null,
 
-      // ─── Bottom Navigation Bar ───
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+      // ─── Bottom Navigation Bar (Floating Pill Style) ───
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Container(
+            height: 64,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _onTabSelected,
-          animationDuration: const Duration(milliseconds: 400),
-          destinations: _tabs
-              .map((t) => NavigationDestination(
-                    icon: Icon(t.icon),
-                    selectedIcon: _AnimatedNavIcon(icon: t.activeIcon),
-                    label: t.label,
-                  ))
-              .toList(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(_tabs.length, (i) {
+                final isSelected = _index == i;
+                final t = _tabs[i];
+                return GestureDetector(
+                  onTap: () => _onTabSelected(i),
+                  behavior: HitTestBehavior.opaque,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.fastOutSlowIn,
+                    padding: isSelected 
+                        ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
+                        : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isSelected ? t.activeIcon : t.icon, 
+                          color: isSelected ? AppColors.primary : (isDark ? Colors.white54 : Colors.black45),
+                          size: 24,
+                        ),
+                        if (isSelected)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Text(
+                              t.label,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
         ),
       ),
     );
@@ -244,49 +295,4 @@ class _TabConfig {
     required this.activeIcon,
     required this.label,
   });
-}
-
-/// Анимированная иконка для выбранной вкладки —
-/// при переключении делает bounce + scale эффект.
-class _AnimatedNavIcon extends StatefulWidget {
-  final IconData icon;
-  const _AnimatedNavIcon({required this.icon});
-
-  @override
-  State<_AnimatedNavIcon> createState() => _AnimatedNavIconState();
-}
-
-class _AnimatedNavIconState extends State<_AnimatedNavIcon>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.25), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.25, end: 0.95), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.0), weight: 30),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scale,
-      child: Icon(widget.icon),
-    );
-  }
 }

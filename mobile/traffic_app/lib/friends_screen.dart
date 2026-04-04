@@ -45,17 +45,18 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 
   Future<void> _addFriend() async {
-    final name = await showDialog<String>(
+    final email = await showDialog<String>(
       context: context,
       builder: (ctx) {
         final c = TextEditingController();
         return AlertDialog(
-          title: const Text('Добавить друга'),
+          title: const Text('Найти друга'),
           content: TextField(
             controller: c,
+            keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
-              labelText: 'Имя',
-              hintText: 'Введите имя',
+              labelText: 'Email друга',
+              hintText: 'user@example.com',
             ),
             autofocus: true,
           ),
@@ -65,22 +66,55 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 child: const Text('Отмена')),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, c.text.trim()),
-              child: const Text('Добавить'),
+              child: const Text('Найти'),
             ),
           ],
         );
       },
     );
-    if (name == null || name.isEmpty) return;
+
+    if (email == null || email.isEmpty) return;
+
+    setState(() => loading = true);
     try {
-      await api.addFriend(name);
-      _load();
+      final user = await api.searchUserByEmail(email);
+      if (user == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Пользователь с таким Email не найден')),
+          );
+        }
+      } else {
+        final name = '${user['first_name'] ?? ''} ${user['last_name'] ?? ''}'.trim();
+        final displayName = name.isEmpty ? user['email'] : name;
+        
+        if (mounted) {
+          final confirm = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Пользователь найден'),
+              content: Text('Добавить $displayName в друзья?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Нет')),
+                FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Да')),
+              ],
+            ),
+          );
+
+          if (confirm == true) {
+            await api.addFriendById(user['id'], displayName.toString());
+            _load();
+          }
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e')),
         );
       }
+    } finally {
+      if (mounted) setState(() => loading = false);
     }
   }
 
@@ -135,10 +169,42 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     ),
                   ),
                 )
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    if (widget.onShowOnMap != null && friends.isNotEmpty)
+              : (friends.isEmpty)
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.people_outline,
+                                  size: 64, color: AppColors.primary),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'У вас пока нет друзей',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Добавьте друзей, чтобы видеть их местоположение на карте города!',
+                              style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        if (widget.onShowOnMap != null && friends.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: SizedBox(

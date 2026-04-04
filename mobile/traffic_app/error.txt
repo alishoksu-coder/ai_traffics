@@ -1,0 +1,28 @@
+Could not format because the source could not be parsed:
+
+line 827, column 19 of lib\navigator_screen.dart: Expected to find ')'.
+    ╷
+827 │                   ],
+    │                   ^
+    ╵
+line 743, column 11 of lib\navigator_screen.dart: Expected an identifier.
+    ╷
+743 │           if (_recommendation != null && _byCar)
+    │           ^^
+    ╵
+line 743, column 11 of lib\navigator_screen.dart: Expected to find ','.
+    ╷
+743 │           if (_recommendation != null && _byCar)
+    │           ^^
+    ╵
+line 791, column 11 of lib\navigator_screen.dart: Expected an identifier.
+    ╷
+791 │           if (error != null)
+    │           ^^
+    ╵
+line 791, column 11 of lib\navigator_screen.dart: Expected 'else' or comma.
+    ╷
+791 │           if (error != null)
+    │           ^^
+    ╵
+Formatted no files in 0.23 seconds.

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'auth_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   final Widget nextScreen;
@@ -34,6 +36,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
+        // Мы больше не требуем вход при запуске. Сразу идем на главную (HomeShell).
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => widget.nextScreen),
         );

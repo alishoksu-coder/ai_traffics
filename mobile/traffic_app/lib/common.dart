@@ -1,4 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+
+class GlobalRouteRequest {
+  final String destinationName;
+  final double destinationLat;
+  final double destinationLng;
+  GlobalRouteRequest({
+    required this.destinationName,
+    required this.destinationLat,
+    required this.destinationLng,
+  });
+}
+
+final ValueNotifier<GlobalRouteRequest?> globalRouteRequest = ValueNotifier(null);
+final ValueNotifier<int> globalTabIndex = ValueNotifier(0);
 
 /// Палитра приложения (карты трафика, кнопки, карточки)
 class AppColors {

@@ -8,6 +8,7 @@ import 'models.dart';
 import 'package:traffic_app/common.dart';
 import 'theme_notifier.dart';
 import 'map_styles.dart';
+import 'friends_screen.dart';
 
 /// Центр карты — Астана
 final gmaps.LatLng _kAstanaCenter = gmaps.LatLng(51.1694, 71.4491);
@@ -35,6 +36,7 @@ class _MapScreenState extends State<MapScreen> {
   String _trafficLevel = 'Свободно';
   String? _weatherDesc;
   double? _temp;
+  List<Friend> _friends = [];
 
   /// Координаты после нажатия «Моё местоположение» — показываем маркер.
   gmaps.LatLng? _myLocation;
@@ -43,7 +45,29 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _load();
+    _initLocation();
     ThemeNotifier().addListener(_updateMapStyle);
+  }
+
+  Future<void> _initLocation() async {
+    final enabled = await Geolocator.isLocationServiceEnabled();
+    if (!enabled) return;
+    
+    var status = await Permission.location.status;
+    if (status.isGranted) {
+      try {
+        final pos = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium,
+          timeLimit: const Duration(seconds: 5),
+        );
+        api.updateMyLocation(pos.latitude, pos.longitude);
+        if (mounted) {
+          setState(() {
+            _myLocation = gmaps.LatLng(pos.latitude, pos.longitude);
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   @override
@@ -65,14 +89,20 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _load() async {
     setState(() => loading = true);
     try {
-      // 1. Load overall city stats
+      // 1. Загружаем реальные сегменты дорог из Supabase
+      try {
+        final segs = await api.getRoadSegments(horizon);
+        segments = segs.where((s) => s.points.length >= 2).toList();
+      } catch (_) {}
+
+      // 2. Трафик-балл (реальный, из сегментов)
       int pts = 0;
       try {
         final data = await api.getTrafficMap(horizon);
         pts = (data['overall_points'] as num?)?.toInt() ?? 0;
       } catch (_) {}
 
-      // 2. Try to load detailed metrics
+      // 3. Детальные метрики
       String level = 'Свободно';
       try {
         final metrics = await api.getTrafficMetrics();
@@ -80,7 +110,7 @@ class _MapScreenState extends State<MapScreen> {
         level = metrics.level;
       } catch (_) {}
 
-      // 3. Weather (optional)
+      // 4. Реальная погода (OpenWeatherMap)
       String? weatherDesc;
       double? temp;
       try {
@@ -89,12 +119,19 @@ class _MapScreenState extends State<MapScreen> {
         temp = (weather['temp'] as num?)?.toDouble();
       } catch (_) {}
 
+      // 5. Друзья
+      List<Friend> fList = [];
+      try {
+        fList = await api.getFriends();
+      } catch (_) {}
+
       if (mounted) {
         setState(() {
           _overallPoints = pts;
           _trafficLevel = level;
           _weatherDesc = weatherDesc;
           _temp = temp;
+          _friends = fList;
           loading = false;
         });
       }
@@ -121,7 +158,7 @@ class _MapScreenState extends State<MapScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content:
-                Text('Нужен доступ к местоположению для показа точки на карте'),
+                Text('Картада нүктені көрсету үшін орналасуға рұқсат қажет'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -135,12 +172,13 @@ class _MapScreenState extends State<MapScreen> {
       );
       if (!mounted) return;
       final latLng = gmaps.LatLng(pos.latitude, pos.longitude);
+      api.updateMyLocation(pos.latitude, pos.longitude);
       setState(() => _myLocation = latLng);
       _mapController?.animateCamera(gmaps.CameraUpdate.newLatLng(latLng));
       _mapController?.animateCamera(gmaps.CameraUpdate.zoomTo(15));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Местоположение отмечено на карте'),
+          content: Text('Орналасқан жер картада белгіленді'),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -149,7 +187,7 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Не удалось получить координаты: $e'),
+            content: Text('Координаталарды алу мүмкін болмады: $e'),
             backgroundColor: Colors.red.shade700,
             behavior: SnackBarBehavior.floating,
           ),
@@ -337,15 +375,12 @@ class _MapScreenState extends State<MapScreen> {
               FilledButton.icon(
                 onPressed: () {
                   Navigator.pop(ctx);
-                  // Можно передать место в Навигатор через callback или глобальное состояние
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Построить маршрут до «${place.name}» — откройте вклад Навигатор и введите адрес'),
-                      duration: const Duration(seconds: 4),
-                      behavior: SnackBarBehavior.floating,
-                    ),
+                  globalRouteRequest.value = GlobalRouteRequest(
+                    destinationName: place.name,
+                    destinationLat: place.lat,
+                    destinationLng: place.lng,
                   );
+                  globalTabIndex.value = 1; // Переключаемся на Навигатор
                 },
                 icon: const Icon(Icons.route_rounded, size: 22),
                 label: const Text('Построить маршрут'),
@@ -383,6 +418,9 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Set<gmaps.Polyline> _buildPolylines() {
+    // В режиме "Сейчас" (horizon == 0) показываем только нативные пробки Google
+    if (horizon == 0) return {};
+
     final Set<gmaps.Polyline> out = {};
     int idx = 0;
     for (final s in segments) {
@@ -390,17 +428,20 @@ class _MapScreenState extends State<MapScreen> {
       final points =
           s.points.map((p) => gmaps.LatLng(p.latitude, p.longitude)).toList();
       final color = colorByValue(s.value);
+      // Делаем линии аккуратнее для режимов прогноза
       out.add(gmaps.Polyline(
         polylineId: gmaps.PolylineId('seg_shadow_$idx'),
         points: points,
-        color: Colors.black.withOpacity(0.2),
-        width: 14,
+        color: Colors.black.withOpacity(0.3),
+        width: 8,
+        jointType: gmaps.JointType.round,
       ));
       out.add(gmaps.Polyline(
         polylineId: gmaps.PolylineId('seg_$idx'),
         points: points,
         color: color,
-        width: 10,
+        width: 5,
+        jointType: gmaps.JointType.round,
       ));
       idx++;
     }
@@ -415,9 +456,22 @@ class _MapScreenState extends State<MapScreen> {
         position: _myLocation!,
         icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
             gmaps.BitmapDescriptor.hueAzure),
-        infoWindow: const gmaps.InfoWindow(title: 'Вы здесь'),
+        infoWindow: const gmaps.InfoWindow(title: 'Сіз мұндасыз'),
       ));
     }
+
+    for (var f in _friends) {
+      if (f.lat != null && f.lon != null) {
+        out.add(gmaps.Marker(
+          markerId: gmaps.MarkerId('friend_${f.id}'),
+          position: gmaps.LatLng(f.lat!, f.lon!),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
+              gmaps.BitmapDescriptor.hueGreen),
+          infoWindow: gmaps.InfoWindow(title: f.name, snippet: 'Дос (орналасуы)'),
+        ));
+      }
+    }
+    
     return out;
   }
 
@@ -466,201 +520,317 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Карта трафика'),
-        actions: [
-          IconButton(
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => ThemeNotifier().toggleTheme(),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Row(
-                  children: [
-                    // Traffic Points (2GIS style)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: _getPointColor(_overallPoints),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                                _getPointColor(_overallPoints).withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.traffic_rounded,
-                              color: Colors.white, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            '$_overallPoints',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'б.',
-                            style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    // Traffic Level Text Container
-                    if (_overallPoints > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Theme.of(context).dividerColor),
-                        ),
-                        child: Text(
-                          _trafficLevel,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _getPointColor(_overallPoints),
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: 12),
-                    // Weather Info
-                    if (_weatherDesc != null)
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                                color: Theme.of(context).dividerColor.withOpacity(0.5)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.cloud_queue_rounded,
-                                  color: AppColors.primary, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  '${_temp?.round() ?? '--'}°C • $_weatherDesc',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              RefreshIndicator(
-                onRefresh: _load,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                    child: Row(
-                      children: [
-                        Expanded(child: _horizonChip(0, 'Сейчас')),
-                        const SizedBox(width: 10),
-                        Expanded(child: _horizonChip(30, '30')),
-                        const SizedBox(width: 10),
-                        Expanded(child: _horizonChip(60, '60')),
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Widget _buildProfileDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xFF1E2023),
+      shape: const RoundedRectangleBorder(),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    // Используем генератор аватарок с инициалами до подключения настоящего бэкенда авторизации
+                    backgroundImage: const NetworkImage('https://ui-avatars.com/api/?name=Алишер+Сулейменов&background=0D7EA7&color=fff&size=100'),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text('Алишер Сулейменов', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 4),
+                        Text('Профильге өту', style: TextStyle(color: Colors.white54, fontSize: 14)),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-              if (_loadingPlace)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                      SizedBox(width: 8),
-                      Text('Загрузка места...',
-                          style: TextStyle(
-                              fontSize: 12, color: AppColors.textSecondary)),
-                    ],
-                  ),
-                ),
-              Expanded(
-                child: gmaps.GoogleMap(
-                  initialCameraPosition: gmaps.CameraPosition(
-                    target: _kAstanaCenter,
-                    zoom: 12,
-                  ),
-                  onMapCreated: (c) {
-                    _mapController = c;
-                    _updateMapStyle();
-                  },
-                  onTap: _onMapTap,
-                  polylines: const {},
-                  markers: _buildMarkers(),
-                  mapToolbarEnabled: true,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  trafficEnabled: true,
-                ),
+            ),
+            const Divider(color: Colors.white10),
+            _drawerItem(Icons.map_outlined, 'Картаны жүктеу', () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Офлайн картаны жүктеу басталды...')),
+              );
+            }),
+            _drawerItem(Icons.directions_walk_rounded, 'Маршрут іздеу', () {
+              Navigator.pop(context);
+              globalTabIndex.value = 1; // Переключаемся на Навигатор
+            }),
+            _drawerItem(Icons.share_location_outlined, 'Геолокациямен бөлісу', () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => FriendsScreen(
+                onShowOnMap: () {
+                  Navigator.pop(context);
+                  globalTabIndex.value = 0;
+                }
+              )));
+            }),
+            _drawerItem(Icons.bookmark_outline, 'Таңдаулы', () {
+              Navigator.pop(context);
+              globalTabIndex.value = 1; // Навигатор содержит избранное
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Таңдаулы бағдарларыңыз Навигаторда')),
+              );
+            }),
+            _drawerItem(Icons.flag_outlined, 'Қала бойынша гид', () {
+              Navigator.pop(context);
+              globalTabIndex.value = 2; // AI Советы
+            }),
+            _drawerItem(Icons.settings_outlined, 'Баптаулар', () {
+              Navigator.pop(context);
+              globalTabIndex.value = 4; // Вкладка 'Ещё' (профиль/настройки)
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white70),
+      title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 16)),
+      onTap: onTap,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildProfileDrawer(),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          // 1. Fullscreen Google Map
+          Positioned.fill(
+            child: gmaps.GoogleMap(
+              initialCameraPosition: gmaps.CameraPosition(
+                target: _kAstanaCenter,
+                zoom: 12,
               ),
-            ],
+              onMapCreated: (c) {
+                _mapController = c;
+                _updateMapStyle();
+              },
+              onTap: _onMapTap,
+              polylines: _buildPolylines(),
+              markers: _buildMarkers(),
+              mapToolbarEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              trafficEnabled: true,
+            ),
           ),
+
+          // 2. Top Widgets (Traffic Score, Weather, Chips)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Traffic Points (2GIS style)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _getPointColor(_overallPoints),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: _getPointColor(_overallPoints).withOpacity(0.3),
+                                blurRadius: 10, offset: const Offset(0, 3)),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.traffic_rounded, color: Colors.white, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                '$_overallPoints',
+                                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text('б.', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Traffic Level Text Container
+                        if (_overallPoints > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Theme.of(context).dividerColor),
+                            ),
+                            child: Text(
+                              _trafficLevel,
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _getPointColor(_overallPoints)),
+                            ),
+                          ),
+                        const Spacer(),
+                        // Weather Info (реальные данные OpenWeatherMap)
+                        if (_temp != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.cloud_queue_rounded, color: AppColors.primary, size: 20),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${_temp?.round() ?? '--'}°C',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Theme.of(context).textTheme.bodyMedium?.color,
+                                      ),
+                                    ),
+                                    if (_weatherDesc != null && _weatherDesc!.isNotEmpty)
+                                      Text(
+                                        _weatherDesc!,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Horizon Chips
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(child: _horizonChip(0, 'Қазір')),
+                        const SizedBox(width: 8),
+                        Expanded(child: _horizonChip(30, '30 мин')),
+                        const SizedBox(width: 8),
+                        Expanded(child: _horizonChip(60, '60 мин')),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Loading overlay
+          if (_loadingPlace)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 130,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    const SizedBox(width: 8),
+                    Text('Загрузка...', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  ],
+                ),
+              ),
+            ),
+
+          // My Location Target Button
           Positioned(
             right: 16,
-            bottom: 24,
+            bottom: 110,
             child: GestureDetector(
               onTap: () => _goToMyLocation(),
               behavior: HitTestBehavior.opaque,
               child: Material(
                 elevation: 4,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(14),
-                    border:
-                        Border.all(color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
                   ),
-                  child: const Icon(Icons.my_location_rounded,
-                      color: AppColors.primary, size: 28),
+                  child: const Icon(Icons.my_location_rounded, color: AppColors.primary, size: 26),
                 ),
+              ),
+            ),
+          ),
+
+          // 3. Bottom Search Bar (2GIS Style)
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 24,
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2B2D31), // Dark gray search bar as in 2GIS
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black38, blurRadius: 10, offset: Offset(0, 4)),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 16),
+                  const Icon(Icons.search_rounded, color: Colors.white70, size: 24),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Поиск',
+                      style: TextStyle(color: Colors.white54, fontSize: 17, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.mic_none_rounded, color: Colors.white70),
+                    onPressed: () {},
+                  ),
+                  Container(width: 1, height: 24, color: Colors.white24),
+                  IconButton(
+                    icon: const Icon(Icons.menu_rounded, color: Colors.white),
+                    onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                  ),
+                  const SizedBox(width: 4),
+                ],
               ),
             ),
           ),

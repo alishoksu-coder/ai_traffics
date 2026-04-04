@@ -109,9 +109,10 @@ def insert_traffic_values(conn: sqlite3.Connection, rows: List[Dict]) -> None:
     if not rows:
         return
     conn.executemany(
-        "INSERT INTO traffic_values(location_id, ts, value) VALUES(?,?,?)",
-        [(int(r["location_id"]), int(r["ts"]), float(r["value"])) for r in rows],
+        "INSERT INTO traffic_values(location_id, ts, value, weather_factor) VALUES(?,?,?,?)",
+        [(int(r["location_id"]), int(r["ts"]), float(r["value"]), float(r.get("weather_factor", 1.0))) for r in rows],
     )
+    conn.commit()
 
 
 def get_history(conn: sqlite3.Connection, minutes: int) -> List[Dict]:

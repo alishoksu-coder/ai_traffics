@@ -10,6 +10,7 @@ import 'models.dart';
 import 'package:traffic_app/common.dart';
 import 'theme_notifier.dart';
 import 'map_styles.dart';
+import 'package:geolocator/geolocator.dart';
 
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({super.key});
@@ -57,17 +58,31 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   gmaps.BitmapDescriptor? _carIcon;
   gmaps.BitmapDescriptor? _busIcon;
   TrafficMetrics? _trafficMetrics;
+  UserProfile? _userProfile;
+
+  bool _isForecastMode = false;
+  List<RoadSegment> _futureSegments = [];
+  Map<String, dynamic>? _multimodalRec;
+  bool _loadingMultimodal = false;
 
   @override
   void initState() {
     super.initState();
-    _startVehiclePolling();
+    _loadProfile();
     _initIcons();
     ThemeNotifier().addListener(_updateMapStyle);
+    globalRouteRequest.addListener(_onGlobalRouteRequest);
+    
+    if (globalRouteRequest.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _onGlobalRouteRequest();
+      });
+    }
   }
 
   @override
   void dispose() {
+    globalRouteRequest.removeListener(_onGlobalRouteRequest);
     ThemeNotifier().removeListener(_updateMapStyle);
     _vehiclePollTimer?.cancel();
     _debounce?.cancel();
@@ -76,6 +91,278 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     _fromFocus.dispose();
     _toFocus.dispose();
     super.dispose();
+  }
+
+  void _onGlobalRouteRequest() {
+    final req = globalRouteRequest.value;
+    if (req != null && mounted) {
+      _toController.text = req.destinationName;
+      setState(() {
+        b = LatLng(req.destinationLat, req.destinationLng);
+      });
+      _useMyLocation();
+      globalRouteRequest.value = null; // очищаем после обработки
+    }
+  }
+
+  Future<void> _loadProfile() async {
+    final profile = await ApiClient().getUserProfile();
+    if (mounted) {
+      setState(() {
+        _userProfile = profile;
+      });
+    }
+  }
+
+  void _handleShortcutTap(String type) async {
+    final isHome = type == 'home';
+    final savedLat = isHome ? _userProfile?.homeLat : _userProfile?.workLat;
+    final savedLng = isHome ? _userProfile?.homeLng : _userProfile?.workLng;
+    final savedTitle = isHome ? _userProfile?.homeTitle : _userProfile?.workTitle;
+    final label = isHome ? 'Дома' : 'Работы';
+
+    if (savedLat != null && savedLng != null) {
+      _toController.text = savedTitle ?? (isHome ? "Дом" : "Работа");
+      setState(() => b = LatLng(savedLat, savedLng));
+      _useMyLocation();
+    } else {
+      // Вызываем красивое окно как на дизайне
+      final place = await _showAddShortcutBottomSheet(type, label);
+
+      if (place != null) {
+        try {
+          setState(() => this.loading = true);
+          await ApiClient().saveUserShortcut(type, place.formattedAddress, place.lat, place.lon);
+          await _loadProfile(); // Обновить кэш профиля
+          
+          _toController.text = place.formattedAddress;
+          setState(() => b = LatLng(place.lat, place.lon));
+          _useMyLocation();
+        } catch (e) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка сохранения: $e')));
+        } finally {
+          if (mounted) setState(() => this.loading = false);
+        }
+      }
+    }
+  }
+
+  Future<PlaceResult?> _showAddShortcutBottomSheet(String type, String label) async {
+    final titleControl = TextEditingController(text: type == 'home' ? 'Дом' : 'Работа');
+    final addressControl = TextEditingController();
+    bool sheetLoading = false;
+
+    return await showModalBottomSheet<PlaceResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setStateSheet) {
+            final isDark = Theme.of(ctx).brightness == Brightness.dark;
+            final purpleColor = const Color(0xFF4C45E5);
+            
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Фиолетовая шапка
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 40),
+                      decoration: BoxDecoration(
+                        color: purpleColor,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.pop(ctx),
+                                child: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                                ),
+                                child: Icon(
+                                  type == 'home' ? Icons.home_rounded : Icons.business_center_rounded,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Новый адрес: $label',
+                                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    const Text(
+                                      'Укажите локацию, чтобы быстро строить маршрут в один клик.',
+                                      style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.3),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Белая рабочая зона 
+                    Container(
+                      transform: Matrix4.translationValues(0, -20, 0),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.edit_note_rounded, size: 20, color: isDark ? Colors.indigoAccent : Colors.indigo.shade800),
+                              const SizedBox(width: 8),
+                              Text('Основное', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: isDark ? Colors.white : Colors.black87)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPremiumTextField(titleControl, 'Название', Icons.storefront_rounded),
+                          
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Icon(Icons.location_on_rounded, size: 20, color: isDark ? Colors.indigoAccent : Colors.indigo.shade800),
+                              const SizedBox(width: 8),
+                              Text('Описание и адрес', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: isDark ? Colors.white : Colors.black87)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPremiumTextField(addressControl, 'Например: Сыганак 17, Астана...', Icons.search_rounded),
+
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: purpleColor.withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.remove_red_eye_outlined, color: purpleColor, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    type == 'home' 
+                                      ? 'После сохранения, этот маршрут будет доступен всем вашим устройствам на главном экране.'
+                                      : 'Позже вы сможете изменить этот адрес в настройках профиля приложения.',
+                                    style: TextStyle(fontSize: 12, height: 1.4, color: isDark ? Colors.white70 : Colors.black87),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: purpleColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                              ),
+                              onPressed: sheetLoading ? null : () async {
+                                if (addressControl.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Пожалуйста, введите адрес')));
+                                  return;
+                                }
+                                setStateSheet(() => sheetLoading = true);
+                                try {
+                                  final res = await getPlaceFromQuery(addressControl.text);
+                                  Navigator.pop(ctx, res);
+                                } catch (e) {
+                                  setStateSheet(() => sheetLoading = false);
+                                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Ничего не найдено, уточните запрос')));
+                                }
+                              },
+                              child: sheetLoading 
+                                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.check_circle_outline_rounded, size: 22),
+                                      SizedBox(width: 8),
+                                      Text('Сохранить адрес', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      }
+    );
+  }
+
+  Widget _buildPremiumTextField(TextEditingController ctrl, String hint, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextField(
+      controller: ctrl,
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        prefixIcon: Icon(icon, color: isDark ? Colors.white54 : Colors.grey.shade600, size: 20),
+        filled: true,
+        fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF4C45E5), width: 1.5),
+        ),
+      ),
+    );
   }
 
   void _updateMapStyle() {
@@ -219,11 +506,77 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     }
   }
 
+  void _swapAddresses() {
+    final tempText = _fromController.text;
+    _fromController.text = _toController.text;
+    _toController.text = tempText;
+
+    final tempA = a;
+    a = b;
+    b = tempA;
+
+    if (a != null && b != null) {
+      _buildRouteFromGoogle();
+    } else {
+      _clearRoute();
+    }
+  }
+
+  Future<void> _useMyLocation() async {
+    setState(() => loading = true);
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('Службы геолокации отключены.');
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('В доступе к геолокации отказано.');
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Доступ к геолокации запрещен навсегда.');
+      } 
+
+      Position position = await Geolocator.getCurrentPosition();
+      final lat = position.latitude;
+      final lng = position.longitude;
+      
+      final address = await getAddressForLatLng(lat, lng);
+      
+      if (!mounted) return;
+      setState(() {
+        a = LatLng(lat, lng);
+        _fromController.text = address;
+        error = null;
+      });
+      
+      if (b != null) {
+        _buildRouteFromGoogle();
+      } else {
+        setState(() => loading = false);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        error = e.toString();
+        loading = false;
+      });
+    }
+  }
+
   void _clearRoute() {
     setState(() {
       _route = null;
       error = null;
       _recommendation = null;
+      _multimodalRec = null;
+      _isForecastMode = false;
+      _futureSegments.clear();
     });
   }
 
@@ -262,6 +615,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       setState(() {
         _route = result;
         loading = false;
+        _isForecastMode = false;
+        _futureSegments.clear();
+        _multimodalRec = null;
       });
       _fitBoundsToRoute();
       _fetchRecommendation();
@@ -295,6 +651,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       setState(() {
         _route = result;
         loading = false;
+        _isForecastMode = false;
+        _futureSegments.clear();
+        _multimodalRec = null;
       });
       _fitBoundsToRoute();
       _fetchRecommendation();
@@ -320,6 +679,46 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       }
     } catch (_) {
       if (mounted) setState(() => _loadingRec = false);
+    }
+  }
+
+  Future<void> _fetchForecastAndMultimodal() async {
+    if (_route == null) return;
+    setState(() {
+      _isForecastMode = true;
+      _loadingMultimodal = true;
+    });
+    
+    try {
+      final fut = await ApiClient().getRoadSegments(30);
+      _futureSegments = fut;
+
+      final dist = _route!.distanceValue;
+      final dur = _route!.durationSeconds;
+      
+      final mm = await ApiClient().getMultimodalAnalysis(dur, dist);
+      if (mounted) {
+        setState(() {
+          _multimodalRec = mm;
+          _loadingMultimodal = false;
+        });
+        
+        final rec = mm['recommend_transfer'] == true;
+        if (rec) {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+             content: Text(mm['message'] ?? 'Ұсыныс: мультимодальдық маршрут тиімді.'),
+             backgroundColor: Colors.indigo,
+           ));
+        } else {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+             content: Text(mm['message'] ?? 'Сіздің маршрутыңыз ең тиімді.'),
+             backgroundColor: Colors.green,
+           ));
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loadingMultimodal = false);
+      print('Multimodal Error: $e');
     }
   }
 
@@ -370,17 +769,68 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
 
   Set<gmaps.Polyline> _buildPolylines() {
     final Set<gmaps.Polyline> out = {};
-    if (_route == null || _route!.points.length < 2) return out;
-    final pts = _route!.points
-        .whereType<LatLng>()
-        .map((p) => gmaps.LatLng(p.latitude, p.longitude))
-        .toList();
-    out.add(gmaps.Polyline(
-      polylineId: const gmaps.PolylineId('route'),
-      points: pts,
-      color: AppColors.primary,
-      width: 6,
-    ));
+
+    // 1. Слой будущего (Future overlay), если включен прогноз
+    if (_isForecastMode && _futureSegments.isNotEmpty) {
+      for (final seg in _futureSegments) {
+        if (seg.points.length < 2) continue;
+        final pts = seg.points.map((p) => gmaps.LatLng(p.latitude, p.longitude)).toList();
+        final clr = colorByValue(seg.value); // используем общую функцию или _getTrafficColor
+        out.add(gmaps.Polyline(
+          polylineId: gmaps.PolylineId('future_${seg.id}'),
+          points: pts,
+          width: 8,
+          color: clr.withOpacity(0.55),
+          jointType: gmaps.JointType.round,
+        ));
+      }
+    }
+
+    // 2. Основной маршрут
+    if (_route != null && _route!.points.length >= 2) {
+      final routePts = _route!.points
+          .whereType<LatLng>()
+          .map((p) => gmaps.LatLng(p.latitude, p.longitude))
+          .toList();
+
+      if (_isForecastMode && _multimodalRec != null && _multimodalRec!['recommend_transfer'] == true) {
+        // Мультимодальный маршрут (машина -> самокат/пешком)
+        final splitIndex = (routePts.length * 0.6).toInt();
+        if (splitIndex > 0 && splitIndex < routePts.length) {
+          final carPts = routePts.sublist(0, splitIndex + 1);
+          final scooterPts = routePts.sublist(splitIndex);
+
+          out.add(gmaps.Polyline(
+            polylineId: const gmaps.PolylineId('route_car'),
+            points: carPts,
+            color: AppColors.primary,
+            width: 5,
+          ));
+
+          out.add(gmaps.Polyline(
+            polylineId: const gmaps.PolylineId('route_scooter'),
+            points: scooterPts,
+            color: Colors.green,
+            width: 4,
+            patterns: [gmaps.PatternItem.dash(20), gmaps.PatternItem.gap(10)], // Пунктир
+          ));
+        } else {
+          out.add(gmaps.Polyline(
+            polylineId: const gmaps.PolylineId('route'),
+            points: routePts,
+            color: AppColors.primary,
+            width: 6,
+          ));
+        }
+      } else {
+        out.add(gmaps.Polyline(
+          polylineId: const gmaps.PolylineId('route'),
+          points: routePts,
+          color: AppColors.primary,
+          width: 6,
+        ));
+      }
+    }
     return out;
   }
 
@@ -404,18 +854,20 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
             gmaps.BitmapDescriptor.hueRed),
       ));
     }
-    for (final v in _vehicles) {
-      out.add(gmaps.Marker(
-        markerId: gmaps.MarkerId('veh_${v.id}'),
-        position: gmaps.LatLng(v.lat, v.lon),
-        infoWindow:
-            gmaps.InfoWindow(title: v.type == 'bus' ? 'Автобус' : 'Такси/Авто'),
-        icon: (v.type == 'bus' ? _busIcon : _carIcon) ??
-            gmaps.BitmapDescriptor.defaultMarkerWithHue(v.type == 'bus'
-                ? gmaps.BitmapDescriptor.hueAzure
-                : gmaps.BitmapDescriptor.hueYellow),
-        anchor: const Offset(0.5, 0.5),
-      ));
+    
+    // Маркер пересадки
+    if (_isForecastMode && _route != null && _multimodalRec != null && _multimodalRec!['recommend_transfer'] == true) {
+      final routePts = _route!.points;
+      final splitIndex = (routePts.length * 0.6).toInt();
+      if (splitIndex < routePts.length) {
+        final pt = routePts[splitIndex];
+        out.add(gmaps.Marker(
+          markerId: const gmaps.MarkerId('transfer_point'),
+          position: gmaps.LatLng(pt.latitude, pt.longitude),
+          infoWindow: const gmaps.InfoWindow(title: 'Ауысу: Самокат / Жаяу'),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueOrange), // Парковка/Самокат
+        ));
+      }
     }
     return out;
   }
@@ -472,7 +924,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'ПРОБКИ',
+                    'КЕПТЕЛІСТЕР',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -497,57 +949,76 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     );
   }
 
+  Widget _buildSavedRoutes() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 48,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          clipBehavior: Clip.none,
+          children: [
+            _savedRouteChip(Icons.home_rounded, 'Үй', () {
+              _toController.text = "Сығанақ, 17 (Үй)";
+              setState(() => b = const LatLng(51.12760, 71.42780));
+              _useMyLocation();
+            }),
+            const SizedBox(width: 12),
+            _savedRouteChip(Icons.work_rounded, 'Жұмыс', () {
+              _toController.text = "Мәңгілік Ел, 55 (Жұмыс)";
+              setState(() => b = const LatLng(51.09241, 71.41908));
+              _useMyLocation();
+            }),
+            const SizedBox(width: 12),
+            _savedRouteChip(Icons.add_rounded, 'Қосу', () {
+              // В будущем открытие модального окна добавления избранного
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Әзірлеу сатысында...')),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _savedRouteChip(IconData icon, String label, VoidCallback onTap) {
+    return Material(
+      color: Theme.of(context).cardColor.withOpacity(0.9),
+      borderRadius: BorderRadius.circular(24),
+      elevation: 4,
+      shadowColor: Colors.black12,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.divider.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.primary),
+              if (label.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
+              ]
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasRoute = _route != null && _route!.points.length >= 2;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor.withOpacity(0.85),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4)),
-            ],
-          ),
-          child: Text('Навигатор',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-                color: Theme.of(context).textTheme.titleLarge?.color ??
-                    AppColors.primaryDark,
-              )),
-        ),
-        actions: [
-          if (loading)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
-                ),
-                child: const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            ),
-        ],
-      ),
       body: Stack(
         children: [
           // 1. Full-screen map
@@ -562,623 +1033,405 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
             mapToolbarEnabled: false,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-            trafficEnabled: _byCar,
-            padding: const EdgeInsets.only(top: 360, bottom: 40),
-          ),
-          // 1.1 Traffic Score Indicator
-          if (_trafficMetrics != null)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 80,
-              right: 16,
-              child: _buildTrafficScore(),
+            trafficEnabled: _isForecastMode ? false : _byCar,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 180,
+              bottom: hasRoute ? 120 : 40,
             ),
-          // 2. Glassmorphism overlay on top
+          ),
+
+          // 2. Top solid card
           SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter:
-                              dart_ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                            decoration: BoxDecoration(
-                              color:
-                                  Theme.of(context).cardColor.withOpacity(0.85),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.white.withOpacity(0.12)
-                                    : Colors.white.withOpacity(0.5),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Material(
+                color: Theme.of(context).cardColor,
+                elevation: 6,
+                shadowColor: Colors.black.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Inputs and Swap Row
+                      Row(
+                        children: [
+                          Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Откуда
-                                TextField(
-                                  controller: _fromController,
-                                  focusNode: _fromFocus,
-                                  decoration: InputDecoration(
-                                    labelText: 'Откуда',
-                                    hintText: 'Адрес или место',
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.only(right: 12),
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            AppColors.primary.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                          Icons.trip_origin_rounded,
-                                          size: 20,
-                                          color: AppColors.primary),
-                                    ),
-                                    prefixIconConstraints: const BoxConstraints(
-                                        minWidth: 48, minHeight: 48),
-                                    filled: true,
-                                    fillColor: Theme.of(context)
-                                        .scaffoldBackgroundColor
-                                        .withOpacity(0.6),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                          color: AppColors.divider
-                                              .withOpacity(0.6)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                          color: AppColors.primary, width: 2),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 14),
-                                  ),
-                                  textInputAction: TextInputAction.next,
-                                  onChanged: _onFromChanged,
-                                  onTap: () =>
-                                      setState(() => _toSuggestions = []),
-                                ),
-                                if (_fromSuggestions.isNotEmpty &&
-                                    _fromFocus.hasFocus) ...[
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    constraints:
-                                        const BoxConstraints(maxHeight: 220),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(
-                                          color: AppColors.divider
-                                              .withOpacity(0.6)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: ListView.separated(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6),
-                                      shrinkWrap: true,
-                                      itemCount: _fromSuggestions.length,
-                                      separatorBuilder: (_, __) => Divider(
-                                          height: 1,
-                                          color: AppColors.divider
-                                              .withOpacity(0.5)),
-                                      itemBuilder: (context, i) {
-                                        final p = _fromSuggestions[i];
-                                        return Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap: () =>
-                                                _onFromSuggestionTap(p),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 12),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.place_rounded,
-                                                      size: 22,
-                                                      color: AppColors.primary
-                                                          .withOpacity(0.9)),
-                                                  const SizedBox(width: 14),
-                                                  Expanded(
-                                                    child: Text(
-                                                      p.description,
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: AppColors
-                                                              .textPrimary,
-                                                          height: 1.3),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                // From field
+                                SizedBox(
+                                  height: 40,
+                                  child: TextField(
+                                    controller: _fromController,
+                                    focusNode: _fromFocus,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      hintText: 'Қайдан',
+                                      prefixIcon: const Icon(Icons.trip_origin_rounded, size: 18, color: AppColors.primary),
+                                      prefixIconConstraints: const BoxConstraints(minWidth: 40),
+                                      suffixIcon: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: _useMyLocation,
+                                            child: const Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 4),
+                                              child: Icon(Icons.my_location_rounded, size: 18, color: AppColors.primary),
                                             ),
                                           ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 14),
-                                // Куда
-                                // Куда
-                                TextField(
-                                  controller: _toController,
-                                  focusNode: _toFocus,
-                                  decoration: InputDecoration(
-                                    labelText: 'Куда',
-                                    hintText: 'Адрес или место',
-                                    prefixIcon: Container(
-                                      margin: const EdgeInsets.only(right: 12),
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            AppColors.primary.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                          Icons.location_on_rounded,
-                                          size: 20,
-                                          color: AppColors.primary),
-                                    ),
-                                    prefixIconConstraints: const BoxConstraints(
-                                        minWidth: 48, minHeight: 48),
-                                    filled: true,
-                                    fillColor: Theme.of(context)
-                                        .scaffoldBackgroundColor
-                                        .withOpacity(0.6),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                          color: AppColors.divider
-                                              .withOpacity(0.6)),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                          color: AppColors.primary, width: 2),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 14),
-                                  ),
-                                  textInputAction: TextInputAction.done,
-                                  onChanged: _onToChanged,
-                                  onSubmitted: (_) =>
-                                      _buildRouteFromAddresses(),
-                                  onTap: () =>
-                                      setState(() => _fromSuggestions = []),
-                                ),
-                                if (_toSuggestions.isNotEmpty &&
-                                    _toFocus.hasFocus) ...[
-                                  const SizedBox(height: 10),
-                                  Container(
-                                    constraints:
-                                        const BoxConstraints(maxHeight: 220),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(
-                                          color: AppColors.divider
-                                              .withOpacity(0.6)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
-                                          blurRadius: 16,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: ListView.separated(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 6),
-                                      shrinkWrap: true,
-                                      itemCount: _toSuggestions.length,
-                                      separatorBuilder: (_, __) => Divider(
-                                          height: 1,
-                                          color: AppColors.divider
-                                              .withOpacity(0.5)),
-                                      itemBuilder: (context, i) {
-                                        final p = _toSuggestions[i];
-                                        return Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap: () => _onToSuggestionTap(p),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 12),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.place_rounded,
-                                                      size: 22,
-                                                      color: AppColors.primary
-                                                          .withOpacity(0.9)),
-                                                  const SizedBox(width: 14),
-                                                  Expanded(
-                                                    child: Text(
-                                                      p.description,
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodyLarge
-                                                                  ?.color,
-                                                          height: 1.3),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                          GestureDetector(
+                                            onTap: () { _fromController.clear(); _clearRoute(); setState(() {}); },
+                                            child: const Padding(
+                                              padding: EdgeInsets.only(right: 8, left: 4),
+                                              child: Icon(Icons.close, size: 16, color: Colors.grey),
                                             ),
                                           ),
-                                        );
-                                      },
+                                        ],
+                                      ),
+                                      suffixIconConstraints: const BoxConstraints(minWidth: 40),
+                                      contentPadding: EdgeInsets.zero,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                                      ),
                                     ),
+                                    textInputAction: TextInputAction.next,
+                                    onChanged: _onFromChanged,
+                                    onTap: () => setState(() => _toSuggestions = []),
                                   ),
-                                ],
+                                ),
+                                const SizedBox(height: 8),
+                                // To field
+                                SizedBox(
+                                  height: 40,
+                                  child: TextField(
+                                    controller: _toController,
+                                    focusNode: _toFocus,
+                                    style: const TextStyle(fontSize: 14),
+                                    decoration: InputDecoration(
+                                      hintText: 'Қайда',
+                                      prefixIcon: const Icon(Icons.location_on_rounded, size: 18, color: Colors.redAccent),
+                                      prefixIconConstraints: const BoxConstraints(minWidth: 40),
+                                      suffixIcon: GestureDetector(
+                                        onTap: () { _toController.clear(); _clearRoute(); setState(() {}); },
+                                        child: const Padding(
+                                          padding: EdgeInsets.only(right: 8),
+                                          child: Icon(Icons.close, size: 16, color: Colors.grey),
+                                        ),
+                                      ),
+                                      suffixIconConstraints: const BoxConstraints(minWidth: 40),
+                                      contentPadding: EdgeInsets.zero,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                                      ),
+                                    ),
+                                    textInputAction: TextInputAction.done,
+                                    onChanged: _onToChanged,
+                                    onSubmitted: (_) => _buildRouteFromAddresses(),
+                                    onTap: () => setState(() => _fromSuggestions = []),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    // Пешком / Автомобиль
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppColors.background.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: AppColors.divider.withOpacity(0.5),
+                          const SizedBox(width: 8),
+                          // Swap button
+                          InkWell(
+                            onTap: _swapAddresses,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.swap_vert_rounded, color: AppColors.primary, size: 20),
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Bottom row: toggle + chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: Material(
-                                color: _byCar
-                                    ? Colors.transparent
-                                    : AppColors.primary,
-                                borderRadius: BorderRadius.circular(12),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12),
-                                  onTap: () {
-                                    setState(() {
-                                      _byCar = false;
-                                      if (a == null || b == null) _clearRoute();
-                                    });
-                                    if (a != null && b != null)
-                                      _buildRouteFromGoogle();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.directions_walk_rounded,
-                                          size: 20,
-                                          color: _byCar
-                                              ? AppColors.textSecondary
-                                              : Colors.white,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Пешком',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: _byCar
-                                                ? AppColors.textSecondary
-                                                : Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                            Container(
+                              height: 32,
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _modeChip(Icons.directions_walk_rounded, 'Жаяу', !_byCar, () {
+                                    setState(() => _byCar = false);
+                                    if (a != null && b != null) _buildRouteFromGoogle();
+                                  }),
+                                  _modeChip(Icons.directions_car_rounded, 'Көлік', _byCar, () {
+                                    setState(() => _byCar = true);
+                                    if (a != null && b != null) _buildRouteFromGoogle();
+                                  }),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Material(
-                                color: _byCar
-                                    ? AppColors.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12),
-                                  onTap: () {
-                                    setState(() {
-                                      _byCar = true;
-                                      if (a == null || b == null) _clearRoute();
-                                    });
-                                    if (a != null && b != null)
-                                      _buildRouteFromGoogle();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.directions_car_rounded,
-                                          size: 20,
-                                          color: _byCar
-                                              ? Colors.white
-                                              : AppColors.textSecondary,
+                            const SizedBox(width: 8),
+                            _miniChip(Icons.home_rounded, 'Үй', () => _handleShortcutTap('home')),
+                            const SizedBox(width: 8),
+                            _miniChip(Icons.work_rounded, 'Жұмыс', () => _handleShortcutTap('work')),
+                            if (_route != null) ...[
+                              const SizedBox(width: 8),
+                              _loadingMultimodal
+                                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : GestureDetector(
+                                      onTap: _fetchForecastAndMultimodal,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.indigo.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: Colors.indigo.withOpacity(0.3)),
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'Автомобиль',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: _byCar
-                                                ? Colors.white
-                                                : AppColors.textSecondary,
-                                          ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.auto_awesome, size: 14, color: Colors.indigo),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'AI Болжам +20 мин',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.indigo.shade700,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            ],
+                            if (loading) ...[
+                              const SizedBox(width: 12),
+                              const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                            ],
                           ],
                         ),
                       ),
-                    ),
-                    if (hasRoute) ...[
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.primary.withOpacity(0.12),
-                                AppColors.primary.withOpacity(0.06),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                                color: AppColors.primary.withOpacity(0.2)),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(Icons.route_rounded,
-                                    color: AppColors.primary, size: 24),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (_route!.durationInTrafficText != null &&
-                                        _byCar) ...[
-                                      Text(
-                                        _route!.durationInTrafficText!,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                          color: AppColors.primary,
-                                          letterSpacing: -0.3,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'С учётом пробок • ${_route!.durationText} без трафика${_route!.distanceText != null ? ' • ${_route!.distanceText}' : ''}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.textSecondary,
-                                          height: 1.3,
-                                        ),
-                                      ),
-                                    ] else
-                                      Text(
-                                        _route!.durationText,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                          color: AppColors.primary,
-                                          letterSpacing: -0.3,
-                                        ),
-                                      ),
-                                    if (_route!.distanceText != null &&
-                                        (_route!.durationInTrafficText ==
-                                                null ||
-                                            !_byCar))
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 2),
-                                        child: Text(
-                                          _route!.distanceText!,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ],
-                    if (_recommendation != null && _byCar)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: BackdropFilter(
-                            filter: dart_ui.ImageFilter.blur(
-                                sigmaX: 16, sigmaY: 16),
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.white.withOpacity(0.5)),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.psychology_outlined,
-                                      color: AppColors.primary, size: 28),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'AI СОВЕТ',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.primary,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          _recommendation!,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: AppColors.textPrimary,
-                                            height: 1.4,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (error != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: BackdropFilter(
-                            filter: dart_ui.ImageFilter.blur(
-                                sigmaX: 16, sigmaY: 16),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(
-                                    Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? 0.15
-                                        : 0.08),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.red.withOpacity(0.3)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                        Icons.error_outline_rounded,
-                                        color: Color(0xFFDC2626),
-                                        size: 20),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      error!,
-                                      style: TextStyle(
-                                          color: Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.red.shade200
-                                              : const Color(0xFFB91C1C),
-                                          fontSize: 13,
-                                          height: 1.3),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
+
+          // 3. Suggestions (from)
+          if (_fromSuggestions.isNotEmpty && _fromFocus.hasFocus)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 58,
+              left: 12,
+              right: 62,
+              child: _buildSuggestionsList(_fromSuggestions, _onFromSuggestionTap),
+            ),
+
+          // 4. Suggestions (to)
+          if (_toSuggestions.isNotEmpty && _toFocus.hasFocus)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 106,
+              left: 12,
+              right: 62,
+              child: _buildSuggestionsList(_toSuggestions, _onToSuggestionTap),
+            ),
+
+          // 5. Route info (bottom)
+          if (hasRoute)
+            Positioned(
+              left: 12,
+              right: 80, // Оставляем место для микрофона справа
+              bottom: 104, // Поднимаем над нижним меню
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: dart_ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor.withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 14, offset: const Offset(0, -2)),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.route_rounded, color: AppColors.primary, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Builder(
+                            builder: (context) {
+                              final seconds = _route!.durationInTrafficSeconds ?? _route!.durationSeconds;
+                              final arrival = DateTime.now().add(Duration(seconds: seconds));
+                              final arrText = '${arrival.hour.toString().padLeft(2, '0')}:${arrival.minute.toString().padLeft(2, '0')}-те жетесіз';
+                              
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _route!.durationInTrafficText ?? _route!.durationText,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: AppColors.primary),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _byCar && _route!.durationInTrafficText != null
+                                        ? 'Кептеліспен • ${_route!.distanceText ?? ''} • $arrText'
+                                        : '${_route!.distanceText ?? ''} • $arrText',
+                                    style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
+                                  ),
+                                ],
+                              );
+                            }
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // 6. Error
+          if (error != null)
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: hasRoute ? 190 : 110,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.red.shade900.withOpacity(0.8) : Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, size: 18, color: Colors.red.shade400),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        error!.replaceFirst('Exception: ', ''),
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).brightness == Brightness.dark ? Colors.red.shade200 : Colors.red.shade800),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() => error = null),
+                      child: Icon(Icons.close, size: 16, color: Colors.red.shade300),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _modeChip(IconData icon, String label, bool active, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)),
+            const SizedBox(width: 3),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _miniChip(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: AppColors.primary),
+            const SizedBox(width: 3),
+            Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuggestionsList(List<PlacePrediction> suggestions, Function(PlacePrediction) onTap) {
+    return Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(12),
+      color: Theme.of(context).cardColor,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 200),
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          shrinkWrap: true,
+          itemCount: suggestions.length,
+          separatorBuilder: (_, __) => Divider(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.3)),
+          itemBuilder: (context, i) {
+            final p = suggestions[i];
+            return InkWell(
+              onTap: () => onTap(p),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    Icon(Icons.place_rounded, size: 18, color: AppColors.primary.withOpacity(0.7)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(p.description, style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

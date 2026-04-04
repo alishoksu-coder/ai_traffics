@@ -14,13 +14,13 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
-    # История значений трафика
     cur.execute("""
     CREATE TABLE IF NOT EXISTS traffic_values (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         location_id INTEGER NOT NULL,
-        ts INTEGER NOT NULL,     -- Unix time (seconds)
-        value REAL NOT NULL
+        ts INTEGER NOT NULL,
+        value REAL NOT NULL,
+        weather_factor REAL DEFAULT 1.0
     );
     """)
 
@@ -49,6 +49,13 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
+    # Апгрейд для существующей БД: добавляем колонку weather_factor если её нет
+    cur.execute("PRAGMA table_info(traffic_values)")
+    columns = [col[1] for col in cur.fetchall()]
+    if 'weather_factor' not in columns:
+        cur.execute("ALTER TABLE traffic_values ADD COLUMN weather_factor REAL DEFAULT 1.0")
+        conn.commit()
+
     # Админы
     cur.execute("""
     CREATE TABLE IF NOT EXISTS admin_users (
@@ -56,6 +63,23 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         login         TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL
     );
+    """)
+
+    cur.execute("""
+    INSERT INTO locations (id, name, lat, lon)
+    SELECT 1, 'Левый Берег (Байтерек)', 51.1283, 71.4305 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=1);
+    """)
+    cur.execute("""
+    INSERT INTO locations (id, name, lat, lon)
+    SELECT 2, 'Экспо / Mega Silk Way', 51.0903, 71.4182 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=2);
+    """)
+    cur.execute("""
+    INSERT INTO locations (id, name, lat, lon)
+    SELECT 3, 'Хан Шатыр', 51.1325, 71.4038 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=3);
+    """)
+    cur.execute("""
+    INSERT INTO locations (id, name, lat, lon)
+    SELECT 4, 'Проспект Республики', 51.1691, 71.4259 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=4);
     """)
 
     conn.commit()

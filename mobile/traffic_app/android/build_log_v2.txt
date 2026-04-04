@@ -1,0 +1,122 @@
+Initialized native services in: C:\Users\user\.gradle\native
+Initialized jansi services in: C:\Users\user\.gradle\native
+Found daemon DaemonInfo{pid=6360, address=[7e12c265-c331-4b1b-a319-ee77ab86965b port:1261, addresses:[/127.0.0.1]], state=Idle, lastBusy=1773253672048, context=DefaultDaemonContext[uid=1ece16a8-f2b6-4778-b49c-d909b7db73c5,javaHome=C:\Users\user\.jdks\temurin-17.0.17,javaVersion=17,javaVendor=Eclipse Adoptium,daemonRegistryDir=C:\Users\user\.gradle\daemon,pid=6360,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=512m,-XX:+HeapDumpOnOutOfMemoryError,-Xmx2G,-Dfile.encoding=UTF-8,-Duser.country=RU,-Duser.language=ru,-Duser.variant]} however its context does not match the desired criteria.
+JVM is incompatible.
+Wanted: DaemonRequestContext{jvmCriteria=C:\Program Files\Android\Android Studio\jbr (from org.gradle.java.home), daemonOpts=[-XX:MaxMetaspaceSize=512m, -XX:+HeapDumpOnOutOfMemoryError, -Xmx2G, -Dfile.encoding=UTF-8, -Duser.country=RU, -Duser.language=ru, -Duser.variant], applyInstrumentationAgent=true, nativeServicesMode=ENABLED, priority=NORMAL}
+Actual: DefaultDaemonContext[uid=1ece16a8-f2b6-4778-b49c-d909b7db73c5,javaHome=C:\Users\user\.jdks\temurin-17.0.17,javaVersion=17,javaVendor=Eclipse Adoptium,daemonRegistryDir=C:\Users\user\.gradle\daemon,pid=6360,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=512m,-XX:+HeapDumpOnOutOfMemoryError,-Xmx2G,-Dfile.encoding=UTF-8,-Duser.country=RU,-Duser.language=ru,-Duser.variant]
+
+  Looking for a different daemon...
+The client will now receive all logging from the daemon (pid: 22160). The daemon log file: C:\Users\user\.gradle\daemon\8.12\daemon-22160.out.log
+Starting 8th build in daemon [uptime: 57 mins 38.176 secs, performance: 98%, GC rate: 0.00/s, heap usage: 0% of 2 GiB, non-heap usage: 29% of 512 MiB]
+Using 12 worker leases.
+Now considering [C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android, C:\dev\flutter\packages\flutter_tools\gradle] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Starting Build
+Now considering [C:\dev\flutter\packages\flutter_tools\gradle, C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android] as hierarchies to watch
+Using local directory build cache for build ':gradle' (location = C:\Users\user\.gradle\caches\build-cache-1, remove unused entries = after 7 days).
+
+> Configure project :gradle
+Evaluating project ':gradle' using build file 'C:\dev\flutter\packages\flutter_tools\gradle\build.gradle.kts'.
+Resolved plugin [id: 'org.gradle.java-gradle-plugin']
+Resolved plugin [id: 'org.gradle.groovy']
+Resolved plugin [id: 'org.gradle.kotlin.kotlin-dsl', version: '5.1.2']
+Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '1.9.20']
+Using Kotlin Gradle Plugin gradle85 variant
+kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+file or directory 'C:\dev\flutter\packages\flutter_tools\gradle\src\main\java', not found
+Resolved plugin [id: 'dev.flutter.flutter-plugin-loader', version: '1.0.0']
+Resolved plugin [id: 'com.android.application', version: '8.9.1', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '2.3.10', apply: false]
+Resolve mutations for :gradle:checkKotlinGradlePluginConfigurationErrors (Thread[#800,Execution worker,5,main]) started.
+:gradle:checkKotlinGradlePluginConfigurationErrors (Thread[#800,Execution worker,5,main]) started.
+
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':gradle:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :gradle:compileKotlin (Thread[#800,Execution worker,5,main]) started.
+:gradle:compileKotlin (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:compileKotlin UP-TO-DATE
+Build cache key for task ':gradle:compileKotlin' is 49b4165fae39e7a3c2e70ee5b464f52e
+Skipping task ':gradle:compileKotlin' as it is up-to-date.
+Resolve mutations for :gradle:compileJava (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:compileJava (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:compileJava NO-SOURCE
+Skipping task ':gradle:compileJava' as it has no source files and no previous output files.
+Resolve mutations for :gradle:compileGroovy (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:compileGroovy (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:compileGroovy NO-SOURCE
+Skipping task ':gradle:compileGroovy' as it has no source files and no previous output files.
+Resolve mutations for :gradle:pluginDescriptors (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:pluginDescriptors (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:pluginDescriptors UP-TO-DATE
+Caching disabled for task ':gradle:pluginDescriptors' because:
+  Not worth caching
+Skipping task ':gradle:pluginDescriptors' as it is up-to-date.
+Resolve mutations for :gradle:processResources (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:processResources (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:processResources UP-TO-DATE
+Caching disabled for task ':gradle:processResources' because:
+  Not worth caching
+Skipping task ':gradle:processResources' as it is up-to-date.
+Resolve mutations for :gradle:classes (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:classes (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:classes UP-TO-DATE
+Skipping task ':gradle:classes' as it has no actions.
+Resolve mutations for :gradle:jar (Thread[#801,Execution worker Thread 2,5,main]) started.
+:gradle:jar (Thread[#801,Execution worker Thread 2,5,main]) started.
+
+> Task :gradle:jar UP-TO-DATE
+Caching disabled for task ':gradle:jar' because:
+  Not worth caching
+Skipping task ':gradle:jar' as it is up-to-date.
+Settings evaluated using settings file 'C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android\settings.gradle.kts'.
+Using local directory build cache for the root build (location = C:\Users\user\.gradle\caches\build-cache-1, remove unused entries = after 7 days).
+Projects loaded. Root project using build file 'C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android\build.gradle.kts'.
+Included projects: [root project 'android', project ':app', project ':flutter_plugin_android_lifecycle', project ':geolocator_android', project ':google_maps_flutter_android', project ':package_info_plus', project ':path_provider_android', project ':permission_handler_android']
+
+> Configure project :app
+Evaluating project ':app' using build file 'C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android\app\build.gradle.kts'.
+Build cache key for Kotlin DSL script compilation (Project/TopLevel/stage1) is f03ea0017517172e445d1eb39d82d4f3
+Stored cache entry for Kotlin DSL script compilation (Project/TopLevel/stage1) with cache key f03ea0017517172e445d1eb39d82d4f3
+Resolved plugin [id: 'com.android.application']
+Resolved plugin [id: 'org.jetbrains.kotlin.android']
+Resolved plugin [id: 'dev.flutter.flutter-gradle-plugin']
+Using default execution profile
+Build a8dd92ca-d11c-4c45-b763-94c70164293d is started
+Using Kotlin Gradle Plugin gradle811 variant
+Build cache key for Kotlin DSL script compilation (Project/TopLevel/stage2) is d13656370ee39fbad1fbf5080a204dec
+e: file:///C:/Users/user/Downloads/ai_traffic_fullstack/mobile/traffic_app/android/app/build.gradle.kts:19:9: Using 'jvmTarget: String' is an error. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+> Configure project :
+Evaluating root project 'android' using build file 'C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android\build.gradle.kts'.
+Build a8dd92ca-d11c-4c45-b763-94c70164293d is closed
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'C:\Users\user\Downloads\ai_traffic_fullstack\mobile\traffic_app\android\app\build.gradle.kts' line: 19
+
+* What went wrong:
+Script compilation error:
+
+  Line 19:         jvmTarget = "11"
+                   ^ Using 'jvmTarget: String' is an error. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+1 error
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+4 actionable tasks: 4 up-to-date
+Watched directory hierarchies: [C:\dev\flutter\packages\flutter_tools\gradle]

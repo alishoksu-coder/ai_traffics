@@ -8,7 +8,7 @@ from datetime import datetime
 
 # --- КОНФИГУРАЦИЯ SUPABASE ---
 SUPABASE_URL = "https://nxmefixitnmfzgaxlzsl.supabase.co"
-SUPABASE_KEY = "sb_publishable_bJaa7PQeXNJwlewmCu6ZeA_fBtQnn4U"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54bWVmaXhpdG5tZnpnYXhsenNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjIzNzYsImV4cCI6MjA4OTQzODM3Nn0.g-fY2uUmraHS-Vs9zLcoF1mPuwnhlZzHPlrR_cYXOTU"
 
 class TrafficAI:
     def __init__(self, model_path="data/traffic_model.joblib"):
@@ -20,7 +20,7 @@ class TrafficAI:
         if os.path.exists(self.model_path):
             try:
                 self.model = joblib.load(self.model_path)
-            except:
+            except Exception:
                 self.model = None
 
     def save_model(self):
@@ -81,7 +81,7 @@ class TrafficAI:
             X_pred = pd.DataFrame([[segment_id, hour, day_of_week, weather_factor]], 
                                  columns=['segment_id', 'hour', 'day_of_week', 'weather_factor'])
             return float(self.model.predict(X_pred)[0])
-        except:
+        except Exception:
             return 30.0
 
 ai_brain = TrafficAI()

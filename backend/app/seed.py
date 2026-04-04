@@ -37,7 +37,7 @@ def seed_history_if_empty(conn: sqlite3.Connection, sim, minutes: int = 240) -> 
         for lid in loc_ids:
             noise = random.uniform(-8, 8)
             val = max(0.0, min(100.0, base_wave + noise))
-            rows.append({"location_id": lid, "ts": ts, "value": val})
+            rows.append({"location_id": lid, "ts": ts, "value": val, "weather_factor": 1.0})
 
     insert_traffic_values(conn, rows)
 
