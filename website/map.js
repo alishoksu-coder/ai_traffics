@@ -7,11 +7,10 @@ const map = L.map('map', {
   zoomControl: false, // We use custom zoom controls
 }).setView([51.128, 71.430], 13); // Astana center
 
-// Add Light modern map tiles (CartoDB Positron is very clean)
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & Traffic AI',
-  subdomains: 'abcd',
-  maxZoom: 19
+// Google Maps Standard Tiles (Түрлі-түсті)
+L.tileLayer('http://mt0.google.com/vt/lyrs=m&hl=kk&x={x}&y={y}&z={z}', {
+  attribution: '&copy; Google Maps',
+  maxZoom: 20
 }).addTo(map);
 
 // Custom Controls
@@ -139,6 +138,12 @@ async function fetchTrafficData(horizon) {
     }
   } catch (error) {
     console.error("Traffic Data Error:", error);
+    const elScore = document.getElementById('score-display');
+    const elDesc = document.getElementById('score-desc');
+    elScore.textContent = "!";
+    elScore.style.color = '#EF4444'; 
+    elScore.style.borderColor = '#EF4444';
+    elDesc.textContent = "Деректер алынбады (Сервер қосылуда...)";
   }
 }
 
@@ -311,3 +316,39 @@ function closeSearch() {
 }
 
 clearBtn.addEventListener('click', closeSearch);
+
+// 7. MAP CLICK REVERSE GEOCODING
+map.on('click', async (e) => {
+  const lat = e.latlng.lat;
+  const lon = e.latlng.lng;
+  
+  // Кез-келген жерді басқанда ескі маркерлерді өшіреміз
+  searchMarkerLayer.clearLayers();
+  
+  // Күту маркерін қоямыз
+  const marker = L.marker([lat, lon]).addTo(searchMarkerLayer);
+  marker.bindPopup("Ізделуде...").openPopup();
+  
+  try {
+    // OpenStreetMap Nominatim арқылы координатты мекен-жайға айналдырамыз
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=kk`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data && data.display_name) {
+      const parts = data.display_name.split(', ');
+      const title = parts[0];
+      const subtitle = parts.length > 1 ? parts.slice(1).join(', ') : 'Астана';
+      
+      marker.setPopupContent(`<b>${title}</b><br><span style="font-size:12px;color:gray;">${subtitle}</span>`).openPopup();
+      
+      // Іздеу жолағына атын жазып қою
+      searchInput.value = title;
+      clearBtn.style.display = 'block';
+    } else {
+      marker.setPopupContent("Белгісіз аймақ").openPopup();
+    }
+  } catch (error) {
+    marker.setPopupContent("Қателік орын алды").openPopup();
+  }
+});
