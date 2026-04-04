@@ -207,3 +207,107 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
 
 // INITIAL LOAD
 fetchTrafficData(0);
+
+// 6. SEARCH LOGIC (Nominatim OSM / 2GIS Style)
+const searchInput = document.getElementById('search-input');
+const clearBtn = document.getElementById('clear-search');
+const searchResults = document.getElementById('search-results');
+const mainTabs = document.getElementById('main-tabs');
+const panelContent = document.querySelector('.panel-content');
+
+let searchMarkerLayer = L.layerGroup().addTo(map);
+let searchTimeout;
+
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.trim();
+  
+  if (query.length > 0) {
+    clearBtn.style.display = 'block';
+  } else {
+    clearBtn.style.display = 'none';
+    closeSearch();
+    return;
+  }
+
+  // Hide main panels and show search results container
+  mainTabs.style.display = 'none';
+  panelContent.style.display = 'none';
+  searchResults.style.display = 'block';
+
+  // Debounce search
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    if (query.length >= 2) performSearch(query);
+  }, 500);
+});
+
+async function performSearch(query) {
+  searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ізделуде...</div>';
+  
+  try {
+    // OpenStreetMap Nominatim request (Astana focus)
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)} Astana&format=json&limit=15&viewbox=71.2,51.2,71.6,51.0&bounded=1`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    searchResults.innerHTML = '';
+    
+    if (data.length === 0) {
+      searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ештеңе табылмады</div>';
+      return;
+    }
+
+    data.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'search-result-item';
+      
+      // Parse Display Name
+      const parts = item.display_name.split(', ');
+      const title = parts[0];
+      const subtitle = parts.slice(1).join(', ');
+
+      div.innerHTML = `
+        <div class="sr-icon">📍</div>
+        <div class="sr-text">
+          <h4>${title}</h4>
+          <p>${subtitle}</p>
+        </div>
+      `;
+      
+      div.addEventListener('click', () => {
+        // Clear old marker
+        searchMarkerLayer.clearLayers();
+        
+        const lat = parseFloat(item.lat);
+        const lon = parseFloat(item.lon);
+        
+        // Add new marker
+        const marker = L.marker([lat, lon]).addTo(searchMarkerLayer);
+        marker.bindPopup(`<b>${title}</b><br>${subtitle}`).openPopup();
+        
+        // Fly to location
+        map.flyTo([lat, lon], 16, { duration: 1.5 });
+      });
+      
+      searchResults.appendChild(div);
+    });
+
+  } catch (error) {
+    searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:red;">Іздеу қатесі...</div>';
+  }
+}
+
+function closeSearch() {
+  searchInput.value = '';
+  clearBtn.style.display = 'none';
+  searchResults.style.display = 'none';
+  searchResults.innerHTML = '';
+  mainTabs.style.display = 'flex';
+  panelContent.style.display = 'block';
+  searchMarkerLayer.clearLayers();
+  
+  // Return map to center
+  map.flyTo([51.128, 71.430], 13);
+}
+
+clearBtn.addEventListener('click', closeSearch);

@@ -23,12 +23,19 @@
     </div>
     
     <div class="sidebar-search">
-      <input type="text" placeholder="Қайдан? (мысалы: Астана IT Университеті)">
-      <input type="text" placeholder="Қайда? (мысалы: Бәйтерек)">
-      <button class="btn btn-search">Маршрут құру</button>
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Астанадан іздеу (м-лы: Астана Опера)">
+        <button id="clear-search" class="clear-btn" style="display:none;">✕</button>
+      </div>
+    </div>
+    
+    <!-- Сәтті іздеу нәтижелері шығатын блок -->
+    <div id="search-results" class="search-results-container" style="display:none;">
+      <!-- JavaScript арқылы толтырылады -->
     </div>
 
-    <div class="sidebar-tabs">
+    <div id="main-tabs" class="sidebar-tabs">
       <div class="tab active" data-tab="traffic">Транспорт</div>
       <div class="tab" data-tab="ai">AI Болжам</div>
     </div>
@@ -52,13 +59,6 @@
           </div>
         </div>
 
-        <div class="action-card">
-          <h4>Маршрут режимдері</h4>
-          <div class="mode-toggles">
-            <button class="mode-btn active">🚗 Көлік</button>
-            <button class="mode-btn">🛴 Мультимодаль</button>
-          </div>
-        </div>
       </div>
 
       <!-- AI Forecast Panel -->
