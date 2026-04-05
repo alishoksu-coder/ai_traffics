@@ -17,6 +17,15 @@
   --traffic-red: #EF4444;
 }
 
+body.dark-theme {
+  --bg: #0f172a;
+  --bg-panel: #1e293b;
+  --border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {

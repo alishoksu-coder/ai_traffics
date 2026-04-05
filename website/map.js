@@ -7,11 +7,33 @@ const map = L.map('map', {
   zoomControl: false, // We use custom zoom controls
 }).setView([51.128, 71.430], 13); // Astana center
 
-// Google Maps Standard Tiles (Түрлі-түсті)
-L.tileLayer('http://mt0.google.com/vt/lyrs=m&hl=kk&x={x}&y={y}&z={z}', {
+// Map Themes
+const lightLayer = L.tileLayer('http://mt0.google.com/vt/lyrs=m&hl=kk&x={x}&y={y}&z={z}', {
   attribution: '&copy; Google Maps',
   maxZoom: 20
-}).addTo(map);
+});
+
+const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB (Dark Theme)',
+  maxZoom: 20
+});
+
+// Default is Light 
+lightLayer.addTo(map);
+let isDarkTheme = false;
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  isDarkTheme = !isDarkTheme;
+  if(isDarkTheme) {
+    map.removeLayer(lightLayer);
+    darkLayer.addTo(map);
+    document.body.classList.add('dark-theme');
+  } else {
+    map.removeLayer(darkLayer);
+    lightLayer.addTo(map);
+    document.body.classList.remove('dark-theme');
+  }
+});
 
 // Custom Controls
 document.getElementById('btn-zoom-in').addEventListener('click', () => map.zoomIn());

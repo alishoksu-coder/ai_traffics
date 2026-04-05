@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic AI - Админ Панель</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- ADMIN LOGIN -->
+  <div id="login-container" class="admin-container">
+    <div class="admin-card login-card">
+      <div class="admin-header">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a10 10 0 0 1 0 20" />
+              <path d="M2 12h20" />
+            </svg>
+          </div>
+          <span>Traffic <strong>Admin</strong></span>
+        </a>
+        <p>Админ-панельге кіру</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login">Логин</label>
+          <input type="text" id="login" placeholder="admin" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div id="login-error" class="error-msg"></div>
+        <button type="submit" class="btn btn-primary w-100" id="login-btn">Кіру</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="dashboard-container" class="admin-container" style="display: none;">
+    <div class="dashboard-header">
+      <div class="header-left">
+        <h2>Басқару панелі</h2>
+      </div>
+      <div class="header-right">
+        <span id="admin-status" class="status-indicator"></span>
+        <button id="logout-btn" class="btn btn-outline btn-sm">Шығу</button>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Stats Cards -->
+      <div class="stat-card">
+        <div class="stat-icon">🗺️</div>
+        <div class="stat-info">
+          <h3>Локациялар</h3>
+          <p id="stat-locations">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛣️</div>
+        <div class="stat-info">
+          <h3>Жол сегменттері</h3>
+          <p id="stat-segments">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <h3>Қолданушылар (Достар)</h3>
+          <p id="stat-friends">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-info">
+          <h3>Белсенді көліктер</h3>
+          <p id="stat-vehicles">--</p>
+        </div>
+      </div>
+      
+      <!-- Traffic Status Panel -->
+      <div class="stat-card large ai-gradient">
+        <div class="stat-info">
+          <h3>Қалалық Трафик Индексі (LIVE)</h3>
+          <div class="traffic-big-score">
+            <span id="stat-traffic-score">--</span>
+            <small> / 10 балл</small>
+          </div>
+          <p>Орташа жүктелу: <strong id="stat-avg-traffic">--%</strong></p>
+        </div>
+      </div>
+
+      <!-- Simulation Status -->
+      <div class="stat-card large">
+        <div class="stat-info">
+          <h3>Симуляция & AI</h3>
+          <div class="status-row">
+            <span>Симуляция күйі:</span>
+            <span id="stat-sim-running" class="badge">--</span>
+          </div>
+          <div class="status-row">
+            <span>Қауіпті аймақтар (Hotspots):</span>
+            <strong id="stat-hotspots" style="color: #EF4444;">--</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

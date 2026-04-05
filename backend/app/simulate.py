@@ -123,7 +123,7 @@ class TrafficSimulator:
             self._state.clear()
             for loc in self._locations:
                 lid = int(loc["id"])
-                base = random.uniform(20.0, 70.0)
+                base = random.uniform(5.0, 30.0) # Lowered base value so multipliers do the heavy lifting
                 self._state[lid] = {
                     "value": base,
                     "base": base,
@@ -170,15 +170,16 @@ class TrafficSimulator:
 
     def _get_rush_hour_factor(self, hour: int) -> float:
         """Множитель пробок в зависимости от времени суток в Астане"""
+        # Поздний вечер и ночь (очень мало машин)
+        if 21 <= hour <= 23 or 0 <= hour <= 6: return 0.1
         # Утренний пик (до 8-9:30)
         if 7 <= hour <= 9: return 2.5
-        # Вечерний пик (с 17:30 до 19:30)
-        if 17 <= hour <= 19: return 3.0
         # Обед
         if 12 <= hour <= 14: return 1.5
-        # Ночь
-        if 0 <= hour <= 5: return 0.2
-        return 1.0
+        # Вечерний пик (с 17:30 до 19:30)
+        if 17 <= hour <= 19: return 3.0
+        # Обычный день (с 10 до 11, с 15 до 16, с 20 до 21)
+        return 0.6
 
     def _get_loc_importance(self, lid: int) -> float:
         """Некоторые улицы Астаны (мосты, центр) более загружены"""
