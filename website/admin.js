@@ -82,7 +82,7 @@ async function showDashboard(token) {
     try {
       const weatherRes = await fetch(`${API_BASE}/weather`);
       const weatherData = await weatherRes.json();
-      document.getElementById('stat-weather').innerHTML = `<strong>${weatherData.temperature}°C</strong>, ${weatherData.description}<br><small>Трафик коэффициенті: ${weatherData.traffic_factor}x</small>`;
+      document.getElementById('stat-weather').innerHTML = `<strong style="font-size: 24px;">${weatherData.temp}°C</strong><br>${weatherData.description}<br><small style="color: #6B7280; margin-top: 4px; display: inline-block;">Трафик коэф.: ${weatherData.traffic_factor}x</small>`;
     } catch(e) {
       document.getElementById('stat-weather').textContent = 'Мәлімет жоқ';
     }

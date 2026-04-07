@@ -458,3 +458,58 @@ input[type=range] { width: 100%; cursor: pointer; }
   font-size: 12px;
 }
 .custom-tooltip::before { border-top-color: rgba(15, 23, 42, 0.9); }
+
+/* ── MOBILE RESPONSIVENESS (Смарфондарға бейімделу) ── */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  /* Rail menu becomes a top horizontal navigation bar */
+  .rail-menu {
+    width: 100%;
+    height: 65px;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 10px;
+    overflow-x: auto;
+    z-index: 1200;
+    order: 1;
+  }
+  
+  .rail-item {
+    width: auto;
+    padding: 0 16px;
+    height: 100%;
+  }
+  
+  .rail-spacer { display: none; } /* Hide spacer on mobile */
+
+  /* Map container gets the middle flexible space */
+  .map-container {
+    width: 100%;
+    flex: 1;
+    order: 2;
+  }
+
+  /* Sidebar becomes a bottom sheet (45% of height) */
+  .sidebar {
+    width: 100%;
+    height: 45vh;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    order: 3;
+    z-index: 1200;
+  }
+
+  /* Hide legend on mobile to save map space */
+  .map-legend {
+    display: none;
+  }
+  
+  .map-controls-right {
+    top: 10px; right: 10px;
+  }
+}
