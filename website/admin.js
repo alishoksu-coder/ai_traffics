@@ -76,13 +76,83 @@ async function showDashboard(token) {
     }
 
     document.getElementById('stat-hotspots').textContent = data.hotspots || 0;
-    
     document.getElementById('admin-status').textContent = 'Желіде (Online)';
+
+    // --- Weather Widget ---
+    try {
+      const weatherRes = await fetch(`${API_BASE}/weather`);
+      const weatherData = await weatherRes.json();
+      document.getElementById('stat-weather').innerHTML = `<strong>${weatherData.temperature}°C</strong>, ${weatherData.description}<br><small>Трафик коэффициенті: ${weatherData.traffic_factor}x</small>`;
+    } catch(e) {
+      document.getElementById('stat-weather').textContent = 'Мәлімет жоқ';
+    }
+
+    // --- Chart.js Rendering ---
+    try {
+      const histRes = await fetch(`${API_BASE}/traffic/history?minutes=120`);
+      const histData = await histRes.json();
+      
+      // Group by timestamp to calculate average traffic across all segments
+      const timeGroups = {};
+      histData.items.forEach(item => {
+        const t = item[1]; // ts
+        const v = item[3]; // value
+        if(!timeGroups[t]) timeGroups[t] = [];
+        timeGroups[t].push(v);
+      });
+
+      const labels = [];
+      const dataPoints = [];
+      
+      Object.keys(timeGroups).sort().forEach(ts => {
+        const date = new Date(parseInt(ts) * 1000);
+        labels.push(`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
+        const avg = timeGroups[ts].reduce((a, b) => a + b, 0) / timeGroups[ts].length;
+        dataPoints.push(avg.toFixed(1));
+      });
+
+      renderChart(labels, dataPoints);
+    } catch(e) {
+      console.error("График қатесі:", e);
+    }
 
   } catch (err) {
     document.getElementById('admin-status').textContent = 'Байланыс жоқ';
     console.error(err);
   }
+}
+
+let trafficChartInstance = null;
+function renderChart(labels, data) {
+  const ctx = document.getElementById('trafficChart').getContext('2d');
+  if(trafficChartInstance) {
+    trafficChartInstance.destroy();
+  }
+  trafficChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Орташа трафик деңгейі (%)',
+        data: data,
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
 }
 
 // Login Submit Hook
@@ -122,7 +192,68 @@ loginForm.addEventListener('submit', async (e) => {
     errorMsg.textContent = 'Желіге қосылу қатесі';
   } finally {
     loginBtn.disabled = false;
-    loginBtn.textContent = 'Кіру';
+    loginBtn.textContent = 'Кіру (Войти)';
+  }
+});
+
+// Tab Switching
+const tabLogin = document.getElementById('tab-login');
+const tabRegister = document.getElementById('tab-register');
+const registerForm = document.getElementById('register-form');
+const registerErrorMsg = document.getElementById('register-error');
+
+tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active');
+    tabRegister.classList.remove('active');
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+});
+
+tabRegister.addEventListener('click', () => {
+    tabRegister.classList.add('active');
+    tabLogin.classList.remove('active');
+    registerForm.style.display = 'block';
+    loginForm.style.display = 'none';
+});
+
+// Register Submit Hook
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const regBtn = document.getElementById('register-btn');
+  const loginVal = document.getElementById('reg-login').value.trim();
+  const passVal = document.getElementById('reg-password').value;
+  
+  if (!loginVal || !passVal) return;
+
+  try {
+    regBtn.disabled = true;
+    regBtn.textContent = 'Тіркелуде...';
+    registerErrorMsg.textContent = '';
+
+    const res = await fetch(`${API_BASE}/admin/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login: loginVal, password: passVal })
+    });
+
+    if (res.status === 400) {
+      registerErrorMsg.textContent = 'Бұл логин бос емес (Логин занят)';
+      return;
+    }
+
+    if (!res.ok) throw new Error('Сервер қатесі');
+
+    const data = await res.json();
+    if(data.token) {
+      localStorage.setItem('admin_token', data.token);
+      showDashboard(data.token);
+    }
+  } catch (err) {
+    registerErrorMsg.textContent = 'Қате: сервермен байланыс жоқ';
+  } finally {
+    regBtn.disabled = false;
+    regBtn.textContent = 'Тіркелу (Регистрация)';
   }
 });
 

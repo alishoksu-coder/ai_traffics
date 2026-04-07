@@ -549,6 +549,28 @@ def admin_login(req: LoginRequest):
         conn.close()
 
 
+@app.post("/admin/register")
+def admin_register(req: LoginRequest):
+    from app.auth import hash_for_storage
+    from app.db.repository import create_admin
+    conn = get_conn(settings.db_path)
+    try:
+        user = get_admin_by_login(conn, req.login)
+        if user:
+            raise HTTPException(status_code=400, detail="Мұндай логин тіркелген (User already exists)")
+        
+        hashed = hash_for_storage(req.password)
+        create_admin(conn, req.login, hashed)
+        commit(conn)
+        
+        # Сразу возвращаем токен авторизации
+        user_new = get_admin_by_login(conn, req.login)
+        token = create_admin_token(int(user_new["id"]))
+        return {"token": token, "message": "Тіркелу сәтті аяқталды"}
+    finally:
+        conn.close()
+
+
 @app.get("/admin/dashboard")
 def admin_dashboard(authorization: str = Header(None)):
     token = (authorization or "").replace("Bearer ", "")

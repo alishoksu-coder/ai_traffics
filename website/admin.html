@@ -10,9 +10,9 @@
 </head>
 <body class="admin-body">
 
-  <!-- ADMIN LOGIN -->
+  <!-- ADMIN LOGIN / REGISTER -->
   <div id="login-container" class="admin-container">
-    <div class="admin-card login-card">
+    <div class="admin-card login-card glass-panel">
       <div class="admin-header">
         <a href="index.html" class="logo">
           <div class="logo-icon">
@@ -27,7 +27,14 @@
         <p>Админ-панельге кіру</p>
       </div>
 
-      <form id="login-form">
+      <!-- Auth Tabs -->
+      <div class="auth-tabs">
+        <button id="tab-login" class="auth-tab active">Вход</button>
+        <button id="tab-register" class="auth-tab">Регистрация</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" class="auth-form active">
         <div class="form-group">
           <label for="login">Логин</label>
           <input type="text" id="login" placeholder="admin" required>
@@ -37,8 +44,23 @@
           <input type="password" id="password" placeholder="••••••••" required>
         </div>
         <div id="login-error" class="error-msg"></div>
-        <button type="submit" class="btn btn-primary w-100" id="login-btn">Кіру</button>
+        <button type="submit" class="btn btn-primary w-100" id="login-btn">Кіру (Войти)</button>
       </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label for="reg-login">Жаңа Логин</label>
+          <input type="text" id="reg-login" placeholder="Например: admin_new" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Жаңа Пароль</label>
+          <input type="password" id="reg-password" placeholder="••••••••" required>
+        </div>
+        <div id="register-error" class="error-msg"></div>
+        <button type="submit" class="btn btn-primary w-100" id="register-btn" style="background: linear-gradient(135deg, #10B981, #059669);">Тіркелу (Регистрация)</button>
+      </form>
+
     </div>
   </div>
 
@@ -85,6 +107,15 @@
         </div>
       </div>
       
+      <!-- Weather Widget -->
+      <div class="stat-card">
+        <div class="stat-icon">🌤️</div>
+        <div class="stat-info">
+          <h3>Ауа-райы (Астана)</h3>
+          <p id="stat-weather">--</p>
+        </div>
+      </div>
+
       <!-- Traffic Status Panel -->
       <div class="stat-card large ai-gradient">
         <div class="stat-info">
@@ -111,10 +142,19 @@
           </div>
         </div>
       </div>
+      
+      <!-- Chart.js Graphics -->
+      <div class="stat-card" style="grid-column: 1 / -1;">
+        <div class="stat-info" style="width: 100%;">
+          <h3>Трафик динамикасы (Соңғы 2 сағат)</h3>
+          <canvas id="trafficChart" height="80"></canvas>
+        </div>
+      </div>
     </div>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

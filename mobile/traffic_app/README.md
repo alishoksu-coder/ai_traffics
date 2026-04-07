@@ -1,63 +1,16 @@
-# 🚦 Разработка AI-приложения для мониторинга и прогноза транспортных потоков в условиях городской среды
+# traffic_app
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![Google Maps](https://img.shields.io/badge/Google%20Maps-4285F4?style=for-the-badge&logo=google-maps&logoColor=white)
+A new Flutter project.
 
-Официальное мобильное приложение дипломного проекта **«Разработка AI-приложения для мониторинга и прогноза транспортных потоков в условиях городской среды»** (на примере г. Астана). 
-Приложение предоставляет умную навигацию, построение маршрутов с учетом пробок, а также просмотр предсказаний загруженности дорог и AI-советов в режиме реального времени.
+## Getting Started
 
-## ✨ Ключевые возможности
+This project is a starting point for a Flutter application.
 
-- 🗺️ **Интеграция Google Карт**: Отрисовка перекрестков, дорог и полилиний маршрута.
-- 🚗 **Умные маршруты**: Вычисление маршрута с учетом загруженности. Поддержка алгоритмов прогнозирования (на 30/60 минут вперед).
-- 🚌 **Слежение за транспортом**: Отображение движения муниципальных автобусов и такси в реальном времени.
-- 🌙 **Поддержка Тёмной и Светлой темы**: Адаптивный пользовательский интерфейс, который подстраивается под системные настройки устройства. Модный современный дизайн *Glassmorphism* (эффект стекла).
-- 🧠 **AI Аналитика и Советы**: Вкладка с советами на основе исторических данных и машинного обучения, указывающая, где ожидаются "заторы" или "резкие аномалии".
-- 📈 **Дашборд Администратора**: Мониторинг "Глобального индекса пробок" по городу и системных логов.
+A few resources to get you started if this is your first Flutter project:
 
-## 🛠 Технологический стек (Mobile)
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-- **UI Framework:** Flutter / Dart
-- **Локализация/Картография:** `google_maps_flutter`, `geolocator`
-- **Взаимодействие с API (Backend):** `http` (связь с локальным или удаленным FastAPI сервером)
-- **Управление состоянием и темой:** `provider` / `ChangeNotifier` (`ThemeNotifier`)
-
-## 📂 Структура проекта (папка `lib`)
-
-- `main.dart` — точка входа, конфигурация роутинга и провайдеров темы.
-- `splash_screen.dart` — экран загрузки.
-- `navigator_screen.dart` — основной модуль Google Maps: поиск адресов, отрисовка пробок и маршрутов.
-- `drive_screen.dart` — анализ сегментов дорог и просмотр состояния трафика.
-- `tips_screen.dart` / `metrics_screen.dart` — интерфейс для отображения AI-аналитики и рекомендаций.
-- `admin_login_screen.dart` — аналитический дашборд.
-- `theme_notifier.dart` — управление глобальной расцветкой (Dark/Light).
-- `api.dart` — класс-клиент `ApiClient` для связи с FastAPI.
-
-## 🚀 Запуск проекта (Getting Started)
-
-Для запуска приложения убедитесь, что у вас установлен Flutter SDK и настроен эмулятор Android / iOS, либо подключено физическое устройство.
-
-### 1. Установка зависимостей
-Откройте терминал в папке `mobile/traffic_app` и выполните:
-```bash
-flutter pub get
-```
-
-### 2. Запуск приложения
-Запустите проект в режиме отладки:
-```bash
-flutter run
-```
-
-> **Примечание:** Если у вас возникают ошибки сборки (Gradle exit code), убедитесь, что версия Kotlin в вашем `build.gradle` актуальна и соответствует последней версии плагина Flutter.
-
-### 3. API Ключи (Важно)
-Для того чтобы работали карты слои навигации, в проекте используется **Google Maps SDK**. 
-Ключ API указывается в следующих файлах (в зависимости от платформы):
-- **Android:** `android/app/src/main/AndroidManifest.xml`
-- **iOS:** `ios/Runner/AppDelegate.swift`
-
-## 🔗 Связь с Backend
-
-Приложение ожидает работающий FastAPI сервер. URL сервера настраивается в файле `api.dart` или через переменные окружения конфигурации (по умолчанию `http://10.0.2.2:8000` для эмуляторов Android).
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
