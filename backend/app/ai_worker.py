@@ -41,8 +41,43 @@ async def push_to_supabase(table: str, data: dict):
         except Exception as e:
             print(f"Supabase Error: {e}")
 
-async def get_real_traffic_score():
-    """Получает реальный балл пробок для Астаны из Яндекса"""
+async def get_2gis_traffic_score():
+    """Функция для получения балла пробок из 2GIS (приоритетный источник)"""
+    url = "https://catalog.api.2gis.ru/3.0/items/byid?id=70000001093468905&key=c7f1a769-c8a5-4636-b14d-d8c987808a12&locale=ru_KZ&fields=items.locale,items.flags,items.search_attributes.detection_type,items.search_attributes.additional_info,search_attributes,items.search_attributes.relevance,items.adm_div,items.city_alias,items.region_id,items.segment_id,items.reviews,items.point,request_type,context_rubrics,query_context,items.links,items.name_ex,items.name_back,items.org,items.group,items.dates,items.external_content,items.contact_groups,items.comment,items.ads.options,items.email_for_sending.allowed,items.stat,items.stop_factors,items.description,items.geometry.centroid,items.geometry.selection,items.geometry.style,items.timezone_offset,items.context,items.level_count,items.address,items.is_paid,items.access,items.access_comment,items.for_trucks,items.is_incentive,items.paving_type,items.capacity,items.schedule,items.schedule_special,items.floors,items.floor_id,items.floor_plans,ad,items.rubrics,items.routes,items.platforms,items.directions,items.barrier,items.reply_rate,items.purpose,items.purpose_code,items.attribute_groups,items.route_logo,items.has_goods,items.has_apartments_info,items.has_pinned_goods,items.has_realty,items.has_otello_stories,items.has_exchange,items.has_payments,items.has_dynamic_congestion,items.is_promoted,items.congestion,items.delivery,items.order_with_cart,search_type,items.has_discount,items.metarubrics,items.detailed_subtype,items.temporary_unavailable_atm_services,items.poi_category,items.has_ads_model,items.vacancies,items.structure_info.material,items.structure_info.floor_type,items.structure_info.gas_type,items.structure_info.year_of_construction,items.structure_info.elevators_count,items.structure_info.is_in_emergency_state,items.structure_info.project_type,items.has_otello_hotels,items.ski_lift,items.ski_track,items.inactive,items.links,items.source_url,items.statistics,items.geo_attributes,items.seasonal&stat%5Bsid%5D=f7d1c5d7-3fc5-4173-9f25-6c78a8748e4f&stat%5Buser%5D=cc740ae1-988c-4a31-999f-18ce9df18348&shv=2026-04-07-23&r=113030112"
+    headers = {
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "ru,en-US;q=0.9,en;q=0.8,kk;q=0.7",
+        "cache-control": "no-cache",
+        "origin": "https://2gis.kz",
+        "pragma": "no-cache",
+        "referer": "https://2gis.kz/",
+        "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Google Chrome";v="146"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+    }
+    async with httpx.AsyncClient() as client:
+        try:
+            r = await client.get(url, headers=headers, timeout=7.0)
+            if r.status_code == 200:
+                data = r.json()
+                items = data.get('result', {}).get('items', [])
+                if items:
+                    congestion = items[0].get('congestion')
+                    # Если congestion есть, но там None или это пустой объект - значит пробок 0 баллов
+                    if congestion is None:
+                        return 0
+                    return int(congestion.get('level', 0))
+                return 0 # Если айтем найден, но данных нет - считаем пробки нулевыми
+        except Exception as e:
+            print(f"2GIS Traffic API Error: {e}")
+    return None
+
+async def get_yandex_traffic_score():
+    """Функция для получения балла пробок из Яндекса (резервный источник)"""
     url = "https://export.yandex.ru/bar/reginfo.xml?region=163"
     async with httpx.AsyncClient() as client:
         try:
@@ -55,6 +90,18 @@ async def get_real_traffic_score():
         except Exception as e:
             print(f"Yandex Traffic API Error: {e}")
     return 0
+
+async def get_real_traffic_score():
+    """Получает реальный балл пробок для Астаны, используя 2GIS как основной и Яндекс как запасной источники"""
+    # 1. Сначала пробуем 2GIS
+    score = await get_2gis_traffic_score()
+    if score is not None:
+        print(f"📡 Данные успешно получены из 2GIS: {score} баллов.")
+        return score
+    
+    # 2. Если 2GIS подвел, идем в Яндекс
+    print("⚠️ 2GIS недоступен, используем Яндекс как fallback...")
+    return await get_yandex_traffic_score()
 
 def get_local_history(minutes=60):
     conn = sqlite3.connect(DB_PATH)

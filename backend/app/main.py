@@ -137,11 +137,56 @@ def health():
         "hotspots": sim.hotspots_count(),
     }
 
-
-@app.get("/health")
-def health_check():
-    """Lightweight health-check for keep-alive pings (UptimeRobot / cron-job.org)."""
-    return {"status": "ok"}
+@app.get("/parking")
+def get_parking(horizon: int = Query(0, ge=0, le=120)):
+    """
+    Возвращает список умных парковок (Smart Parking) с AI-анализом свободных мест.
+    С учетом горизонта прогнозирования трафика: чем больше пробок, тем меньше мест.
+    """
+    import random
+    import time
+    parkings = [
+        {"id": 1, "name": "ТРЦ Хан Шатыр", "lat": 51.1326, "lng": 71.4037, "capacity": 200, "price": "200 ₸/сағ"},
+        {"id": 2, "name": "Бәйтерек Монументі", "lat": 51.1283, "lng": 71.4304, "capacity": 150, "price": "300 ₸/сағ"},
+        {"id": 3, "name": "Астана Опера", "lat": 51.1256, "lng": 71.4162, "capacity": 80, "price": "Тегін (Бесплатно)"},
+        {"id": 4, "name": "MEGA Silk Way", "lat": 51.0888, "lng": 71.4187, "capacity": 500, "price": "100 ₸/сағ"},
+        {"id": 5, "name": "Abu Dhabi Plaza", "lat": 51.1197, "lng": 71.4390, "capacity": 300, "price": "500 ₸/сағ"},
+        {"id": 6, "name": "Керуен (Keruen)", "lat": 51.1281, "lng": 71.4248, "capacity": 120, "price": "400 ₸/сағ"}
+    ]
+    
+    # Предиктивный фактор загруженности
+    trend_factor = 1.0
+    message = None
+    if horizon > 0:
+        # Snap horizon to 30 or 60 for snapshot
+        snap_h = 30 if horizon <= 45 else 60
+        snapshot = sim.snapshot(snap_h)
+        if snapshot:
+            avg_traffic = sum(s.get('value', 0) for s in snapshot) / len(snapshot) if snapshot else 0
+            if avg_traffic > 60:  # value is 0-100
+                trend_factor = 1.4
+                message = f"Болжам (через {horizon} мин): Кептеліске байланысты бос орындар аз болады."
+            elif avg_traffic < 30:
+                trend_factor = 0.6
+                message = f"Болжам (через {horizon} мин): Жолдар бос, парковкада орындар көп."
+            else:
+                message = f"Болжам (через {horizon} мин): Қалыпты жүктеме күтілуде."
+    
+    # Симулируем занятость. Используем время для некоторого изменения
+    random.seed(int(time.time() / 300) + horizon)
+    for p in parkings:
+        base_occupancy = random.uniform(0.3, 0.7) * p["capacity"]
+        occupied = int(base_occupancy * trend_factor)
+        if occupied >= p["capacity"]:
+            occupied = int(p["capacity"] * 0.98)
+        p["occupied"] = occupied
+        p["available"] = p["capacity"] - p["occupied"]
+        p["status"] = "Бос (Свободно)" if p["available"] > 20 else ("Толы (Мало мест)" if p["available"] > 0 else "Орын жоқ (Нет мест)")
+        
+    res = {"items": parkings}
+    if message:
+        res["message"] = message
+    return res
 
 
 @app.get("/weather")
