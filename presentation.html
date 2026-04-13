@@ -295,6 +295,39 @@
         .reveal .progress { height: 6px; background: rgba(255,255,255,0.1); }
         .reveal .progress span { background: var(--accent-gradient); box-shadow: 0 0 10px var(--accent-blue); }
 
+        /* Responsive Improvements */
+        @media screen and (max-width: 800px) {
+            .reveal h1 { font-size: 1.6em !important; }
+            .reveal h2 { font-size: 1.2em !important; margin-bottom: 20px !important; }
+            .slide-card { padding: 25px 15px !important; width: 98% !important; }
+            .content-grid { grid-template-columns: 1fr !important; gap: 15px !important; }
+            
+            .arch-row { 
+                flex-direction: column !important; 
+                gap: 30px !important; 
+                align-items: center !important; 
+            }
+            .arch-group { width: 100% !important; flex: none !important; }
+            .arrow-right { transform: rotate(90deg); margin: 10px 0; }
+            
+            .tech-badges span { font-size: 0.7em !important; padding: 6px 10px !important; }
+            .modern-table { font-size: 0.65em !important; }
+            .modern-table td, .modern-table th { padding: 8px !important; }
+            
+            .arch-box { width: 100% !important; padding: 12px !important; }
+            .arch-details-panel { padding: 15px !important; min-height: 120px !important; }
+        }
+
+        .active-selected {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 0 1px var(--accent-blue); }
+            50% { box-shadow: 0 0 30px rgba(34, 211, 238, 0.4), inset 0 0 0 2px var(--accent-blue); }
+            100% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 0 1px var(--accent-blue); }
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -928,6 +961,14 @@
                 iconEl.className = 'fa-solid fa-circle-check main-icon';
                 iconEl.style.color = 'var(--accent-blue)';
             }
+
+            // Auto-scroll on mobile to see the explanation
+            if (window.innerWidth < 800) {
+                setTimeout(() => {
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
         }
     </script>
 </body>
