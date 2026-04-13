@@ -11,31 +11,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap');
 
         :root {
-            --primary-text: #0f172a;
-            --secondary-text: #475569;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            --radius-lg: 24px;
+            --primary-text: #f8fafc;
+            --secondary-text: #94a3b8;
+            --bg-color: #020617;
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --accent-gradient: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
+            --accent-blue: #22d3ee;
+            --accent-purple: #818cf8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glow-color: rgba(34, 211, 238, 0.2);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --radius-lg: 32px;
             --radius-md: 16px;
         }
 
         .reveal .reveal-viewport,
         .reveal {
             background: var(--bg-color);
-            background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0.03) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.03) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.03) 0, transparent 50%);
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(129, 140, 248, 0.15), transparent 80%),
+                radial-gradient(circle at 0% 100%, rgba(34, 211, 238, 0.1), transparent 50%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
         }
 
         .reveal .slides {
@@ -43,30 +44,28 @@
             color: var(--primary-text);
         }
 
-        .reveal h1,
-        .reveal h2,
-        .reveal h3,
-        .reveal h4 {
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
             font-family: 'Outfit', sans-serif;
             text-transform: none;
             color: var(--primary-text);
             font-weight: 700;
             margin-bottom: 20px;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
         }
 
         .reveal h1 {
-            font-size: 2.1em;
-            line-height: 1.2;
+            font-size: 2.2em;
+            line-height: 1.1;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            padding-bottom: 5px;
+            filter: drop-shadow(0 0 15px var(--glow-color));
         }
 
         .reveal h2 {
-            font-size: 1.6em;
-            margin-bottom: 30px;
+            font-size: 1.8em;
+            margin-bottom: 40px;
             position: relative;
             display: inline-block;
         }
@@ -74,64 +73,66 @@
         .reveal h2::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
+            width: 80px;
             height: 4px;
             background: var(--accent-gradient);
             border-radius: 4px;
+            box-shadow: 0 0 15px var(--accent-blue);
         }
 
-        .reveal p,
-        .reveal ul,
-        .reveal ol {
+        .reveal p, .reveal ul, .reveal ol {
             font-size: 0.9em;
-            line-height: 1.6;
+            line-height: 1.7;
             color: var(--secondary-text);
             text-align: left;
         }
 
-        .reveal ul {
-            list-style: none;
-            padding-left: 0;
+        .reveal strong {
+            color: var(--primary-text);
+            font-weight: 600;
         }
 
+        .reveal ul { list-style: none; padding-left: 0; }
         .reveal ul li {
             position: relative;
-            padding-left: 35px;
-            margin-bottom: 15px;
+            padding-left: 40px;
+            margin-bottom: 18px;
         }
 
         .reveal ul li::before {
-            content: '\f054';
+            content: '\f105';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
             left: 0;
             top: 4px;
-            font-size: 0.6em;
+            font-size: 0.7em;
             color: var(--accent-blue);
-            background: #eff6ff;
-            width: 24px;
-            height: 24px;
+            background: rgba(34, 211, 238, 0.1);
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 8px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
         }
 
         .slide-card {
             background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: var(--radius-lg);
             padding: 50px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
             width: 95%;
             margin: 0 auto;
             position: relative;
             overflow: hidden;
-            max-height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .slide-card::before {
@@ -140,265 +141,164 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 6px;
+            height: 2px;
             background: var(--accent-gradient);
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: center;
+            opacity: 0.7;
         }
 
         .info-box {
-            background: #f8fafc;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 20px;
-            transition: all 0.3s ease;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .info-box.gradient-border {
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            position: relative;
+        .info-box:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(34, 211, 238, 0.3);
+            transform: translateY(-2px);
         }
 
-        .info-box.gradient-border::after {
-            position: absolute;
-            top: -2px;
-            bottom: -2px;
-            left: -2px;
-            right: -2px;
-            background: var(--accent-gradient);
-            content: '';
-            z-index: -1;
-            border-radius: calc(var(--radius-md) + 2px);
-        }
-
-        /* Architecture Diagram Styles */
         .arch-diagram {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             font-size: 0.7em;
             width: 100%;
-            margin: 0 auto;
-        }
-
-        .arch-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: stretch;
-            position: relative;
         }
 
         .arch-group {
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 20px;
-            background: #f8fafc;
-            flex: 1;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.02);
             position: relative;
         }
 
         .arch-title {
             position: absolute;
-            top: -12px;
-            left: 20px;
+            top: -14px;
+            left: 24px;
             background: var(--accent-gradient);
-            padding: 4px 15px;
-            color: white;
-            font-size: 0.8em;
-            border-radius: 20px;
-            font-weight: 600;
-            box-shadow: var(--shadow-sm);
+            padding: 5px 18px;
+            color: #020617;
+            font-size: 0.85em;
+            border-radius: 30px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
         }
 
         .arch-box {
             border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: calc(var(--radius-md) - 4px);
+            background: rgba(15, 23, 42, 0.5);
+            padding: 18px;
+            border-radius: 12px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--primary-text);
-            flex: 1;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.25s ease;
         }
 
-        .arch-box.interactive {
-            cursor: pointer;
+        .arch-box i {
+            font-size: 2.4em;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 10px rgba(34, 211, 238, 0.2));
         }
 
         .arch-box.interactive:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-purple);
-            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.2);
-        }
-
-        .arch-box.interactive:active {
-            transform: translateY(2px) scale(0.97);
-            box-shadow: none;
             border-color: var(--accent-blue);
+            background: rgba(34, 211, 238, 0.05);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+            transform: translateY(-4px);
         }
 
         .arch-box.active-selected {
             border-color: var(--accent-blue);
-            background: #eff6ff;
-            box-shadow: inset 0 0 0 2px var(--accent-blue);
-        }
-
-        .arch-box i {
-            font-size: 2.2em;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .arrow-right {
-            display: flex;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 1.5em;
+            background: rgba(34, 211, 238, 0.1);
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.25), inset 0 0 0 1px var(--accent-blue);
         }
 
         .arch-details-panel {
-            margin-top: 25px;
-            padding: 20px;
-            background: #f8fafc;
+            margin-top: 30px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
             border-radius: var(--radius-md);
-            border-left: 5px solid var(--accent-purple);
+            border-left: 4px solid var(--accent-purple);
             display: flex;
             align-items: flex-start;
-            gap: 15px;
-            min-height: 90px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
+            gap: 20px;
+            min-height: 100px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 5px solid var(--accent-purple);
         }
 
         .arch-details-panel.highlighted {
-            background: #eff6ff;
+            background: rgba(34, 211, 238, 0.05);
             border-left-color: var(--accent-blue);
-            transform: scale(1.01);
-            box-shadow: var(--shadow-md);
-        }
-
-        .arch-details-panel i.main-icon {
-            color: var(--accent-purple);
-            font-size: 1.5em;
-            margin-top: 3px;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1);
         }
 
         .badge {
             display: inline-block;
-            padding: 6px 12px;
-            background: #eff6ff;
+            padding: 8px 16px;
+            background: rgba(34, 211, 238, 0.1);
             color: var(--accent-blue);
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.8em;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            border: 1px solid #bfdbfe;
-        }
-
-        .speaker-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #f8fafc;
-            padding: 10px 20px;
             border-radius: 30px;
-            border: 1px solid var(--border-color);
-            margin-top: 30px;
-        }
-
-        .speaker-badge i {
-            color: var(--accent-blue);
-            font-size: 1.2em;
-        }
-
-        .modern-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-            font-size: 0.8em;
-        }
-
-        .modern-table th {
-            padding: 0 15px;
             font-weight: 600;
-            color: var(--secondary-text);
-            text-align: left;
-            text-transform: uppercase;
+            font-size: 0.75em;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
         }
 
         .modern-table td {
-            background: #f8fafc;
-            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 18px;
             border: 1px solid var(--border-color);
-            border-right: none;
-            border-left: none;
+            color: var(--secondary-text);
         }
 
-        .modern-table tr td:first-child {
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-            border-left: 1px solid var(--border-color);
-            font-weight: 600;
-            color: var(--primary-text);
-        }
-
-        .modern-table tr td:last-child {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .icon-list li {
-            padding-left: 45px !important;
-        }
-
-        .icon-list li i {
-            position: absolute;
-            left: 0;
-            top: 2px;
-            font-size: 1.2em;
-            color: var(--accent-purple);
-        }
+        .modern-table tr td:first-child { color: var(--primary-text); }
 
         .formula-box {
-            background: #0f172a;
-            color: #38bdf8;
+            background: #020617;
+            color: var(--accent-blue);
             font-family: 'JetBrains Mono', monospace;
-            padding: 25px;
+            padding: 30px;
             border-radius: var(--radius-md);
-            font-size: 1.3em;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
+            font-size: 1.4em;
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            box-shadow: 0 0 40px rgba(34, 211, 238, 0.1);
+            text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
         }
 
         .tech-badges span {
-            display: inline-block;
-            padding: 8px 16px;
-            margin: 5px;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
             color: var(--primary-text);
-            box-shadow: var(--shadow-sm);
+            padding: 10px 20px;
         }
+
+        .speaker-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .reveal .progress { height: 6px; background: rgba(255,255,255,0.1); }
+        .reveal .progress span { background: var(--accent-gradient); box-shadow: 0 0 10px var(--accent-blue); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.3); }
     </style>
 </head>
 
@@ -413,17 +313,17 @@
                     <div style="margin-bottom: 20px;">
                         <span class="badge">Дипломдық жоба</span>
                         <span class="badge"
-                            style="background: #f5f3ff; color: var(--accent-purple); border-color: #ddd6fe;">2026
+                            style="background: rgba(129, 140, 248, 0.1); color: var(--accent-purple); border-color: rgba(129, 140, 248, 0.2);">2026
                             Жыл</span>
                     </div>
                     <h1 style="font-size: 1.8em;">Қалалық ортадағы көлік ағындарын бақылау мен болжауға арналған AI-қосымша әзірлеу</h1>
                     
                     <div style="margin: 30px auto; max-width: 800px; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.03); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
                             <i class="fa-solid fa-microchip" style="color: var(--accent-blue);"></i>
                             <span style="font-size: 0.9em; text-align: left;">Нейрондық желілер мен Big Data талдауын қолдану</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.03); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
                             <i class="fa-solid fa-satellite-dish" style="color: var(--accent-purple);"></i>
                             <span style="font-size: 0.9em; text-align: left;">Нақты уақыттағы IoT мониторинг жүйесін масштабтау</span>
                         </div>
@@ -456,7 +356,7 @@
                         <div>
                             <p><strong>Мәселе:</strong> Урбанизацияның жылдам өсуі қалалардағы көлік кептелісін
                                 күшейтеді. Дәстүрлі жүйелер пост-фактум жұмыс істейді.</p>
-                            <div class="info-box gradient-border" style="background: white; margin-top: 20px;">
+                            <div class="info-box gradient-border" style="background: rgba(255, 255, 255, 0.03); margin-top: 20px;">
                                 <h4 style="font-size: 1.1em; margin-bottom: 5px;"><i class="fa-solid fa-lightbulb"
                                         style="color: var(--accent-purple);"></i> Шешім</h4>
                                 <p style="font-size: 0.9em; margin: 0;">Machine Learning алгоритмдері арқылы
@@ -480,7 +380,7 @@
             <section>
                 <div class="slide-card" style="text-align: center; padding: 60px 40px;">
                     <h2>2. Жұмыс мақсаты</h2>
-                    <div style="background: #f8fafc; padding: 40px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-top: 20px;">
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px;">
                         <h3 style="line-height: 1.6; font-size: 1.2em; font-weight: 600; color: var(--primary-text); max-width: 900px; margin: 0 auto; text-align: center;">
                             LSTM нейрондық желілік архитектурасы негізінде қалалық трафикті нақты уақыт режимінде <span style="color: var(--accent-blue);">мониторингтеуге</span> және көлік кептелісін <span style="color: var(--accent-purple);">алдын ала болжауға</span> мүмкіндік беретін кешенді <strong>интеллектуалды AI-жүйесін</strong> әзірлеу және оны мобильді/веб платформалар арқылы интеграциялау.
                         </h3>
@@ -524,19 +424,19 @@
                     <h2>4. Зерттеу нысаны мен пәні</h2>
                     <div class="content-grid" style="margin-top: 40px;">
                         <div
-                            style="background: #eff6ff; padding: 30px; border-radius: var(--radius-md); border: 1px solid #bfdbfe; text-align: center;">
+                            style="background: rgba(34, 211, 238, 0.05); padding: 30px; border-radius: var(--radius-md); border: 1px solid rgba(34, 211, 238, 0.2); text-align: center;">
                             <i class="fa-solid fa-road"
                                 style="font-size: 3em; color: var(--accent-blue); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 15px;">Зерттеу нысаны</h4>
-                            <p style="text-align: center;">Қалалық ортадағы көлік ағындары және олардың инфрақұрылымы
+                            <p style="text-align: center; color: var(--primary-text);">Қалалық ортадағы көлік ағындары және олардың инфрақұрылымы
                                 (жол қозғалысы динамикасы).</p>
                         </div>
                         <div
-                            style="background: #f5f3ff; padding: 30px; border-radius: var(--radius-md); border: 1px solid #ddd6fe; text-align: center;">
+                            style="background: rgba(129, 140, 248, 0.05); padding: 30px; border-radius: var(--radius-md); border: 1px solid rgba(129, 140, 248, 0.2); text-align: center;">
                             <i class="fa-solid fa-robot"
                                 style="font-size: 3em; color: var(--accent-purple); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 15px;">Зерттеу пәні</h4>
-                            <p style="text-align: center;">Трафикті талдауға, модельдеуге және болжауға арналған жасанды
+                            <p style="text-align: center; color: var(--primary-text);">Трафикті талдауға, модельдеуге және болжауға арналған жасанды
                                 интеллект алгоритмдері (ML).</p>
                         </div>
                     </div>
@@ -574,9 +474,9 @@
                     <h2>6. Аналогтарды Талдау</h2>
                     <table class="modern-table" style="margin-top: 20px;">
                         <tr>
-                            <th style="width: 25%;">Аналог</th>
-                            <th style="width: 35%;">Артықшылығы</th>
-                            <th style="width: 40%;">Кемшілігі</th>
+                            <th style="width: 25%; color: var(--accent-blue);">Аналог</th>
+                            <th style="width: 35%; color: var(--accent-blue);">Артықшылығы</th>
+                            <th style="width: 40%; color: var(--accent-blue);">Кемшілігі</th>
                         </tr>
                         <tr>
                             <td><strong>Яндекс.Карты / 2ГИС</strong></td>
@@ -589,8 +489,7 @@
                             <td>Алдын ала болжау жүйесі толыққанды іске аспаған. Ашық API жоқ.</td>
                         </tr>
                         <tr>
-                            <td><span class="badge" style="background:var(--accent-purple); color:white;">Біздің жоба
-                                    (AI Traffic)</span></td>
+                            <td><span class="badge" style="background:var(--accent-gradient); color:var(--bg-color); border:none;">Біздің жоба (AI Traffic)</span></td>
                             <td>ИИ көмегімен алдын-ала 2 сағатқа болжау.</td>
                             <td>Сыртқы датчиктер мен деректерге (IoT) тәуелділік деңгейі.</td>
                         </tr>
@@ -619,13 +518,13 @@
 
                     <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="arch-box interactive"
-                            style="background: #f8fafc; padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-blue); flex-direction: row; justify-content: space-between;"
+                            style="background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-blue); flex-direction: row; justify-content: space-between;"
                             onclick="showArchDetail(this, 'Техникалық Шектеулер', '1. FastAPI негізінде нақты уақытта жауап беру жылдамдығы < 5 секунд болуы шарт. <br> 2. Асинхронды өңдеу арқылы Highload жүктемелерге (10к+ RPS) төзімділік. <br> 3. Төмен интернет жылдамдығында деректерді сығу форматын (Protobuf/JSON) қолдану.')">
                             <strong style="font-size: 0.8em;">Техникалық Шектеулер</strong>
                             <i class="fa-solid fa-chevron-right" style="font-size: 0.8em; opacity: 0.5;"></i>
                         </div>
                         <div class="arch-box interactive"
-                            style="background: #f8fafc; padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-purple); flex-direction: row; justify-content: space-between;"
+                            style="background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-purple); flex-direction: row; justify-content: space-between;"
                             onclick="showArchDetail(this, 'Сапалық Метрикалар', '1. Болжамның дәлдігі (Accuracy) 85%-дан төмен болмауы тиіс. <br> 2. RMSE (Root Mean Square Error) қателік индикаторын барынша азайту. <br> 3. Тұтынушыға ұсынылған маршруттың уақыт бойынша үнемділігі > 15% болуы.')">
                             <strong style="font-size: 0.8em;">Сапалық Метрикалар</strong>
                             <i class="fa-solid fa-chevron-right" style="font-size: 0.8em; opacity: 0.5;"></i>
@@ -816,8 +715,8 @@
                     <h2>11. Жобаның негізгі нәтижелері</h2>
                     <table class="modern-table">
                         <tr>
-                            <th style="width: 30%;">Бағыт</th>
-                            <th>Қол жеткізілген нәтиже</th>
+                            <th style="width: 30%; color: var(--accent-blue);">Бағыт</th>
+                            <th style="color: var(--accent-blue);">Қол жеткізілген нәтиже</th>
                         </tr>
                         <tr>
                             <td><span class="badge">Machine Learning</span></td>
@@ -826,14 +725,14 @@
                         </tr>
                         <tr>
                             <td><span class="badge"
-                                    style="background:#fce7f3; color:#ec4899; border-color:#fbcfe8;">Mobile & Web
+                                    style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.3);">Mobile & Web
                                     App</span></td>
                             <td>Кросс-платформалық <strong>мобильді клиент</strong> және қала операторларына арналған
                                 <strong>веб-панель</strong> толықтай іске қосылды.</td>
                         </tr>
                         <tr>
                             <td><span class="badge"
-                                    style="background:#dcfce7; color:#16a34a; border-color:#bbf7d0;">Cloud База</span>
+                                    style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.3);">Cloud База</span>
                             </td>
                             <td>Үздіксіз деректерді өңдеуге арналған толыққанды <strong>архитектура</strong> (FastAPI +
                                 PostgreSQL) құрылды.</td>
@@ -876,7 +775,7 @@
                     <h2>13. Тәжірибелік маңызы</h2>
                     <div class="content-grid" style="margin-top: 30px;">
                         <div
-                            style="background: white; border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
+                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
                             <i class="fa-solid fa-building-columns"
                                 style="font-size: 2.5em; color: var(--accent-blue); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 10px;">Қала әкімшілігі</h4>
@@ -884,12 +783,12 @@
                                 циклдерін тиімді басқару құралы.</p>
                         </div>
                         <div
-                            style="background: white; border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
+                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
                             <i class="fa-solid fa-car"
                                 style="font-size: 2.5em; color: var(--accent-purple); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 10px;">Тұрғындар үшін</h4>
                             <p style="font-size: 0.9em; margin: 0;">Күнделікті қатынау уақытын үнемдеу, стрессті азайту
-                                және жанармай шығынын төмендету.</p>
+                                жылдамдық пен жайлылықты арттыру.</p>
                         </div>
                     </div>
                 </div>
@@ -943,8 +842,8 @@
                     <h1 style="font-size: 3.5em; margin-bottom: 5px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Назарларыңызға рақмет!</h1>
                     <p style="font-size: 1.2em; color: #94a3b8; font-family: 'Outfit';">Сұрақтарыңыз болса, жауап беруге дайынмын.</p>
                     
-                    <div style="margin-top: 35px; display: flex; align-items: center; justify-content: center; gap: 30px; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: var(--radius-md); max-width: 600px; margin-left: auto; margin-right: auto; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="background: white; padding: 10px; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
+                    <div style="margin-top: 35px; display: flex; align-items: center; justify-content: center; gap: 30px; text-align: left; background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: var(--radius-md); max-width: 630px; margin-left: auto; margin-right: auto; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <div style="background: white; padding: 12px; border-radius: 16px; box-shadow: 0 0 30px rgba(0,0,0,0.5); flex-shrink: 0;">
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://alishoksu-coder.github.io/ai_traffics/presentation.html" alt="QR Code" style="margin: 0; display: block; border-radius: 8px; width: 120px; height: 120px;">
                         </div>
                         <div>
