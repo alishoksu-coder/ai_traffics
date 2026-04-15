@@ -1096,8 +1096,83 @@
         </div>
     </div>
 
+    <!-- Floating Toolbar -->
+    <div id="editorToolbar" style="
+        position: fixed; top: 20px; right: 20px; z-index: 9999;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px; padding: 10px 15px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+        display: flex; align-items: center; gap: 8px;
+        font-family: 'Outfit', sans-serif; font-size: 13px;
+        transition: all 0.3s ease;
+    ">
+        <!-- Edit Toggle -->
+        <button id="btnEditMode" onclick="toggleEditMode()" style="
+            display: flex; align-items: center; gap: 8px;
+            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
+            color: #475569; transition: all 0.2s ease; font-size: 13px;
+        " onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background=window._editMode?'#eff6ff':'#f1f5f9'">
+            <i class="fa-solid fa-pen-to-square"></i> Редактировать
+        </button>
+
+        <div style="width: 1px; height: 28px; background: #e2e8f0;"></div>
+
+        <!-- Download PDF -->
+        <button onclick="downloadPDF()" style="
+            display: flex; align-items: center; gap: 8px;
+            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
+            color: #475569; transition: all 0.2s ease; font-size: 13px;
+        " onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'" onmouseout="this.style.background='#f1f5f9';this.style.color='#475569'">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
+
+        <!-- Download PPTX -->
+        <button onclick="downloadPPTX()" style="
+            display: flex; align-items: center; gap: 8px;
+            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
+            color: #475569; transition: all 0.2s ease; font-size: 13px;
+        " onmouseover="this.style.background='#fff7ed';this.style.color='#ea580c'" onmouseout="this.style.background='#f1f5f9';this.style.color='#475569'">
+            <i class="fa-solid fa-file-powerpoint"></i> PPTX
+        </button>
+
+        <div style="width: 1px; height: 28px; background: #e2e8f0;"></div>
+
+        <!-- Slide Counter -->
+        <div id="slideCounter" style="
+            background: linear-gradient(135deg, #3b82f6, #1e40af); color: white;
+            border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px;
+            min-width: 60px; text-align: center;
+        ">1 / ?</div>
+
+        <!-- Minimize -->
+        <button id="btnMinimize" onclick="toggleToolbar()" style="
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
+            background: #f8fafc; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; color: #94a3b8; transition: all 0.2s ease; font-size: 14px;
+        " onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f8fafc'">
+            <i class="fa-solid fa-chevron-up"></i>
+        </button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" style="
+        position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%); z-index: 10000;
+        background: #0f172a; color: white; padding: 16px 30px; border-radius: 16px;
+        font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: bottom 0.4s ease;
+        display: flex; align-items: center; gap: 12px;
+    "></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/nicjansma/html2canvas@0.5.0-beta4/dist/html2canvas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script>
+        window._editMode = false;
+        window._toolbarMinimized = false;
+
         Reveal.initialize({
             controls: true,
             progress: true,
@@ -1111,6 +1186,161 @@
             transition: 'slide',
             backgroundTransition: 'fade'
         });
+
+        // Update slide counter
+        Reveal.on('slidechanged', updateCounter);
+        Reveal.on('ready', updateCounter);
+        function updateCounter() {
+            const idx = Reveal.getIndices();
+            const total = Reveal.getTotalSlides();
+            document.getElementById('slideCounter').textContent = (idx.h + 1) + ' / ' + total;
+        }
+
+        // Toast helper
+        function showToast(icon, msg) {
+            const t = document.getElementById('toast');
+            t.innerHTML = '<i class="' + icon + '"></i> ' + msg;
+            t.style.bottom = '30px';
+            setTimeout(() => { t.style.bottom = '-80px'; }, 3000);
+        }
+
+        // --- EDIT MODE ---
+        function toggleEditMode() {
+            window._editMode = !window._editMode;
+            const btn = document.getElementById('btnEditMode');
+            const els = document.querySelectorAll('.reveal .slides h1, .reveal .slides h2, .reveal .slides h3, .reveal .slides h4, .reveal .slides p, .reveal .slides li, .reveal .slides span, .reveal .slides strong, .reveal .slides td, .reveal .slides th, .reveal .slides div.formula-box');
+            
+            els.forEach(el => {
+                el.contentEditable = window._editMode;
+                if (window._editMode) {
+                    el.style.outline = 'none';
+                    el.addEventListener('focus', editFocusHandler);
+                    el.addEventListener('blur', editBlurHandler);
+                } else {
+                    el.removeEventListener('focus', editFocusHandler);
+                    el.removeEventListener('blur', editBlurHandler);
+                    el.style.outline = '';
+                    el.style.boxShadow = '';
+                }
+            });
+
+            if (window._editMode) {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Готово';
+                btn.style.background = '#eff6ff';
+                btn.style.color = '#2563eb';
+                btn.style.borderColor = '#93c5fd';
+                showToast('fa-solid fa-pen-to-square', 'Режим редактирования включён. Кликните на текст для правки.');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Редактировать';
+                btn.style.background = '#f1f5f9';
+                btn.style.color = '#475569';
+                btn.style.borderColor = '#e2e8f0';
+                showToast('fa-solid fa-circle-check', 'Изменения сохранены на странице.');
+            }
+        }
+
+        function editFocusHandler(e) {
+            e.target.style.outline = '2px solid #3b82f6';
+            e.target.style.borderRadius = '8px';
+            e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.15)';
+        }
+        function editBlurHandler(e) {
+            e.target.style.outline = 'none';
+            e.target.style.boxShadow = '';
+        }
+
+        // --- MINIMIZE TOOLBAR ---
+        function toggleToolbar() {
+            const tb = document.getElementById('editorToolbar');
+            const icon = document.querySelector('#btnMinimize i');
+            window._toolbarMinimized = !window._toolbarMinimized;
+            if (window._toolbarMinimized) {
+                tb.style.padding = '8px';
+                tb.querySelectorAll('button:not(#btnMinimize), div:not(#slideCounter)').forEach(el => {
+                    if (el.id !== 'btnMinimize') el.style.display = 'none';
+                });
+                icon.className = 'fa-solid fa-chevron-down';
+            } else {
+                tb.style.padding = '10px 15px';
+                tb.querySelectorAll('button, div').forEach(el => el.style.display = '');
+                icon.className = 'fa-solid fa-chevron-up';
+            }
+        }
+
+        // --- PDF EXPORT ---
+        function downloadPDF() {
+            showToast('fa-solid fa-spinner fa-spin', 'PDF экспорт... Браузердің Печать терезесі ашылады.');
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // --- PPTX EXPORT ---
+        async function downloadPPTX() {
+            showToast('fa-solid fa-spinner fa-spin', 'PPTX жасалуда... Күте тұрыңыз.');
+            
+            try {
+                const pptx = new PptxGenJS();
+                pptx.defineLayout({ name: 'WIDE', width: 13.33, height: 7.5 });
+                pptx.layout = 'WIDE';
+
+                const sections = document.querySelectorAll('.reveal .slides > section');
+                
+                sections.forEach((section, i) => {
+                    const slide = pptx.addSlide();
+                    slide.background = { color: 'F1F5F9' };
+
+                    // Extract title
+                    const titleEl = section.querySelector('h1, h2');
+                    const title = titleEl ? titleEl.textContent.trim() : 'Слайд ' + (i + 1);
+                    
+                    slide.addText(title, {
+                        x: 0.5, y: 0.3, w: 12.3, h: 1,
+                        fontSize: 28, fontFace: 'Arial',
+                        color: '0f172a', bold: true,
+                        align: 'left'
+                    });
+
+                    // Extract all text content
+                    const contentEls = section.querySelectorAll('p, li, td, th');
+                    let contentLines = [];
+                    contentEls.forEach(el => {
+                        const text = el.textContent.trim();
+                        if (text && text.length > 2) {
+                            contentLines.push(text);
+                        }
+                    });
+
+                    if (contentLines.length > 0) {
+                        const body = contentLines.join('\n\n');
+                        slide.addText(body, {
+                            x: 0.5, y: 1.5, w: 12.3, h: 5.5,
+                            fontSize: 14, fontFace: 'Arial',
+                            color: '475569',
+                            valign: 'top',
+                            paraSpaceAfter: 6,
+                            wrap: true
+                        });
+                    }
+                });
+
+                await pptx.writeFile({ fileName: 'AI_Traffic_Presentation.pptx' });
+                showToast('fa-solid fa-circle-check', 'PPTX сәтті жүктелді!');
+            } catch (err) {
+                showToast('fa-solid fa-triangle-exclamation', 'Қате: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        // --- PRINT CSS ---
+        const printStyle = document.createElement('style');
+        printStyle.textContent = `
+            @media print {
+                #editorToolbar, #toast { display: none !important; }
+                .reveal .slides section { page-break-after: always; }
+            }
+        `;
+        document.head.appendChild(printStyle);
 
         function showArchDetail(element, title, description) {
             const currentSlide = element.closest('section');
@@ -1151,140 +1381,6 @@
                     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
             }
-        }
-    </script>
-
-    <!-- Floating Toolbar -->
-    <div id="toolbar" style="
-        position: fixed; bottom: 30px; right: 30px; z-index: 9999;
-        display: flex; flex-direction: column; gap: 12px;
-        transition: all 0.3s ease;
-    ">
-        <!-- Toggle Button -->
-        <button onclick="toggleToolbar()" id="toolbarToggle" style="
-            width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
-            background: var(--accent-gradient); color: white; font-size: 1.4em;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-            transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
-        " title="Құралдар">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </button>
-
-        <!-- Hidden action buttons -->
-        <div id="toolbarActions" style="display: none; flex-direction: column; gap: 10px;">
-            <!-- PDF Download -->
-            <button onclick="downloadPDF()" style="
-                width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer;
-                background: #ffffff; color: #ef4444; font-size: 1.2em;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0;
-                transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
-            " title="PDF жүктеу">
-                <i class="fa-solid fa-file-pdf"></i>
-            </button>
-
-            <!-- Fullscreen -->
-            <button onclick="toggleFullscreen()" style="
-                width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer;
-                background: #ffffff; color: var(--accent-blue); font-size: 1.2em;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0;
-                transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
-            " title="Толық экран">
-                <i class="fa-solid fa-expand"></i>
-            </button>
-
-            <!-- Copy Link -->
-            <button onclick="copyLink()" id="copyBtn" style="
-                width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer;
-                background: #ffffff; color: #10b981; font-size: 1.2em;
-                box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 1px solid #e2e8f0;
-                transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
-            " title="Сілтемені көшіру">
-                <i class="fa-solid fa-link"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Toast notification -->
-    <div id="toast" style="
-        position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
-        background: #0f172a; color: white; padding: 14px 28px; border-radius: 14px;
-        font-family: 'Inter', sans-serif; font-size: 0.95em; font-weight: 500;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2); opacity: 0; transition: all 0.4s ease;
-        pointer-events: none; z-index: 99999;
-    "></div>
-
-    <script>
-        let toolbarOpen = false;
-
-        function toggleToolbar() {
-            toolbarOpen = !toolbarOpen;
-            const actions = document.getElementById('toolbarActions');
-            const toggle = document.getElementById('toolbarToggle');
-            if (toolbarOpen) {
-                actions.style.display = 'flex';
-                toggle.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-                toggle.style.background = '#0f172a';
-            } else {
-                actions.style.display = 'none';
-                toggle.innerHTML = '<i class="fa-solid fa-ellipsis-vertical"></i>';
-                toggle.style.background = 'var(--accent-gradient)';
-            }
-        }
-
-        function downloadPDF() {
-            showToast('<i class="fa-solid fa-print" style="margin-right:8px"></i> PDF режимі ашылуда...');
-            // Open print-pdf version in new tab for PDF export
-            const url = window.location.href.split('?')[0] + '?print-pdf';
-            const win = window.open(url, '_blank');
-            setTimeout(() => {
-                showToast('<i class="fa-solid fa-circle-info" style="margin-right:8px"></i> Ctrl+P басып PDF ретінде сақтаңыз');
-            }, 1500);
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-                showToast('<i class="fa-solid fa-expand" style="margin-right:8px"></i> Толық экран режимі');
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        function copyLink() {
-            const slideIndex = Reveal.getIndices().h;
-            const url = window.location.origin + window.location.pathname + '#/' + slideIndex;
-            navigator.clipboard.writeText(url).then(() => {
-                const btn = document.getElementById('copyBtn');
-                btn.style.background = '#10b981';
-                btn.style.color = 'white';
-                showToast('<i class="fa-solid fa-check" style="margin-right:8px"></i> Сілтеме көшірілді!');
-                setTimeout(() => {
-                    btn.style.background = '#ffffff';
-                    btn.style.color = '#10b981';
-                }, 2000);
-            });
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.innerHTML = message;
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(20px)';
-            }, 3000);
-        }
-    </script>
-
-    <!-- Print-PDF stylesheet for Reveal.js -->
-    <script>
-        if (window.location.search.match(/print-pdf/gi)) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.type = 'text/css';
-            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/css/print/pdf.min.css';
-            document.head.appendChild(link);
         }
     </script>
 </body>
