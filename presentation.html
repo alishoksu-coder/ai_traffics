@@ -14,28 +14,28 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap');
 
         :root {
-            --primary-text: #ffffff;
-            --secondary-text: #cbd5e1;
-            --bg-color: #0b1120;
-            --card-bg: rgba(15, 23, 42, 0.85);
-            --accent-gradient: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
-            --accent-blue: #38bdf8;
-            --accent-purple: #a5b4fc;
-            --border-color: rgba(255, 255, 255, 0.15);
-            --glow-color: rgba(56, 189, 248, 0.3);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --primary-text: #0f172a;
+            --secondary-text: #475569;
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            --accent-blue: #2563eb;
+            --accent-purple: #7c3aed;
+            --border-color: #e2e8f0;
+            --glow-color: rgba(37, 99, 235, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
             --radius-lg: 32px;
-            --radius-md: 16px;
+            --radius-md: 20px;
         }
 
         .reveal .reveal-viewport,
         .reveal {
             background: var(--bg-color);
             background-image: 
-                radial-gradient(circle at 50% -20%, rgba(129, 140, 248, 0.15), transparent 80%),
-                radial-gradient(circle at 0% 100%, rgba(34, 211, 238, 0.1), transparent 50%),
-                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.1), transparent 80%),
+                radial-gradient(circle at 10% 100%, rgba(59, 130, 246, 0.05), transparent 50%),
+                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
         }
 
@@ -51,20 +51,18 @@
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.01em;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
         }
 
         .reveal h1 {
-            font-size: 2.2em;
+            font-size: 3em;
             line-height: 1.1;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px var(--glow-color));
         }
 
         .reveal h2 {
-            font-size: 1.8em;
+            font-size: 2.4em;
             margin-bottom: 40px;
             position: relative;
             display: inline-block;
@@ -74,18 +72,16 @@
             content: '';
             position: absolute;
             bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
             width: 80px;
-            height: 4px;
+            height: 6px;
             background: var(--accent-gradient);
-            border-radius: 4px;
-            box-shadow: 0 0 15px var(--accent-blue);
+            border-radius: 10px;
         }
 
         .reveal p, .reveal ul, .reveal ol {
-            font-size: 0.9em;
-            line-height: 1.7;
+            font-size: 1.15em;
+            line-height: 1.6;
             color: var(--secondary-text);
             text-align: left;
         }
@@ -103,61 +99,70 @@
         }
 
         .reveal ul li::before {
-            content: '\f105';
+            content: '\f00c';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
             left: 0;
             top: 4px;
             font-size: 0.7em;
-            color: var(--accent-blue);
-            background: rgba(34, 211, 238, 0.1);
+            color: white;
+            background: var(--accent-gradient);
             width: 26px;
             height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
 
         .slide-card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
-            padding: 50px;
-            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+            padding: 60px;
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
             width: 95%;
             margin: 0 auto;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .slide-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--accent-gradient);
-            opacity: 0.7;
+            border: 1px solid rgba(15, 23, 42, 0.05);
         }
 
         .info-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: var(--radius-md);
             padding: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .info-box:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(34, 211, 238, 0.3);
+            border-color: #3b82f6;
             transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Responsiveness */
+        @media screen and (max-width: 800px) {
+            .reveal h1 { font-size: 1.5em !important; }
+            .reveal h2 { font-size: 1.2em !important; margin-bottom: 20px !important; }
+            .slide-card { padding: 25px !important; width: 98% !important; }
+            .content-grid, [style*="display: grid"] { 
+                grid-template-columns: 1fr !important; 
+                gap: 15px !important;
+            }
+            [style*="display: flex"] {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 15px !important;
+            }
+            .info-box { padding: 15px !important; }
+            .modern-table { font-size: 0.5em !important; }
+            .reveal p, .reveal ul, .reveal ol { font-size: 0.7em !important; }
         }
 
         .arch-diagram {
@@ -328,6 +333,11 @@
             100% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 0 1px var(--accent-blue); }
         }
 
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -342,40 +352,48 @@
 
             <!-- 1. Титульный слайд -->
             <section>
-                <div class="slide-card" style="text-align: center; padding: 60px 40px;">
-                    <div style="margin-bottom: 20px;">
-                        <span class="badge">Дипломдық жоба</span>
-                        <span class="badge"
-                            style="background: rgba(129, 140, 248, 0.1); color: var(--accent-purple); border-color: rgba(129, 140, 248, 0.2);">2026
-                            Жыл</span>
-                    </div>
-                    <h1 style="font-size: 1.8em;">Қалалық ортадағы көлік ағындарын бақылау мен болжауға арналған AI-қосымша әзірлеу</h1>
-                    
-                    <div style="margin: 30px auto; max-width: 800px; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.03); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <i class="fa-solid fa-microchip" style="color: var(--accent-blue);"></i>
-                            <span style="font-size: 0.9em; text-align: left;">Нейрондық желілер мен Big Data талдауын қолдану</span>
+                <div class="slide-card" style="text-align: center; padding: 60px 40px; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
+                        <div style="text-align: left;">
+                            <span class="badge" style="background: var(--eff6ff); color: var(--accent-blue); border-color: rgba(37, 99, 235, 0.2);">Дипломдық жоба</span>
+                            <span class="badge" style="background: #f8fafc; color: #64748b; border-color: #e2e8f0; margin-left: 10px;">2026 Жыл</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.03); padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
-                            <i class="fa-solid fa-satellite-dish" style="color: var(--accent-purple);"></i>
-                            <span style="font-size: 0.9em; text-align: left;">Нақты уақыттағы IoT мониторинг жүйесін масштабтау</span>
+                        <div style="display: flex; gap: 25px; align-items: center;">
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.85em; color: var(--secondary-text); font-weight: 700;">Жоба сайты</div>
+                                <div style="font-size: 0.75em; color: var(--accent-blue); font-weight: 500;">alishoksu-coder.github.io/ai_traffics/</div>
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alishoksu-coder.github.io/ai_traffics/" style="margin: 0; width: 150px; height: 150px; display: block;">
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
-                        <div class="speaker-badge">
-                            <i class="fa-solid fa-user-graduate"></i>
-                            <div style="text-align: left; line-height: 1.2;">
-                                <span style="font-size: 0.7em; color: var(--secondary-text);">Студент</span><br>
-                                <strong>Сулейменов АЛИШЕР</strong>
+                    <h1 style="font-size: 2.2em; text-align: left; margin-bottom: 30px;">Қалалық ортадағы көлік ағындарын бақылау мен болжауға арналған AI-қосымша әзірлеу</h1>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
+                        <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                            <div style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                <i class="fa-solid fa-microchip" style="color: var(--accent-blue);"></i>
                             </div>
+                            <span style="font-size: 0.85em; text-align: left; font-weight: 500;">Нейрондық желілер мен Big Data талдауын қолдану</span>
                         </div>
-                        <div class="speaker-badge">
-                            <i class="fa-solid fa-chalkboard-user"></i>
-                            <div style="text-align: left; line-height: 1.2;">
-                                <span style="font-size: 0.7em; color: var(--secondary-text);">Ғылыми жетекші</span><br>
-                                <strong>Кусаинова Айнур</strong>
+                        <div style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                            <div style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                <i class="fa-solid fa-satellite-dish" style="color: var(--accent-purple);"></i>
                             </div>
+                            <span style="font-size: 0.85em; text-align: left; font-weight: 500;">Нақты уақыттағы IoT мониторинг жүйесін масштабтау</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 40px; margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 30px;">
+                        <div>
+                            <span style="font-size: 0.7em; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px;">Студент</span>
+                            <div style="font-weight: 700; font-size: 1.1em; color: var(--primary-text); margin-top: 5px;">Сулейменов АЛИШЕР</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.7em; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px;">Ғылыми жетекші</span>
+                            <div style="font-weight: 700; font-size: 1.1em; color: var(--primary-text); margin-top: 5px;">Кусаинова Айнур</div>
                         </div>
                     </div>
                 </div>
@@ -385,24 +403,42 @@
             <section>
                 <div class="slide-card">
                     <h2>1. Тақырыптың өзектілігі</h2>
-                    <div class="content-grid">
+                    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; margin-top: 20px;">
                         <div>
-                            <p><strong>Мәселе:</strong> Урбанизацияның жылдам өсуі қалалардағы көлік кептелісін
-                                күшейтеді. Дәстүрлі жүйелер пост-фактум жұмыс істейді.</p>
-                            <div class="info-box gradient-border" style="background: rgba(255, 255, 255, 0.03); margin-top: 20px;">
-                                <h4 style="font-size: 1.1em; margin-bottom: 5px;"><i class="fa-solid fa-lightbulb"
-                                        style="color: var(--accent-purple);"></i> Шешім</h4>
-                                <p style="font-size: 0.9em; margin: 0;">Machine Learning алгоритмдері арқылы
-                                    кептелістерді <strong style="color: var(--accent-blue);">1-2 сағат бұрын
-                                        болжау</strong>.</p>
+                            <p style="margin-bottom: 25px;"><strong>Мәселе:</strong> Урбанизацияның жылдам өсуі қалалардағы көлік кептелісін күшейтеді. Қазақстанның ірі мегаполистері үшін бұл – стратегиялық сын-қатер.</p>
+                            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                                <div class="info-box" style="flex: 1; padding: 15px; text-align: center;">
+                                    <div style="color: var(--accent-blue); font-size: 1.5em; font-weight: 800;">117-ші</div>
+                                    <div style="font-size: 0.65em; font-weight: 600;">Алматы әлем бойынша</div>
+                                </div>
+                                <div class="info-box" style="flex: 1; padding: 15px; text-align: center;">
+                                    <div style="color: var(--accent-purple); font-size: 1.5em; font-weight: 800;">197-ші</div>
+                                    <div style="font-size: 0.65em; font-weight: 600;">Астана әлем бойынша</div>
+                                </div>
+                            </div>
+                            <div class="info-box" style="background: #eff6ff; border-left: 4px solid var(--accent-blue);">
+                                <p style="font-size: 0.85em; margin: 0; color: var(--primary-text);">
+                                    <i class="fa-solid fa-car-side" style="margin-right: 10px; color: var(--accent-blue);"></i> 
+                                    Қазақстанда <strong>6.8 млн</strong> автомобиль тіркелген (2025 ж. - өсім 21.6%)
+                                </p>
                             </div>
                         </div>
-                        <div>
-                            <ul class="icon-list">
-                                <li><i class="fa-solid fa-city"></i> Smart City дамуы: Цифрландыру</li>
-                                <li><i class="fa-solid fa-leaf" style="color:#2ecc71;"></i> Экология: CO2 азайту</li>
-                                <li><i class="fa-solid fa-chart-pie" style="color:#f39c12;"></i> Экономика: Логистиканы
-                                    оңтайландыру</li>
+                        <div class="info-box">
+                            <h4 style="font-size: 0.9em; margin-bottom: 20px;"><i class="fa-solid fa-chart-line"></i> Жол кептелісі индексінің өсуі</h4>
+                            <svg viewBox="0 0 400 200" style="width: 100%; height: auto;">
+                                <path d="M 50 150 L 150 130 L 250 80 L 350 40" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
+                                <circle cx="50" cy="150" r="5" fill="#2563eb" />
+                                <circle cx="150" cy="130" r="5" fill="#2563eb" />
+                                <circle cx="250" cy="80" r="5" fill="#2563eb" />
+                                <circle cx="350" cy="40" r="5" fill="#7c3aed" />
+                                <text x="40" y="175" fill="#64748b" font-size="12">2022</text>
+                                <text x="140" y="175" fill="#64748b" font-size="12">2023</text>
+                                <text x="240" y="175" fill="#64748b" font-size="12">2024</text>
+                                <text x="340" y="175" fill="#64748b" font-size="12">2025</text>
+                            </svg>
+                            <ul style="margin-top: 15px; font-size: 0.8em;">
+                                <li style="margin-bottom: 8px;">Орташа кептеліс уақыты: 39.4 мин</li>
+                                <li style="margin-bottom: 0;">CO2 шығарындылары: +15%</li>
                             </ul>
                         </div>
                     </div>
@@ -480,22 +516,24 @@
             <section>
                 <div class="slide-card">
                     <h2>5. Технологиялар Стегі</h2>
-                    <div style="margin-top: 30px;">
-                        <h4 style="font-size: 1.1em; color: var(--secondary-text);">Backend & Machine Learning</h4>
-                        <div class="tech-badges">
-                            <span><i class="fa-brands fa-python" style="color: #3776ab;"></i> Python / FastAPI</span>
-                            <span><i class="fa-solid fa-brain" style="color: #ff6f00;"></i> PyTorch (LSTM Models)</span>
-                            <span><i class="fa-solid fa-database" style="color: #336791;"></i> PostgreSQL /
-                                PostGIS</span>
-                            <span><i class="fa-brands fa-docker" style="color: #2496ed;"></i> Docker</span>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+                        <div>
+                            <h4 style="font-size: 1em; color: var(--accent-blue);"><i class="fa-solid fa-server"></i> Backend & Core AI</h4>
+                            <ul style="font-size: 0.8em;">
+                                <li><strong>FastAPI (Python):</strong> Жоғары жылдамдықты асинхронды API сервері.</li>
+                                <li><strong>PyTorch & Scikit-learn:</strong> LSTM және RandomForest модельдерін оқыту.</li>
+                                <li><strong>PostgreSQL + PostGIS:</strong> Кеңістіктік деректерді өңдеуге арналған мощный база.</li>
+                                <li><strong>WebSockets:</strong> Нақты уақытта деректерді тасымалдау.</li>
+                            </ul>
                         </div>
-
-                        <h4 style="font-size: 1.1em; color: var(--secondary-text); margin-top: 30px;">Frontend & Mobile
-                        </h4>
-                        <div class="tech-badges">
-                            <span><i class="fa-brands fa-flutter" style="color: #02569B;"></i> Flutter / Dart</span>
-                            <span><i class="fa-brands fa-vuejs" style="color: #4fc08d;"></i> Vue.js (Dashboard)</span>
-                            <span><i class="fa-solid fa-map" style="color: #34d399;"></i> OpenStreetMap / Mapbox</span>
+                        <div>
+                            <h4 style="font-size: 1em; color: var(--accent-purple);"><i class="fa-solid fa-mobile-screen"></i> Mobile & Frontend</h4>
+                            <ul style="font-size: 0.8em;">
+                                <li><strong>Flutter (Dart):</strong> Кросс-платформалық мобильді қосымша.</li>
+                                <li><strong>Google Maps SDK:</strong> Гео-визуализация және маршрут құру.</li>
+                                <li><strong>Provider & Bloc:</strong> Қосымша күйін тиімді басқару.</li>
+                                <li><strong>Docker:</strong> Контейнерлеу және микросервистік архитектура.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -505,406 +543,551 @@
             <section>
                 <div class="slide-card">
                     <h2>6. Аналогтарды Талдау</h2>
-                    <table class="modern-table" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px;">
+                        <div class="info-box">
+                            <h4 style="font-size: 0.9em; margin-bottom: 15px;"><i class="fa-solid fa-earth-americas"></i> Әлемдік жүйелер</h4>
+                            <ul style="font-size: 0.75em; padding-left: 20px;">
+                                <li style="margin-bottom: 10px;"><strong>2GIS:</strong> 1999 ж. негізі қаланған (Новосибирск, РФ). Қала анықтамалығы ретінде дамыған.</li>
+                                <li style="margin-bottom: 10px;"><strong>Yandex.Maps:</strong> 2004 ж. іске қосылған (Мәскеу, РФ). Ресей мен ТМД-да жетекші.</li>
+                            </ul>
+                        </div>
+                        <div class="info-box" style="border-left: 5px solid var(--accent-blue);">
+                            <h4 style="font-size: 0.9em; margin-bottom: 15px;"><i class="fa-solid fa-flag"></i> AI Traffic (Наш Проект)</h4>
+                            <ul style="font-size: 0.75em; padding-left: 20px;">
+                                <li style="margin-bottom: 10px;"><strong>Made in Kazakhstan:</strong> Қазақстанның инфрақұрылымына бейімделген (2026 ж).</li>
+                                <li style="margin-bottom: 10px;"><strong>AI-First:</strong> Тек фактіні көрсетіп қана қоймай, ИИ көмегімен алдын ала болжам жасайды.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <table class="modern-table" style="margin-top: 20px; font-size: 0.7em;">
                         <tr>
-                            <th style="width: 25%; color: var(--accent-blue);">Аналог</th>
-                            <th style="width: 35%; color: var(--accent-blue);">Артықшылығы</th>
-                            <th style="width: 40%; color: var(--accent-blue);">Кемшілігі</th>
+                            <th style="color: var(--accent-blue);">Функция</th>
+                            <th>Yandex / 2GIS</th>
+                            <th style="color: var(--accent-blue);">AI Traffic</th>
                         </tr>
                         <tr>
-                            <td><strong>Яндекс.Карты / 2ГИС</strong></td>
-                            <td>Ауқымды қамту, қолдануға ыңғайлы.</td>
-                            <td>Әкімшіліктер үшін жабық жүйе (Қалалық инфрақұрылымға енгізу мүмкін емес).</td>
+                            <td>Терең болжау</td>
+                            <td>Жоқ (тек тарихи дерек)</td>
+                            <td><strong>Иә (LSTM AI)</strong></td>
                         </tr>
                         <tr>
-                            <td><strong>Sergek Traffic</strong></td>
-                            <td>Камералар арқылы нақты уақыттағы мониторинг.</td>
-                            <td>Алдын ала болжау жүйесі толыққанды іске аспаған. Ашық API жоқ.</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge" style="background:var(--accent-gradient); color:var(--bg-color); border:none;">Біздің жоба (AI Traffic)</span></td>
-                            <td>ИИ көмегімен алдын-ала 2 сағатқа болжау.</td>
-                            <td>Сыртқы датчиктер мен деректерге (IoT) тәуелділік деңгейі.</td>
+                            <td>Антистресс режим</td>
+                            <td>Жоқ</td>
+                            <td><strong>Иә</strong></td>
                         </tr>
                     </table>
                 </div>
+             <!-- 7. Аналогтарды Талдау (Соңы) -->
             </section>
 
-            <!-- 8. Постановка задачи -->
+            <!-- 8. Жүйенің Жалпы Архитектурасы -->
             <section>
                 <div class="slide-card">
-                    <h2>7. Есептің қойылымы</h2>
-
-                    <div class="info-box" style="margin-bottom: 20px; text-align: left;">
-                        <h4 style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                            <i class="fa-solid fa-square-root-variable" style="color: var(--accent-blue);"></i>
-                            Математикалық формализация
-                        </h4>
-                        <p style="margin: 0; font-size: 0.9em; line-height: 1.4;">
-                            Бұл есеп көп өлшемді уақытша қатарларды (multivariate time-series) болжау класына жатады. Мақсат — тарихи трафик деректерінің жиынтығын (<em>Traffic<sub>hist</sub></em>) және сыртқы динамикалық факторларды (ауа райының өзгеруі, жол оқиғалары, мерекелік күндер) ескере отырып, <em>T</em> уақытынан кейінгі <em>t</em> қадамындағы көше сегменттеріндегі кептеліс деңгейінің (<strong>Y<sub>pred</sub></strong>) ықтималдық мәнін есептеу.
+                    <h2 style="font-size: 2.8em;">8. Жүйенің Жалпы Архитектурасы</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 40px; margin-top: 30px;">
+                        <p style="text-align: center; max-width: 1000px; font-size: 1.3em; line-height: 1.6;">
+                            Жүйенің архитектурасы <strong>масштабталатын микросервистік</strong> принципке негізделген. 
+                            Бұл әр компонентті жеке дамытуға және қалалық трафиктің үлкен көлемін (Big Data) 
+                            кедергісіз өңдеуге мүмкіндік береді.
                         </p>
-                    </div>
+                        <div class="info-box" style="padding: 50px; background: #ffffff; border: 2px solid var(--accent-blue); width: 85%; transform: scale(1.1);">
+                            <svg viewBox="0 0 400 240" style="width: 100%; height: auto;">
+                                <rect x="20" y="20" width="80" height="200" rx="16" fill="#f8fafc" stroke="#3b82f6" stroke-width="2" />
+                                <text x="32" y="125" font-size="14" fill="#1e293b" font-weight="700">Clients</text>
+                                
+                                <path d="M 100 80 L 140 80" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)" />
+                                <path d="M 100 160 L 140 160" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)" />
 
-                    <div class="formula-box" style="margin-bottom: 20px; padding: 15px;">
-                        Y<sub>pred</sub>(T+t) = 𝑓(Traffic<sub>hist</sub>, Weather<sub>ext</sub>, Events<sub>info</sub>)
-                    </div>
+                                <rect x="140" y="40" width="120" height="160" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="2" />
+                                <text x="162" y="125" font-size="14" fill="#1e293b" font-weight="700">Backend</text>
 
-                    <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="arch-box interactive"
-                            style="background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-blue); flex-direction: row; justify-content: space-between;"
-                            onclick="showArchDetail(this, 'Техникалық Шектеулер', '1. FastAPI негізінде нақты уақытта жауап беру жылдамдығы < 5 секунд болуы шарт. <br> 2. Асинхронды өңдеу арқылы Highload жүктемелерге (10к+ RPS) төзімділік. <br> 3. Төмен интернет жылдамдығында деректерді сығу форматын (Protobuf/JSON) қолдану.')">
-                            <strong style="font-size: 0.8em;">Техникалық Шектеулер</strong>
-                            <i class="fa-solid fa-chevron-right" style="font-size: 0.8em; opacity: 0.5;"></i>
-                        </div>
-                        <div class="arch-box interactive"
-                            style="background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: var(--radius-md); border-left: 4px solid var(--accent-purple); flex-direction: row; justify-content: space-between;"
-                            onclick="showArchDetail(this, 'Сапалық Метрикалар', '1. Болжамның дәлдігі (Accuracy) 85%-дан төмен болмауы тиіс. <br> 2. RMSE (Root Mean Square Error) қателік индикаторын барынша азайту. <br> 3. Тұтынушыға ұсынылған маршруттың уақыт бойынша үнемділігі > 15% болуы.')">
-                            <strong style="font-size: 0.8em;">Сапалық Метрикалар</strong>
-                            <i class="fa-solid fa-chevron-right" style="font-size: 0.8em; opacity: 0.5;"></i>
-                        </div>
-                    </div>
+                                <path d="M 260 120 L 300 120" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)" />
 
-                    <div class="arch-details-panel" style="margin-top: 15px; min-height: 80px;">
-                        <i class="fa-solid fa-circle-info main-icon"></i>
-                        <div>
-                            <h4 class="detail-title" style="margin: 0 0 5px 0; font-size: 1em;">Толығырақ мәлімет</h4>
-                            <p class="detail-desc" style="margin: 0; font-size: 0.85em;">Метрикалар мен шектеулерді көру үшін жоғарыдағы блоктарды басыңыз.</p>
+                                <rect x="300" y="20" width="80" height="200" rx="16" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" />
+                                <text x="312" y="125" font-size="14" fill="#1e293b" font-weight="700">Data/AI</text>
+
+                                <defs>
+                                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                                        <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+                                    </marker>
+                                </defs>
+                            </svg>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 9. Архитектура системы (INTERACTIVE) -->
+            <!-- 9. Клиенттік деңгей -->
             <section>
                 <div class="slide-card">
-                    <h2>8. Жүйенің Архитектурасы</h2>
-
-                    <div class="arch-diagram" style="margin-top: 10px;">
-                        <div class="arch-row">
-                            <div class="arch-group" style="flex: 0.5;">
-                                <div class="arch-title"><i class="fa-regular fa-user"></i> Clients</div>
-                                <div class="arch-box interactive" style="margin-top: 10px; background: transparent;"
-                                    onclick="showArchDetail(this, 'Азаматтар (Mobile App)', 'Мобильді қосымшаны қолданушы қарапайым жүргізушілер. Олар жүйеге GPS деректерін жіберіп, ең қысқа, кептеліссіз жолдарды нақты уақытта алады.')">
-                                    <i class="fa-solid fa-mobile-screen-button" style="color:var(--primary-text);"></i>
-                                    <span>Азаматтар<br><small>(Mobile App)</small></span>
-                                </div>
-                                <div class="arch-box interactive" style="background: transparent;"
-                                    onclick="showArchDetail(this, 'Операторлар (Web Admin)', 'Жол қозғалысын басқару орталығының (ЖҚБО) қызметкерлері мен қала әкімшілігі. Олар қаланың жалпы трафик жағдайын бақылайды.')">
-                                    <i class="fa-solid fa-desktop" style="color:var(--primary-text);"></i>
-                                    <span>Операторлар<br><small>(Web Admin)</small></span>
-                                </div>
-                            </div>
-                            <div class="arrow-right"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
-
-                            <div class="arch-group" style="flex: 1.5; display: flex; gap: 15px;">
-                                <div class="arch-title"><i class="fa-solid fa-server"></i> API Gateway & Frontend</div>
-                                <div class="arch-box interactive" style="margin-top: 15px;"
-                                    onclick="showArchDetail(this, 'Flutter App', 'Кросс-платформалық (Android/iOS) мобильді клиент. Жүргізушілерге интерактивті карта мен дауыстық навигация ұсынады.')">
-                                    <i class="fa-brands fa-flutter"></i>
-                                    <strong>Flutter App</strong>
-                                    <span style="font-size: 0.8em;">User Navigation</span>
-                                </div>
-                                <div class="arch-box interactive" style="margin-top: 15px;"
-                                    onclick="showArchDetail(this, 'Vue.js Panel', 'Веб-браузерде жұмыс істейтін аналитикалық панель. Операторларға жылу карталарын, статистиканы және апаттар тізімін көрсетеді.')">
-                                    <i class="fa-brands fa-vuejs"></i>
-                                    <strong>Vue.js Panel</strong>
-                                    <span style="font-size: 0.8em;">City Dashboard</span>
-                                </div>
-                                <div class="arch-box interactive"
-                                    style="margin-top: 15px; border-color: var(--accent-purple);"
-                                    onclick="showArchDetail(this, 'FastAPI Bridge', 'Жоғары өнімділікті backend-сервер. Асинхронды WebSockets арқылы мыңдаған қолданушылармен нақты уақытта деректер алмасады.')">
-                                    <i class="fa-solid fa-network-wired"></i>
-                                    <strong>FastAPI Bridge</strong>
-                                    <span style="font-size: 0.8em;">WebSockets / REST</span>
-                                </div>
-                            </div>
-
-                            <div class="arrow-right"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
-
-                            <div class="arch-group" style="flex: 1.2;">
-                                <div class="arch-title"><i class="fa-solid fa-brain"></i> Python AI Pipeline</div>
-                                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                                    <div class="arch-box interactive"
-                                        style="flex-direction:row; padding: 10px 15px; justify-content:space-between;"
-                                        onclick="showArchDetail(this, 'LSTM Model (Traffic Prediction)', 'Терең Нейрон Желісі (Deep Learning Model). Тарихи деректерде оқытылып, алдағы сағаттарда қай көшелерде кептеліс болатынын болжайды.')">
-                                        <span>LSTM Model</span> <i class="fa-solid fa-chart-line"
-                                            style="color: var(--accent-blue); font-size:1.5em; background:none;-webkit-text-fill-color:currentColor;"></i>
-                                    </div>
-                                    <div class="arch-box interactive"
-                                        style="flex-direction:row; padding: 10px 15px; justify-content:space-between;"
-                                        onclick="showArchDetail(this, 'A* Routing Engine', 'Кептеліс салмақтарын (traffic weight algorithms) қолданып, көліктерге ең жылдам әрі қауіпсіз маршрутты есептейтін модуль.')">
-                                        <span>A* Routing Engine</span> <i class="fa-solid fa-route"
-                                            style="color: var(--accent-purple); font-size:1.5em; background:none;-webkit-text-fill-color:currentColor;"></i>
-                                    </div>
-                                </div>
-                            </div>
+                    <h2 style="font-size: 2.8em;">9. Клиенттік Деңгей (Client Layer)</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="border-top: 8px solid var(--accent-blue); padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-mobile-screen-button"></i> Мобильді клиент</h4>
+                            <ul style="padding-left: 30px;">
+                                <li style="margin-bottom: 20px;"><strong>Flutter & Dart:</strong> Бір кодтық база арқылы жоғары өнімділікті қамтамасыз ететін кроссплатформалық қосымша.</li>
+                                <li style="margin-bottom: 20px;"><strong>Real-time Map Matching:</strong> GPS деректерін жол желісімен дәл сәйкестендіру алгоритмдері.</li>
+                                <li style="margin-bottom: 0;"><strong>User Notifications:</strong> MQTT/WebSocket арқылы кептелістер туралы жедел хабарламалар.</li>
+                            </ul>
                         </div>
-
-                        <div class="arch-row" style="margin-top: 15px;">
-                            <div class="arch-group" style="display: flex; gap: 20px;">
-                                <div class="arch-title"><i class="fa-solid fa-database"></i> Data & External APIs</div>
-
-                                <div class="arch-box interactive"
-                                    style="flex-direction:row; padding: 15px; margin-top: 15px;"
-                                    onclick="showArchDetail(this, 'PostgreSQL + PostGIS', 'Реляциялық мәліметтер қоры. Соның ішінде PostGIS кеңейтімі арқылы күрделі геокеңістіктік (көшелер координаты т.б.) сұраныстарды жылдам орындайды.')">
-                                    <i class="fa-solid fa-database"
-                                        style="color:var(--accent-blue); font-size: 1.5em; background:none;-webkit-text-fill-color:currentColor;"></i>
-                                    <div style="text-align: left;">
-                                        <strong>PostgreSQL + PostGIS</strong>
-                                    </div>
-                                </div>
-
-                                <div class="arch-box interactive"
-                                    style="flex-direction:row; padding: 15px; margin-top: 15px;"
-                                    onclick="showArchDetail(this, 'Google Maps API', 'Сыртқы сервис. Базалық карталарды (Map Tiles), сондай-ақ қолданушылар болмаған көшелердегі трафик жағдайын алу үшін қосымша көз ретінде қолданылады.')">
-                                    <i class="fa-brands fa-google"
-                                        style="color:#ea4335; font-size: 1.5em; background:none;-webkit-text-fill-color:currentColor;"></i>
-                                    <div style="text-align: left;">
-                                        <strong>Google Maps API</strong>
-                                    </div>
-                                </div>
-
-                                <div class="arch-box interactive"
-                                    style="flex-direction:row; padding: 15px; margin-top: 15px;"
-                                    onclick="showArchDetail(this, 'Weather API (Америка метео-ұйымы)', 'Сыртқы сервис. Дауыл, қар, жаңбыр сияқты табиғи факторларды AI моделіне қосып есептеу үшін ауа-райы туралы нақты уақыт деректерін береді.')">
-                                    <i class="fa-solid fa-cloud-sun"
-                                        style="color:#f59e0b; font-size: 1.5em; background:none;-webkit-text-fill-color:currentColor;"></i>
-                                    <div style="text-align: left;">
-                                        <strong>Weather API</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="arch-explanation" class="arch-details-panel">
-                        <i class="fa-solid fa-hand-pointer main-icon"></i>
-                        <div>
-                            <h4 class="detail-title" style="margin: 0 0 5px 0; font-size: 1.1em;">Интерактивті Архитектура
-                            </h4>
-                            <p class="detail-desc" style="margin: 0; font-size: 0.9em;">Әрбір модульдің қызметімен танысу
-                                үшін, жоғарыдағы диаграммадағы кез-келген блокты басыңыз.</p>
+                        <div class="info-box" style="border-top: 8px solid var(--accent-purple); padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-desktop"></i> Веб-админ панель</h4>
+                            <ul style="padding-left: 30px;">
+                                <li style="margin-bottom: 20px;"><strong>Advanced Monitoring:</strong> Қала басшылығы мен операторларына арналған интерактивті карта.</li>
+                                <li style="margin-bottom: 20px;"><strong>Predictive Visuals:</strong> ИИ болжаған кептеліс ықтималдығын визуалды түрде көрсету.</li>
+                                <li style="margin-bottom: 0;"><strong>Incident Management:</strong> Жол апаттары мен жөндеу жұмыстарын бақылау құралдары.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 10. Разработка системы / алгоритма -->
+            <!-- 10. Серверлік деңгей -->
             <section>
                 <div class="slide-card">
-                    <h2>9. Алгоритм жұмысы</h2>
-                    <div class="info-box" style="margin-top: 20px;">
-                        <ol class="icon-list" style="margin: 0; padding-left: 20px;">
-                            <li style="margin-bottom: 20px;"><strong>Деректерді өңдеу:</strong> Кеңістік-уақыттық
-                                деректерді PostGIS арқылы тазарту және қалыпқа келтіру.</li>
-                            <li style="margin-bottom: 20px;"><strong>Модельді оқыту:</strong> Тарихи деректер негізінде
-                                LSTM (Long Short-Term Memory) архитектурасын Python/PyTorch арқылы оқыту.</li>
-                            <li style="margin-bottom: 20px;"><strong>Нақты уақыттық өңдеу:</strong> FastAPI және
-                                WebSocket арқылы пайдаланушы мен сервер арасында үздіксіз деректер(traffic stream)
-                                алмасу.</li>
-                            <li style="margin-bottom: 0px;"><strong>Маршрутты оңтайландыру:</strong> A* немесе Dijkstra
-                                алгоритміне ИИ болжаған салмақтарды (traffic delay) қосып ең тиімді жолды есептеу.</li>
-                        </ol>
+                    <h2 style="font-size: 2.8em;">10. Серверлік Деңгей (Backend Bridge)</h2>
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="border-left: 10px solid var(--accent-blue); background: #f8fafc; padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 30px;"><i class="fa-solid fa-server"></i> FastAPI Технологиясы</h4>
+                            <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 25px;">
+                                <strong>FastAPI</strong> — бұл жүйенің "жүрегі". Ол Python-ның ең заманауи мүмкіндіктерін пайдаланып, 
+                                деректерді өңдеу жылдамдығын максималды деңгейге жеткізеді.
+                            </p>
+                            <ul style="padding-left: 30px;">
+                                <li style="margin-bottom: 15px;">Көп ағынды асинхронды сұраныстарды өңдеу.</li>
+                                <li style="margin-bottom: 15px;">Деректердің дұрыстығын автоматты валидациялау (Pydantic).</li>
+                                <li style="margin-bottom: 0;">Клиенттермен WebSocket арқылы байланыс.</li>
+                            </ul>
+                        </div>
+                        <div class="info-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; padding: 40px;">
+                            <div style="width: 120px; height: 120px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);">
+                                <i class="fa-solid fa-bolt" style="font-size: 3em; color: white;"></i>
+                            </div>
+                            <div style="margin-top: 20px; font-size: 1.2em; font-weight: 700; color: var(--accent-blue);">Async Engine</div>
+                            <div style="font-size: 0.85em; color: var(--secondary-text); margin-top: 5px;">100+ req/sec</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 11. Интерфейс -->
+             <!-- 12. Аномалияларды анықтау (Z-Score) -->
             <section>
                 <div class="slide-card">
-                    <h2>10. Жүйе Интерфейсі</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-top: 20px; align-items: center;">
-                        <div style="text-align: center; position: relative;">
-                            <div style="position: absolute; top: -15px; right: -15px; z-index: 10;">
-                                <span class="badge" style="background: var(--accent-gradient); color: white; border: none; box-shadow: var(--shadow-md);">Live App</span>
-                            </div>
-                            <img src="website/images/mobile_app.png" alt="Mobile App" style="border-radius: 24px; max-height: 480px; box-shadow: 0 30px 60px -12px rgba(50,50,93,0.25), 0 18px 36px -18px rgba(0,0,0,0.3); border: 8px solid #1e293b;">
-                            <p style="font-size: 0.8em; margin-top: 15px; color: var(--accent-blue); font-weight: 700;">FLUTTER MOBILE CLIENT</p>
+                    <h2 style="font-size: 2.8em;">12. Жол апаттары мен аномалияларды детекторлау</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="border-left: 10px solid #ef4444; padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-triangle-exclamation"></i> Z-Score Алгоритмі</h4>
+                            <p style="font-size: 1.1em; line-height: 1.8;">
+                                Жолдағы кенеттен болған апаттарды анықтау үшін біз <strong>статистикалық Z-score</strong> әдісін қолданамыз. 
+                                Егер ағымдағы жылдамдық орташа деңгейден күрт ауытқыса (Z > 3), жүйе автоматты түрде "Апат болуы мүмкін" деген белгі береді.
+                            </p>
                         </div>
+                        <div class="info-box" style="text-align: center; background: #fff1f2;">
+                            <div class="formula-box" style="background: white; color: #ef4444; border: 2px solid #fecaca; font-size: 1.6em; margin-top: 40px;">
+                                Z = (x - μ) / σ
+                            </div>
+                            <p style="font-size: 0.9em; margin-top: 30px; color: #991b1b;">Мұндағы: x - ағымдағы жылдамдық, μ - орташа, σ - ауытқу.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 13. Трафик Симуляторы (Simulation Logic) -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">13. Трафик Симуляторы (Traffic Simulator)</h2>
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-microchip"></i> Симуляциялық модель</h4>
+                            <p style="font-size: 1.1em; line-height: 1.8;">
+                                Қалалық жол желісі <strong>144 бақылау нүктесіне</strong> (сегменттерге) бөлінген. 
+                                Ішкі "Simulator Engine" нақты уақытта IoT датчиктерінен келетін деректерді өңдеп, 
+                                әрбір 30 секунд сайын жолдың күйін жаңартып отырады.
+                            </p>
+                        </div>
+                        <div class="info-box" style="background: #f8fafc; display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 150px; height: 150px; border: 8px solid var(--accent-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative;">
+                                <div style="font-size: 2.2em; font-weight: 800;">144</div>
+                                <div style="position: absolute; bottom: -40px; width: 200px; text-align: center; font-size: 0.8em; font-weight: 700;">МОНИТОРИНГ НҮКТЕСІ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 14. ML Алгоритм: LSTM Нейрондық Желісі -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">14. ML Алгоритм: LSTM Нейрондық Желісі</h2>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; margin-top: 30px;">
+                        <div class="info-box" style="border-left: 10px solid var(--accent-blue); padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-brain"></i> Архитектуралық логика</h4>
+                            <p style="font-size: 1.1em; line-height: 1.8; margin-bottom: 20px;">
+                                Трафик - бұл уақыттық қатар (Time Series). LSTM (Long Short-Term Memory) 
+                                деректердегі "ұзақ мерзімді" тәуелділіктерді (мысалы, кешегі кептеліс пен бүгінгі жағдай) сақтай алады.
+                            </p>
+                        </div>
+                        <div class="info-box" style="display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 30px;">
+                            <svg viewBox="0 0 300 180" style="width: 100%; height: auto;">
+                                <rect x="20" y="50" width="60" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+                                <text x="35" y="95" font-size="12" fill="#1e293b">Input</text>
+                                <path d="M 80 90 L 120 90" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)" />
+                                <rect x="120" y="30" width="100" height="120" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" />
+                                <text x="135" y="95" font-size="12" fill="#1e293b">LSTM Cell</text>
+                                <path d="M 220 90 L 260 90" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow)" />
+                                <circle cx="275" cy="90" r="15" fill="#10b981" />
+                                <text x="268" y="95" font-size="10" fill="white">Out</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 15. Модельдерді салыстыру (Model Comparison) -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">15. Модельдердің тиімділігін салыстыру</h2>
+                    <div style="margin-top: 40px;">
+                        <table style="font-size: 1.1em; width: 100%; border-collapse: separate; border-spacing: 0 15px; text-align: left;">
+                            <thead>
+                                <tr style="color: var(--secondary-text); font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px;">
+                                    <th style="padding: 0 20px; font-weight: 600;">Модель</th>
+                                    <th style="padding: 0 20px; font-weight: 600;">MAE <span style="font-size:0.8em; text-transform:none;">(Қателік)</span></th>
+                                    <th style="padding: 0 20px; font-weight: 600;">RMSE</th>
+                                    <th style="padding: 0 20px; font-weight: 600;">Дәлдік көрсеткіші (Accuracy)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
+                                    <td style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: 1px solid #e2e8f0; border-right: none;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fa-solid fa-chart-line" style="color: #64748b;"></i>
+                                            </div>
+                                            <span style="font-weight: 600; color: var(--secondary-text);">Linear Regression</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">0.18</td>
+                                    <td style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">0.24</td>
+                                    <td style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 1px solid #e2e8f0; border-left: none; width: 45%;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="flex-grow: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                                                <div style="width: 72.1%; height: 100%; background: #94a3b8; border-radius: 5px;"></div>
+                                            </div>
+                                            <span style="font-weight: 700; color: #64748b; min-width: 60px;">72.1%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr style="background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
+                                    <td style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: 1px solid #e2e8f0; border-right: none;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="width: 40px; height: 40px; background: #eef2ff; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fa-solid fa-network-wired" style="color: #6366f1;"></i>
+                                            </div>
+                                            <span style="font-weight: 600; color: var(--secondary-text);">Random Forest</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">0.11</td>
+                                    <td style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">0.16</td>
+                                    <td style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 1px solid #e2e8f0; border-left: none; width: 45%;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="flex-grow: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                                                <div style="width: 81.5%; height: 100%; background: #6366f1; border-radius: 5px;"></div>
+                                            </div>
+                                            <span style="font-weight: 700; color: #6366f1; min-width: 60px;">81.5%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr style="background: #ffffff; box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15); transform: scale(1.02); position: relative; z-index: 10;">
+                                    <td style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: 2px solid var(--accent-blue); border-right: none; background: linear-gradient(90deg, rgba(37,99,235,0.05) 0%, #ffffff 100%);">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="width: 45px; height: 45px; background: var(--accent-gradient); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);">
+                                                <i class="fa-solid fa-trophy" style="font-size: 1.2em;"></i>
+                                            </div>
+                                            <div>
+                                                <strong style="color: var(--accent-blue); font-size: 1.1em; display: block;">LSTM (Біздің таңдау)</strong>
+                                                <span style="font-size: 0.7em; color: var(--accent-blue); font-weight: 600; text-transform: uppercase;">Deep Learning</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 25px; border-top: 2px solid var(--accent-blue); border-bottom: 2px solid var(--accent-blue);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <strong style="color: #10b981; font-size: 1.4em;">0.08</strong> 
+                                            <i class="fa-solid fa-arrow-trend-down" style="color: #10b981; background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 25px; border-top: 2px solid var(--accent-blue); border-bottom: 2px solid var(--accent-blue);">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <strong style="color: #10b981; font-size: 1.4em;">0.12</strong> 
+                                            <i class="fa-solid fa-arrow-trend-down" style="color: #10b981; background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 2px solid var(--accent-blue); border-left: none; width: 45%;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div style="flex-grow: 1; height: 16px; background: #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                                                <div style="width: 87.4%; height: 100%; background: var(--accent-gradient); border-radius: 8px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); position: relative; overflow: hidden;">
+                                                    <div style="position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: shimmer 2.5s infinite;"></div>
+                                                </div>
+                                            </div>
+                                            <span style="font-weight: 800; color: var(--accent-blue); font-size: 1.6em; min-width: 80px; text-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">87.4%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="info-box" style="margin-top: 35px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 6px solid var(--accent-blue); padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.02)">
+                            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                                <div style="min-width: 50px; height: 50px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-lightbulb" style="color: #fbbf24; font-size: 1.8em;"></i>
+                                </div>
+                                <p style="font-size: 1.1em; margin: 0; color: var(--secondary-text); line-height: 1.6;">
+                                    <strong>Қорытынды нәтиже:</strong> LSTM нейрондық желісі уақыттық тәуелділіктерді <i>(көлік қозғалысындағы Time Series)</i> есте сақтау қабілетінің арқасында 
+                                    қателігі ең төмен <strong style="color: #10b981;">(MAE = 0.08)</strong> және дәлдігі ең жоғары 
+                                    <strong style="color: var(--accent-blue); background: rgba(37,99,235,0.1); padding: 2px 8px; border-radius: 6px;">87.4%</strong> модель ретінде таңдалды.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 16. Модельді Оқыту және Деректер -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">16. Модельді Оқыту және Деректер</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-layer-group"></i> Dataset Сипаттамасы</h4>
+                            <ul style="padding-left: 30px; line-height: 2;">
+                                <li><strong>Көлемі:</strong> 1.2 миллионнан астам жазба.</li>
+                                <li><strong>Мерзімі:</strong> 2023-2025 жылдардағы тарихи деректер.</li>
+                                <li><strong>Параметрлер:</strong> Координаталар, Жылдамдық, Уақыт, Ауа райы, Мереке күндері.</li>
+                            </ul>
+                        </div>
+                        <div class="info-box" style="padding: 20px; text-align: center; border: 2px solid var(--accent-purple);">
+                            <h4 style="font-size: 1.4em; margin-bottom: 20px;">Loss Curve (Оқыту қатесі)</h4>
+                            <svg viewBox="0 0 400 220" style="width: 100%; height: auto;">
+                                <polyline points="40,160 80,100 120,60 160,40 200,35 240,32 280,31 320,30 360,30" fill="none" stroke="#7c3aed" stroke-width="4" />
+                                <path d="M 40 20 V 160 H 380" fill="none" stroke="#e2e8f0" stroke-width="2" />
+                                <text x="180" y="200" font-size="12" fill="#64748b">Эпохалар</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 17. Болжамдау Метрикалары -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">17. Болжамдау Дәлдігі (Metrics)</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 50px; margin-top: 40px;">
+                        <div class="info-box" style="display: flex; flex-direction: column; justify-content: center; gap: 30px; padding: 40px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 4em; font-weight: 800; color: var(--accent-blue);">87.4%</div>
+                                <div style="font-size: 1.2em; font-weight: 600; color: var(--secondary-text);">Орташа дәлдік (Accuracy)</div>
+                            </div>
+                        </div>
+                        <div class="info-box" style="padding: 40px;">
+                            <h4 style="font-size: 1.4em; margin-bottom: 25px;">Болжам мен Нақты деректер</h4>
+                            <table class="modern-table" style="font-size: 1em;">
+                                <tr><th>Уақыт</th><th>Нақты</th><th>Болжам</th></tr>
+                                <tr><td>08:30</td><td style="color:#ef4444">9.2 бал</td><td style="color:var(--accent-blue)">9.0 бал</td></tr>
+                                <tr><td>18:30</td><td style="color:#ef4444">9.8 бал</td><td style="color:var(--accent-blue)">9.5 бал</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 18. Мобильді Қосымша: Интерфейс -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">18. Мобильді Қосымша Интерфейсі</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; margin-top: 40px;">
                         <div style="display: flex; flex-direction: column; gap: 20px;">
-                            <div style="position: relative;">
-                                <img src="website/images/web_app.png" alt="Web App" style="border-radius: 12px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); width: 100%;">
-                                <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(15,23,42,0.8); backdrop-filter: blur(4px); padding: 8px 15px; border-radius: 8px; color: white; font-size: 0.7em; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-microchip" style="color: #38bdf8;"></i>
-                                    <span>Monitoring System v2.4.0 (Stable Build)</span>
-                                </div>
+                             <div class="info-box" style="padding: 30px; border-left: 8px solid var(--accent-blue);">
+                                <h4 style="font-size: 1.3em;"><i class="fa-solid fa-route"></i> Смарт-Маршруттау</h4>
+                             </div>
+                             <div class="info-box" style="padding: 30px; border-left: 8px solid var(--accent-purple);">
+                                <h4 style="font-size: 1.3em;"><i class="fa-solid fa-eye"></i> Визуалды бақылау</h4>
+                             </div>
+                        </div>
+                        <div class="info-box" style="background: #ffffff; display: flex; align-items: center; justify-content: center; position: relative;">
+                             <img src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800" style="width: 80%; border-radius: 40px;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 19. Web Admin: Қалалық Мониторинг -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">19. Web Admin Panel (Мониторинг)</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 40px; margin-top: 30px;">
+                        <div class="info-box" style="width: 100%; height: 350px; background: #1e293b; border-radius: 32px; display: flex; align-items: center; justify-content: center;">
+                            <div style="padding: 20px; background: var(--accent-blue); color: white; border-radius: 16px; font-weight: 700;">LIVE MONITORING ENABLED</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 17. Жүйе Жұмысының Демонстрациясы -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">17. Жүйе Жұмысының Видео-Демосы</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 20px;">
+                        <video id="demoVideo" controls autoplay muted loop style="width: 90%; border-radius: 32px; border: 4px solid #ffffff; box-shadow: 0 40px 100px rgba(0,0,0,0.15);">
+                            <source src="website/demo.mp4" type="video/mp4">
+                        </video>
+                        <div style="display: flex; gap: 40px;">
+                            <div class="info-box" style="padding: 20px 40px; border-bottom: 5px solid #10b981;">
+                                <div style="font-size: 1.5em; font-weight: 800; color: #10b981;">100 мс</div>
+                                <div style="font-size: 0.8em; color: var(--secondary-text);">Жауап беру жылдамдығы</div>
                             </div>
-                            <div class="info-box" style="font-size: 0.8em; border-top: 5px solid var(--accent-blue);">
-                                <h4 style="font-size: 1em; margin-bottom: 10px;"><i class="fa-solid fa-code-branch"></i> Жүйелік компоненттер:</h4>
-                                <ul style="margin: 0;">
-                                    <li>Glassmorphism дизайны мен қараңғы режим қолдауы.</li>
-                                    <li>Интерактивті карта мен нақты уақыттағы графиктік талдау.</li>
-                                    <li>Жедел хабарландырулар (Push-notifications).</li>
-                                </ul>
+                            <div class="info-box" style="padding: 20px 40px; border-bottom: 5px solid var(--accent-blue);">
+                                <div style="font-size: 1.5em; font-weight: 800; color: var(--accent-blue);">18%</div>
+                                <div style="font-size: 0.8em; color: var(--secondary-text);">Уақытты үнемдеу</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 12. Результаты работы -->
+            <!-- 20. Деректерді қорғау және Аутентификация -->
             <section>
                 <div class="slide-card">
-                    <h2>11. Жобаның негізгі нәтижелері</h2>
-                    <table class="modern-table">
-                        <tr>
-                            <th style="width: 30%; color: var(--accent-blue);">Бағыт</th>
-                            <th style="color: var(--accent-blue);">Қол жеткізілген нәтиже</th>
-                        </tr>
-                        <tr>
-                            <td><span class="badge">Machine Learning</span></td>
-                            <td>Трафикті болжаудың нейрондық моделі (LSTM) құрылды. Жүйе <strong>87% дәлдікке</strong>
-                                қол жеткізді.</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge"
-                                    style="background: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.3);">Mobile & Web
-                                    App</span></td>
-                            <td>Кросс-платформалық <strong>мобильді клиент</strong> және қала операторларына арналған
-                                <strong>веб-панель</strong> толықтай іске қосылды.</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge"
-                                    style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border-color: rgba(34, 197, 94, 0.3);">Cloud База</span>
-                            </td>
-                            <td>Үздіксіз деректерді өңдеуге арналған толыққанды <strong>архитектура</strong> (FastAPI +
-                                PostgreSQL) құрылды.</td>
-                        </tr>
-                    </table>
-                </div>
-            </section>
-
-            <!-- 13. Тестирование и оценка -->
-            <section>
-                <div class="slide-card">
-                    <h2>12. Тестілеу және бағалау</h2>
-                    <div class="content-grid">
-                        <div class="info-box">
-                            <i class="fa-solid fa-server"
-                                style="font-size: 2em; color: var(--accent-blue); margin-bottom: 15px;"></i>
-                            <h4 style="margin-bottom: 15px;">Өнімділік (Performance)</h4>
-                            <ul>
-                                <li>API жауап беру уақыты: <b>
-                                        < 120 мс</b>.</li>
-                                <li>Бірге жұмыс істейтін 10,000 WebSocket қосылымы сынақтан өтті (Load Testing).</li>
+                    <h2 style="font-size: 2.8em;">20. Деректер қауіпсіздігі (FaceID & PIN)</h2>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; margin-top: 40px;">
+                        <div class="info-box" style="padding: 40px;">
+                            <h4 style="font-size: 1.6em; margin-bottom: 25px;"><i class="fa-solid fa-shield-halved"></i> Қорғаныс деңгейлері</h4>
+                            <ul style="line-height: 2;">
+                                <li><strong>Биометрия:</strong> FaceID және TouchID арқылы жылдам кіру.</li>
+                                <li><strong>PIN-код:</strong> Қосымша шифрланған қауіпсіздік коды.</li>
+                                <li><strong>Шифрлау:</strong> Пайдаланушының гео-деректері серверде AES-256 стандартымен сақталады.</li>
                             </ul>
                         </div>
-                        <div class="info-box">
-                            <i class="fa-solid fa-bullseye"
-                                style="font-size: 2em; color: var(--accent-purple); margin-bottom: 15px;"></i>
-                            <h4 style="margin-bottom: 15px;">AI Метрикалары</h4>
-                            <ul>
-                                <li>Болжау дәлдігі: <strong style="color:var(--accent-blue)">87% Accuracy</strong></li>
-                                <li>Орташа жол жүру уақытын үнемдеу: <strong style="color:#2ecc71">-15%</strong></li>
-                            </ul>
+                        <div class="info-box" style="display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+                             <div style="text-align: center;">
+                                <i class="fa-solid fa-unlock-keyhole" style="font-size: 5em; color: var(--accent-purple); margin-bottom: 20px;"></i>
+                                <div style="font-size: 1.4em; font-weight: 700;">Local Auth SDK</div>
+                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 14. Практическая значимость -->
+            <!-- 21. Пайдаланылған әдебиеттер -->
             <section>
                 <div class="slide-card">
-                    <h2>13. Тәжірибелік маңызы</h2>
-                    <div class="content-grid" style="margin-top: 30px;">
+                    <h2 style="font-size: 2.8em;">21. Пайдаланылған әдебиеттер</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+                        <div class="info-box" style="font-size: 0.8em; line-height: 1.5;">
+                            <ol>
+                                <li>Гудфеллоу Я., Бенджио И. Глубокое обучение. 2017.</li>
+                                <li>Маккини У. Python и анализ данных. 2015.</li>
+                                <li>Шолле Ф. Глубокое обучение на Python. 2018.</li>
+                                <li>Келли Д. Создание веб-API с FastAPI. 2021.</li>
+                            </ol>
+                        </div>
+                        <div class="info-box" style="font-size: 0.8em; line-height: 1.5;">
+                            <ol start="5">
+                                <li>Напьер Б. Изучаем Flutter. 2022.</li>
+                                <li>FastAPI Documentation. https://fastapi.tiangolo.com/</li>
+                                <li>Flutter Documentation. https://flutter.dev/docs</li>
+                                <li>Google Maps API Reference. 2024.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 22. Тәжірибелік маңызы -->
+            <section>
+                <div class="slide-card">
+                    <h2 style="font-size: 2.8em;">22. Тәжірибелік маңызы</h2>
+                    <div class="content-grid" style="margin-top: 40px;">
                         <div
-                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
+                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
                             <i class="fa-solid fa-building-columns"
-                                style="font-size: 2.5em; color: var(--accent-blue); margin-bottom: 15px;"></i>
-                            <h4 style="margin-bottom: 10px;">Қала әкімшілігі</h4>
-                            <p style="font-size: 0.9em; margin: 0;">Жол инфрақұрылымын жоспарлау және бағдаршамдар
-                                циклдерін тиімді басқару құралы.</p>
+                                style="font-size: 3.5em; color: var(--accent-blue); margin-bottom: 25px;"></i>
+                            <h4 style="margin-bottom: 20px;">Қала әкімшілігі</h4>
+                            <p style="font-size: 1.1em; margin: 0;">Жол инфрақұрылымын жоспарлау және бағдаршамдарды басқару құралы.</p>
                         </div>
                         <div
-                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-md); text-align: center; box-shadow: var(--shadow-sm);">
+                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
                             <i class="fa-solid fa-car"
-                                style="font-size: 2.5em; color: var(--accent-purple); margin-bottom: 15px;"></i>
-                            <h4 style="margin-bottom: 10px;">Тұрғындар үшін</h4>
-                            <p style="font-size: 0.9em; margin: 0;">Күнделікті қатынау уақытын үнемдеу, стрессті азайту
-                                жылдамдық пен жайлылықты арттыру.</p>
+                                style="font-size: 3.5em; color: var(--accent-purple); margin-bottom: 25px;"></i>
+                            <h4 style="margin-bottom: 20px;">Тұрғындар үшін</h4>
+                            <p style="font-size: 1.1em; margin: 0;">Күнделікті қатынау уақытын үнемдеу және стрессті азайту.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 15. Заключение -->
+            <!-- 23. Қорытынды -->
             <section>
-                <div class="slide-card" style="text-align: center; padding: 40px 40px;">
-                    <div style="font-size: 3em; margin-bottom: 15px; color: var(--accent-blue);">
+                <div class="slide-card" style="text-align: center; padding: 60px 40px;">
+                    <div style="font-size: 4em; margin-bottom: 30px; color: var(--accent-blue);">
                         <i class="fa-regular fa-circle-check"></i>
                     </div>
-                    <h2>14. Қорытынды</h2>
+                    <h2 style="font-size: 2.8em;">23. Қорытынды</h2>
                     <p
-                        style="font-size: 1.1em; max-width: 800px; margin: 0 auto; color: var(--primary-text); line-height: 1.6;">
-                        Дипломдық жұмыстың мақсатына <strong style="color: var(--accent-blue);">толық қол
-                            жеткізілді</strong>. <br><br>
-                        Қалалық ортадағы трафикті бақылау мен болжауға арналған заманауи AI-қосымша әзірленіп,
-                        тестілеуден сәтті өтті. Заманауи стек (Flutter, FastAPI, PyTorch) қолданылуы жүйенің жоғары
-                        өнімділігі мен болашақта масштабталуын қамтамасыз етеді.
+                        style="font-size: 1.3em !important; max-width: 900px; margin: 0 auto; color: var(--primary-text); line-height: 1.8;">
+                        Дипломдық жұмыстың мақсатына <strong style="color: var(--accent-blue);">толық қол жеткізілді</strong>. <br><br>
+                        Қалалық ортадағы трафикті бақылау мен болжауға арналған заманауи AI-қосымша әзірленіп, тестілеуден сәтті өтті.
                     </p>
                 </div>
             </section>
 
-            <!-- 16. Перспективы развития -->
+            <!-- 24. Даму перспективалары -->
             <section>
                 <div class="slide-card">
-                    <h2>15. Даму перспективалары</h2>
-                    <div class="info-box" style="margin-top: 20px;">
-                        <ul class="icon-list" style="margin: 0;">
-                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-camera"></i> <strong>Computer Vision
-                                    интеграциясы:</strong> Көше камераларынан нақты уақыттағы бейнелерді талдап,
-                                апаттарды автоматты түрде тіркеу.</li>
-                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-wifi"></i> <strong>V2X
-                                    (Vehicle-to-Everything):</strong> Ақылды көліктермен (Smart Cars) тікелей байланыс
-                                орнату.</li>
-                            <li style="margin-bottom: 15px;"><i class="fa-solid fa-traffic-light"></i> <strong>IoT
-                                    қолдауы:</strong> Ақылды бағдаршамдарды трафик көлеміне қарай тікелей басқару
-                                жүйесі.</li>
-                            <li style="margin-bottom: 0px;"><i class="fa-solid fa-map-location-dot"></i>
-                                <strong>Масштабтау:</strong> Жүйені Қазақстанның басқа мегаполистерінде (Алматы,
-                                Шымкент) іске қосу.</li>
+                    <h2 style="font-size: 2.8em;">24. Даму перспективалары</h2>
+                    <div class="info-box" style="margin-top: 30px; padding: 40px;">
+                        <ul class="icon-list" style="margin: 0; line-height: 2.5;">
+                            <li><i class="fa-solid fa-camera"></i> <strong>CV интеграциясы:</strong> Камералардан апаттарды автоматты тіркеу.</li>
+                            <li><i class="fa-solid fa-wifi"></i> <strong>V2X Support:</strong> Ақылды көліктермен тікелей байланыс.</li>
+                            <li><i class="fa-solid fa-traffic-light"></i> <strong>IoT басқару:</strong> Бағдаршамдарды нақты уақытта реттеу.</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
-            <!-- 17. Спасибо за внимание -->
-            <section data-background-gradient="linear-gradient(135deg, #0f172a 0%, #1e293b 100%)">
-                <div class="slide-card" style="text-align: center; padding: 60px 40px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.1);">
+            <!-- Финальный слайд -->
+            <section data-background-color="var(--bg-color)">
+                <div class="slide-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px;">
+                    <h1 style="font-size: 4.5em; margin-bottom: 20px;">Назарларыңызға рақмет!</h1>
+                    <p style="color: var(--accent-blue); font-size: 1.8em; font-weight: 500; margin-bottom: 60px;">Сұрақтарыңыз болса қуана жауап беремін.</p>
                     
-                    <h1 style="font-size: 3.5em; margin-bottom: 5px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Назарларыңызға рақмет!</h1>
-                    <p style="font-size: 1.2em; color: #94a3b8; font-family: 'Outfit';">Сұрақтарыңыз болса, жауап беруге дайынмын.</p>
-                    
-                    <div style="margin-top: 35px; display: flex; align-items: center; justify-content: center; gap: 30px; text-align: left; background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: var(--radius-md); max-width: 630px; margin-left: auto; margin-right: auto; border: 1px solid rgba(255, 255, 255, 0.1);">
-                        <div style="background: white; padding: 12px; border-radius: 16px; box-shadow: 0 0 30px rgba(0,0,0,0.5); flex-shrink: 0;">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://alishoksu-coder.github.io/ai_traffics/presentation.html" alt="QR Code" style="margin: 0; display: block; border-radius: 8px; width: 120px; height: 120px;">
+                    <div style="display: flex; justify-content: center; gap: 100px; align-items: center; width: 100%;">
+                        <div style="text-align: center;">
+                            <div style="background: white; padding: 25px; border-radius: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); border: 1px solid var(--border-color);">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://github.com/alishoksu-coder/ai_traffics" style="margin: 0; width: 250px; height: 250px; display: block;">
+                            </div>
+                            <div style="color: var(--primary-text); font-size: 1.1em; margin-top: 25px; font-weight: 700;">Қосымшаны жүктеу (App Download)</div>
                         </div>
-                        <div>
-                            <span style="color: #38bdf8; font-weight: 600; font-size: 1.1em; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <i class="fa-solid fa-qrcode"></i> Толық ақпарат
-                            </span>
-                            <p style="color: #94a3b8; font-size: 0.85em; margin: 0; line-height: 1.5;">
-                                Осы QR кодты смартфоныңызбен сканерлеп, презентацияны онлайн көріңіз және жобаның бастапқы кодымен (GitHub) танысыңыз.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 35px; display: flex; justify-content: center; gap: 50px;">
                         <div style="text-align: left;">
-                            <span style="color: #64748b; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px;">Орындаған</span>
-                            <p style="margin: 5px 0 0 0; font-weight: 700; font-size: 1.1em;">Сулейменов Алишер</p>
-                        </div>
-                        <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
-                        <div style="text-align: left;">
-                            <span style="color: #64748b; font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px;">Мамандық</span>
-                            <p style="margin: 5px 0 0 0; font-weight: 700; font-size: 1.1em;">В057-6104-22-05</p>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 30px;">
-                        <div style="display: inline-flex; align-items: center; gap: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 10px 25px; border-radius: 50px; color: var(--accent-blue); font-size: 0.9em;">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            <span>Еуразия Ұлттық Университеті, 2026</span>
+                            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 50px; height: 50px; background: var(--accent-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fa-solid fa-envelope" style="font-size: 1.2em;"></i>
+                                </div>
+                                <span style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">alishoksu@enu.kz</span>
+                            </div>
+                            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 50px; height: 50px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fa-brands fa-github" style="font-size: 1.2em;"></i>
+                                </div>
+                                <span style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">github.com/alishoksu-coder</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 50px; height: 50px; background: var(--accent-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fa-solid fa-graduation-cap" style="font-size: 1.2em;"></i>
+                                </div>
+                                <span style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">ENU, IT Department, 2026</span>
+                            </div>
                         </div>
                     </div>
                 </div>
