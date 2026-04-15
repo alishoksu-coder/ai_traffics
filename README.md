@@ -182,6 +182,38 @@ flutter run
 
 ---
 
+## 🧠 Архитектура LSTM-модели
+
+```mermaid
+flowchart TD
+    A["📡 IoT-сенсоры (144 сегмента)"] --> B["🗄️ База данных (PostgreSQL)"]
+    B --> C["🧹 Препроцессинг (MinMaxScaler)"]
+    
+    subgraph LSTM ["🧠 LSTM Нейронная сеть (PyTorch)"]
+        direction TB
+        L1["Входные данные<br>(Скорость, Время, Погода, Праздники)"] --> L2["LSTM Cell 1<br>(Память долгих зависимостей)"]
+        L2 --> L3["LSTM Cell 2<br>(Выявление скрытых паттернов)"]
+        L3 --> L4["Fully Connected Layer<br>(Финальная регрессия)"]
+    end
+    
+    C --> LSTM
+    LSTM --> D["🔮 Прогноз трафика<br>(на 30-60 минут вперёд)"]
+    D --> E["📱 Вывод в Mobile / Web"]
+    
+    style A fill:#0ea5e9,color:#fff,stroke:none
+    style B fill:#334155,color:#fff,stroke:none
+    style C fill:#f59e0b,color:#fff,stroke:none
+    style LSTM fill:#1e1b4b,color:#fff,stroke:#8b5cf6,stroke-width:2px
+    style L1 fill:#4c1d95,color:#fff,stroke:none
+    style L2 fill:#5b21b6,color:#fff,stroke:none
+    style L3 fill:#6d28d9,color:#fff,stroke:none
+    style L4 fill:#7c3aed,color:#fff,stroke:none
+    style D fill:#ec4899,color:#fff,stroke:none
+    style E fill:#10b981,color:#fff,stroke:none
+```
+
+---
+
 ## 📂 Структура проекта
 
 ```
