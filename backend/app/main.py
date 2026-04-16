@@ -40,6 +40,7 @@ from app.seed import (
     seed_history_if_empty,
     seed_admin_if_empty,
 )
+from app.routing import routing_engine, NODES
 
 try:
     from app.ai_worker import main_loop as start_ai_worker
@@ -509,6 +510,24 @@ async def get_traffic_recommendation(location_id: int = Query(None)):
     finally:
         conn.close()
 
+class SimulationRequest(BaseModel):
+    lat: float
+    lon: float
+    duration_min: int = 15
+
+@app.post("/traffic/simulate_closure")
+def simulate_closure(req: SimulationRequest):
+    """
+    Режим «Цифровой двойник» (What-If Engine).
+    Искусственно блокирует/замедляет дорогу по переданным координатам.
+    """
+    # Создаем аномальный очаг (strength=95.0 - почти полная остановка)
+    sim.add_custom_hotspot(req.lat, req.lon, strength=95.0, radius_deg=0.012, ttl_seconds=req.duration_min * 60)
+    return {
+        "status": "success",
+        "message": f"Очаг пробки успешно создан. Действует {req.duration_min} мин."
+    }
+
 class MultimodalRequest(BaseModel):
     duration_now_sec: int
     distance_meters: int
@@ -562,6 +581,49 @@ async def multimodal_analysis(req: MultimodalRequest):
         "message": f"С учетом будущего затора, комбинированный маршрут сэкономит {max(0, (t2 - t3)//60)} минут." if recommend else "Оставайтесь на текущем маршруте."
     }
 
+class RouteCalculateRequest(BaseModel):
+    start_node_id: int
+    end_node_id: int
+    mode: str = "car_fast"  # car_fast, pedestrian, barrier_free, anti_stress
+    horizon_min: int = 0    # Traffic prediction horizon in minutes
+
+@app.post("/routes/calculate")
+def calculate_multicriteria_route(req: RouteCalculateRequest):
+    """
+    Рассчитывает оптимальный путь с использованием AI болжам (предсказания пробок)
+    и физических/психологических факторов (кедергісіз, антистресс).
+    """
+    if req.start_node_id not in NODES or req.end_node_id not in NODES:
+        raise HTTPException(status_code=400, detail="Invalid node IDs")
+        
+    # Get AI Traffic prediction if mode is car_fast or anti_stress
+    traffic_map = {}
+    if req.mode in ["car_fast", "anti_stress"] or req.horizon_min > 0:
+        # Snap horizon to nearest supported format
+        snap_h = 30 if 15 <= req.horizon_min <= 45 else (60 if req.horizon_min > 45 else 0)
+        snapshot = sim.snapshot(snap_h)
+        if snapshot:
+            # location_id to value 0-100
+            for item in snapshot:
+                loc_id = item.get("location_id")
+                # Map location_id from DB to our graph Node ID safely
+                # (For demo purposes, our node IDs match location IDs 1, 2, 3)
+                if loc_id in NODES:
+                    traffic_map[loc_id] = item.get("value", 0.0)
+
+    # Route!
+    res = routing_engine.calculate_route(req.start_node_id, req.end_node_id, req.mode, traffic_map)
+    if "error" in res:
+        raise HTTPException(status_code=404, detail=res["error"])
+        
+    return res
+
+@app.get("/routes/nodes")
+def get_routing_nodes():
+    """
+    Возвращает список доступных точек (вершин графа) для тестирования маршрутизатора.
+    """
+    return {"nodes": [n.__dict__ for n in NODES.values()]}
 
 @app.get("/vehicles")
 def get_vehicles():
