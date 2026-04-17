@@ -149,6 +149,19 @@ class TrafficSimulator:
             self._tick()
             time.sleep(self.tick_seconds)
 
+    def add_custom_hotspot(self, lat: float, lon: float, strength: float = 80.0, radius_deg: float = 0.015, ttl_seconds: float = 600.0) -> None:
+        """Режим Урбаниста (Digital Twin): ручное добавление эпицентра пробки/перекрытия."""
+        hotspot = {
+            "lat": lat,
+            "lon": lon,
+            "strength": strength,
+            "radius_deg": radius_deg,
+            "ttl": time.time() + ttl_seconds,
+            "custom": True
+        }
+        with self._lock:
+            self._hotspots.append(hotspot)
+
     def _spawn_hotspot(self) -> None:
         if not self._locations:
             return

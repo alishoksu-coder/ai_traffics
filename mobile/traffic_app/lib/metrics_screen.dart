@@ -1,12 +1,8 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-import 'package:traffic_app/config.dart';
 import 'package:traffic_app/common.dart';
 import 'package:traffic_app/api.dart';
-import 'package:traffic_app/models.dart';
 
 class MetricsScreen extends StatefulWidget {
   const MetricsScreen({super.key});
@@ -123,20 +119,12 @@ class _MetricsScreenState extends State<MetricsScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
+        decoration: cardDecoration(context).copyWith(
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isBest ? AppColors.primary : Theme.of(context).dividerColor.withOpacity(0.5),
-            width: isBest ? 2 : 1,
+            color: isBest ? AppColors.primary : Theme.of(context).dividerColor.withOpacity(0.2),
+            width: isBest ? 2 : 0.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,16 +229,12 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+      decoration: cardDecoration(context).copyWith(
+        borderRadius: BorderRadius.circular(24), // Even rounder base card
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.1),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +263,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    Text(
+                    const Text(
                       'AI анализ точности прогнозов',
                       style: TextStyle(
                         fontSize: 12,
@@ -454,13 +438,13 @@ class _MetricsScreenState extends State<MetricsScreen> {
                           color: AppColors.primary.withOpacity(0.3),
                         ),
                       ),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.info_outline,
                             color: AppColors.primary,
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'AI сравнивает точность разных методов прогнозирования. Лучшая модель выделена синим.',

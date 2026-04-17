@@ -115,36 +115,58 @@ def insert_traffic_values(conn: sqlite3.Connection, rows: List[Dict]) -> None:
     conn.commit()
 
 
-def get_history(conn: sqlite3.Connection, minutes: int) -> List[Dict]:
+def get_history(conn: sqlite3.Connection, minutes: int, grouping: str = "auto") -> List[Dict]:
+    """
+    Возвращает историю трафика за указанный промежуток.
+    grouping: 'minute' | 'hour' | 'day' | 'auto'
+      - auto: minute для <=720, hour для <=10080, day для остального
+    """
     minutes = int(minutes)
     now_ts = int(time.time())
     since = now_ts - minutes * 60
 
+    # --- Определяем шаг группировки ---
+    if grouping == "auto":
+        if minutes <= 720:        # до 12 часов — поминутно
+            grouping = "minute"
+        elif minutes <= 10080:    # до недели — по часам
+            grouping = "hour"
+        else:                     # месяц и более — по дням
+            grouping = "day"
+
+    bucket_map = {
+        "minute": 60,
+        "hour":   3600,
+        "day":    86400,
+    }
+    bucket = bucket_map.get(grouping, 60)
+
     if _table_exists(conn, "traffic_values"):
         rows = conn.execute(
-            """
+            f"""
             SELECT
                 location_id,
-                (CAST(ts / 60 AS INTEGER) * 60) AS ts,
-                AVG(value) AS value
+                (ts / {bucket} * {bucket}) AS b_ts,
+                AVG(value)
             FROM traffic_values
             WHERE ts >= ?
-            GROUP BY location_id, (CAST(ts / 60 AS INTEGER) * 60)
-            ORDER BY ts ASC
+            GROUP BY location_id, b_ts
+            ORDER BY b_ts ASC
             """,
             (since,),
         ).fetchall()
     elif _table_exists(conn, "traffic_records"):
+        # strftime('%s') возвращает строку, нужно кастить к INTEGER для деления
         rows = conn.execute(
-            """
+            f"""
             SELECT
                 location_id,
-                (CAST(strftime('%s', timestamp) / 60 AS INTEGER) * 60) AS ts,
-                AVG(traffic_value) AS value
+                (CAST(strftime('%s', timestamp) AS INTEGER) / {bucket} * {bucket}) AS b_ts,
+                AVG(traffic_value)
             FROM traffic_records
             WHERE CAST(strftime('%s', timestamp) AS INTEGER) >= ?
-            GROUP BY location_id, (CAST(strftime('%s', timestamp) / 60 AS INTEGER) * 60)
-            ORDER BY ts ASC
+            GROUP BY location_id, b_ts
+            ORDER BY b_ts ASC
             """,
             (since,),
         ).fetchall()
@@ -153,12 +175,19 @@ def get_history(conn: sqlite3.Connection, minutes: int) -> List[Dict]:
 
     out: List[Dict] = []
     for r in rows:
-        d = _row_to_dict(r)
-        if "_" in d:
-            t = d["_"]
-            out.append({"location_id": int(t[0]), "ts": int(t[1]), "value": float(t[2])})
-        else:
-            out.append({"location_id": int(d["location_id"]), "ts": int(d["ts"]), "value": float(d["value"])})
+        try:
+            # Безопасное извлечение по индексам (Row или tuple)
+            lid = r[0]
+            ts_val = r[1]
+            avg_val = r[2] if r[2] is not None else 0.0
+            out.append({
+                "location_id": int(lid),
+                "ts": int(ts_val),
+                "value": float(avg_val)
+            })
+        except (TypeError, ValueError, IndexError) as e:
+            print(f"History parse error: {e}")
+            continue
     return out
 
 

@@ -145,7 +145,7 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF4C45E5);
+    const primaryColor = Color(0xFF4C45E5);
     
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F7FA),
@@ -153,7 +153,7 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
         child: Column(
           children: [
             const Spacer(),
-            Icon(Icons.lock_outline_rounded, size: 72, color: primaryColor),
+            const Icon(Icons.lock_outline_rounded, size: 72, color: primaryColor),
             const SizedBox(height: 24),
             Text(
               'Введите PIN-код', 

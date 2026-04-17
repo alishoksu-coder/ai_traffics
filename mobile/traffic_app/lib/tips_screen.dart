@@ -86,12 +86,16 @@ class _TipsScreenState extends State<TipsScreen> {
       8: 8.5, 10: 4.5, 12: 6.0, 14: 5.0, 16: 7.5, 18: 9.5, 20: 5.5, 22: 2.5
     };
 
-    // 2. AI Корректировка: используем текущий реальный балл Яндекса (0-10) 
-    // чтобы сдвинуть график вверх или вниз (эффект погоды, ДТП и т.д.)
-    int currentHour = DateTime.now().hour;
-    double currentRealScore = _currentMetrics?.globalScore.toDouble() ?? 5.0; // по умолчанию 5
+    // 2. AI Корректировка: используем среднюю загруженность ИЗ РЕАЛЬНЫХ СЕГМЕНТОВ
+    // для выбранного горизонта (Сейчас, +30, +60).
+    double avgLoad = 50.0;
+    if (segments.isNotEmpty) {
+      avgLoad = segments.map((e) => e.value ?? 0.0).reduce((a, b) => a + b) / segments.length;
+    }
+    double currentRealScore = avgLoad / 10.0; // переводим в масштаб 0-10
     
     // Находим ближайший час в модели для сравнения, если ровно не совпадает
+    int currentHour = DateTime.now().hour;
     int closestModelHour = baseModel.keys.reduce((a, b) => (a - currentHour).abs() < (b - currentHour).abs() ? a : b);
     double modelScoreNow = baseModel[closestModelHour] ?? 5.0;
     
@@ -107,14 +111,14 @@ class _TipsScreenState extends State<TipsScreen> {
       double base = baseModel[hour] ?? 5.0;
       double adjustedScore = base * anomalyRatio;
       
-      // Добавляем случайный шум от -5 до +5% для реалистичности (типа нейросеть предсказывает)
-      double noise = (DateTime.now().minute % 10 - 5).toDouble() / 100 * base;
+      // Добавляем шум, зависящий от горизонта, чтобы график визуально отличался для прогнозов
+      double noise = ((hour * 7 + horizon * 13 + DateTime.now().minute) % 11 - 5).toDouble() / 100 * base;
       adjustedScore += noise;
       
       // Переводим балл (0-10) в проценты (0-100) для графика
       double percent = (adjustedScore * 10).clamp(10, 100);
       
-      // Если это текущий или прошлый час, делаем его чуть ближе к реальности
+      // Если это текущий час (базовый), делаем его чуть ближе к реальности
       if (hour == closestModelHour) {
         percent = (currentRealScore * 10).clamp(5, 100);
       }
@@ -142,13 +146,13 @@ class _TipsScreenState extends State<TipsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.auto_graph_rounded, color: AppColors.primary),
-              const SizedBox(width: 8),
-              const Expanded(
+              Icon(Icons.auto_graph_rounded, color: AppColors.primary),
+              SizedBox(width: 8),
+              Expanded(
                 child: Text(
-                  'AI Динамикалық Болжамы',
+                  'AI Динамический Прогноз',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -156,7 +160,7 @@ class _TipsScreenState extends State<TipsScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text('Бүгінгі жүктеме болжамы', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text('Прогноз нагрузки на сегодня', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 13)),
           const SizedBox(height: 24),
           Expanded(
             child: BarChart(
@@ -185,7 +189,7 @@ class _TipsScreenState extends State<TipsScreen> {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             '${value.toInt()}:00',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         );
                       },
@@ -237,7 +241,7 @@ class _TipsScreenState extends State<TipsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
-        'AI Ұсыныстар',
+        'AI Рекомендации',
         actions: [
           if (!loading)
             IconButton(
@@ -278,7 +282,7 @@ class _TipsScreenState extends State<TipsScreen> {
                     size: 20, color: AppColors.primary),
                 const SizedBox(width: 12),
                 const Text(
-                  'Болжам:',
+                  'Прогноз:',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -299,7 +303,7 @@ class _TipsScreenState extends State<TipsScreen> {
                       underline: const SizedBox(),
                       dropdownColor: Theme.of(context).cardColor,
                       items: const [
-                        DropdownMenuItem(value: 0, child: Text('Қазір')),
+                        DropdownMenuItem(value: 0, child: Text('Сейчас')),
                         DropdownMenuItem(value: 30, child: Text('+30 мин')),
                         DropdownMenuItem(value: 60, child: Text('+60 мин')),
                       ],
@@ -350,7 +354,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                 size: 64, color: AppColors.textSecondary),
                             const SizedBox(height: 16),
                             Text(
-                              'Сегменттер бойынша деректер жоқ',
+                              'Нет данных по сегментам',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ],
@@ -379,7 +383,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          'Күрделі кептелістер',
+                                          'Критические пробки',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -387,10 +391,10 @@ class _TipsScreenState extends State<TipsScreen> {
                                           ),
                                         ),
                                         Text(
-                                          'Жоғары жүктемелі ${heavy.length} сегмент табылды',
-                                          style: const TextStyle(
+                                          'Найдено ${heavy.length} сегментов с высокой загрузкой',
+                                          style: TextStyle(
                                             fontSize: 12,
-                                            color: AppColors.textSecondary,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                                           ),
                                         ),
                                       ],
@@ -463,9 +467,9 @@ class _TipsScreenState extends State<TipsScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           _getRecommendation(s.value),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 13,
-                                            color: AppColors.textSecondary,
+                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                                           ),
                                         ),
                                         const SizedBox(height: 8),
@@ -495,9 +499,9 @@ class _TipsScreenState extends State<TipsScreen> {
                                             const SizedBox(width: 8),
                                             Text(
                                               'Загрузка: ${s.value?.toStringAsFixed(0) ?? '—'}%',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11,
-                                                color: AppColors.textSecondary,
+                                                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                                               ),
                                             ),
                                           ],
@@ -515,9 +519,9 @@ class _TipsScreenState extends State<TipsScreen> {
                                 horizontal: 16, vertical: 8),
                             leading: const CircleAvatar(
                                 child: Icon(Icons.psychology)),
-                            title: const Text('AI Аналитикасы',
+                            title: const Text('AI Аналитика',
                                 style: TextStyle(fontWeight: FontWeight.w600)),
-                            subtitle: const Text('Болжамдардың дәлдігі'),
+                            subtitle: const Text('Точность прогнозов'),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => Navigator.push(
                                 context,

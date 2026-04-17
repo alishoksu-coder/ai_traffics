@@ -6,6 +6,7 @@ import 'metrics_screen.dart';
 import 'theme_notifier.dart';
 import 'common.dart';
 import 'auth_screen.dart';
+import 'history_screen.dart';
 import 'security_settings_screen.dart';
 
 /// Экран «Ещё» — доступ ко всем второстепенным разделам приложения.
@@ -15,19 +16,17 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final purpleColor = const Color(0xFF4C45E5);
-
     return Scaffold(
-      backgroundColor: purpleColor, // Оставляем Scaffold фиолетовым для однородности верхней части
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          // Фиолетовая шапка
+          // Шапка
           Container(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 16,
               left: 24,
               right: 24,
-              bottom: 40,
+              bottom: 24,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -35,12 +34,13 @@ class MoreScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Қосымша',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        letterSpacing: -0.5,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -48,18 +48,26 @@ class MoreScreen extends StatelessWidget {
                       'Профиль және баптаулар',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                       ),
                     ),
                   ],
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: IconButton(
-                    icon: Icon(isDark ? Icons.wb_sunny_rounded : Icons.nights_stay_rounded, color: Colors.white),
+                    icon: Icon(isDark ? Icons.wb_sunny_rounded : Icons.nights_stay_rounded, 
+                               color: Theme.of(context).textTheme.bodyLarge?.color),
                     onPressed: () => ThemeNotifier().toggleTheme(),
                     tooltip: isDark ? 'Ашық тема' : 'Қараңғы тема',
                   ),
@@ -68,20 +76,11 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           
-          // Тело с карточками, теперь на белом/тёмном фоне со скруглением!
           Expanded(
-            child: Container(
-              // Сдвигаем визуально не нужно, скругление само создаст нужный эффект
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F7FA), // Цвет фона списка
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 32, 20, 100), // Даем отступ сверху внутри белого блока
-                  physics: const BouncingScrollPhysics(),
-                  children: [
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 100), // Отступы для тела
+              physics: const BouncingScrollPhysics(),
+              children: [
                     // ── Основное ──
                     _SectionHeader(title: 'НЕГІЗГІ'),
                     const SizedBox(height: 12),
@@ -106,6 +105,14 @@ class MoreScreen extends StatelessWidget {
                         title: 'AI Аналитикасы',
                         subtitle: 'Модель болжамдарының дәлдігі',
                         onTap: () => Navigator.push(context, _buildPageRoute(const MetricsScreen())),
+                      ),
+                      _MenuDivider(),
+                      _MenuItem(
+                        icon: Icons.history_rounded,
+                        iconColor: const Color(0xFFF43F5E),
+                        title: 'Тарих (История)',
+                        subtitle: 'Өткен сағаттардағы кептеліс',
+                        onTap: () => Navigator.push(context, _buildPageRoute(const TrafficHistoryScreen())),
                       ),
                     ],
                   ),
@@ -183,8 +190,6 @@ class MoreScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ),
         ],
       ),
     );

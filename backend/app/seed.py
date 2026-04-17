@@ -12,10 +12,22 @@ from app.db.repository import (
 from app.auth import hash_for_storage
 from app.config import settings
 
-def seed_history_if_empty(conn: sqlite3.Connection, sim, minutes: int = 240) -> None:
-    cnt = conn.execute("SELECT COUNT(*) FROM traffic_values").fetchone()[0]
-    if cnt > 0:
+def seed_history_if_empty(conn: sqlite3.Connection, sim, minutes: int = 43200) -> None:
+    """
+    Заполняет историю трафика, если она пуста или слишком коротка.
+    По умолчанию генерирует данные за 30 дней (43200 минут).
+    """
+    cur = conn.execute("SELECT MIN(ts), MAX(ts), COUNT(*) FROM traffic_values").fetchone()
+    min_ts, max_ts, cnt = cur[0], cur[1], cur[2]
+    
+    # Если данных меньше чем на 25 дней, дополняем/пересоздаем историю
+    if min_ts and max_ts and (max_ts - min_ts) > (25 * 24 * 3600):
+        print(f"DEBUG: History already has sufficient span: {(max_ts - min_ts)/3600:.1f} hours")
         return
+
+    if cnt > 0:
+        print("DEBUG: History too short, clearing and re-seeding for full 30-day experience...")
+        conn.execute("DELETE FROM traffic_values")
 
     points = sim.snapshot(0)
     if not points:
@@ -26,20 +38,49 @@ def seed_history_if_empty(conn: sqlite3.Connection, sim, minutes: int = 240) -> 
         return
 
     now = int(time.time())
-    now_min = (now // 60) * 60  # важно: чтобы ts были кратны минуте
+    now_min = (now // 60) * 60
 
+    print(f"DEBUG: Seeding {minutes} minutes of realistic traffic history...")
     rows = []
+    
+    # Пакетная вставка для скорости
     for m in range(minutes, 0, -1):
         ts = now_min - m * 60
+        dt = time.localtime(ts)
+        
         minute_of_day = (ts // 60) % (24 * 60)
-        base_wave = 50 + 20 * math.sin(2 * math.pi * (minute_of_day / (24 * 60)))
+        day_of_week = dt.tm_wday # 0=Monday, 6=Sunday
+        
+        # 1. Суточный ритм (пики утром и вечером)
+        # 8:00 (480 мин) и 18:00 (1080 мин)
+        morning_peak = math.exp(-((minute_of_day - 480)**2) / 8000)
+        evening_peak = math.exp(-((minute_of_day - 1080)**2) / 10000)
+        base_wave = 30 + 40 * (morning_peak + evening_peak) + 10 * math.sin(2 * math.pi * (minute_of_day / (24 * 60)))
+        
+        # 2. Недельная сезонность (на выходных трафика на 30% меньше)
+        weekend_factor = 0.7 if day_of_week >= 5 else 1.0
+        
+        # 3. Случайные аномалии (ДТП, дорожные работы) - редкие всплески
+        anomaly = 0
+        if random.random() < 0.005: # 0.5% шанс на аномалию в конкретную минуту
+            anomaly = random.uniform(20, 40)
 
         for lid in loc_ids:
-            noise = random.uniform(-8, 8)
-            val = max(0.0, min(100.0, base_wave + noise))
+            # Индивидуальный шум для каждой локации
+            noise = random.uniform(-5, 5)
+            val = max(0.0, min(100.0, (base_wave * weekend_factor) + noise + anomaly))
             rows.append({"location_id": lid, "ts": ts, "value": val, "weather_factor": 1.0})
+            
+        # Вставляем порциями по 5000 строк, чтобы не забивать память
+        if len(rows) > 5000:
+            insert_traffic_values(conn, rows)
+            rows = []
 
-    insert_traffic_values(conn, rows)
+    if rows:
+        insert_traffic_values(conn, rows)
+    
+    conn.commit()
+    print(f"DEBUG: Successfully seeded history for {minutes} minutes.")
 
 
 # Границы Астаны (центр и окрестности)

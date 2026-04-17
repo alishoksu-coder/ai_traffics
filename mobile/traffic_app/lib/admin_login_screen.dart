@@ -2,7 +2,6 @@ import 'dart:ui' as dart_ui;
 import 'package:flutter/material.dart';
 
 import 'api.dart';
-import 'common.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -107,7 +106,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF0D7EA7).withOpacity(0.15),
+                color: const Color(0xFF0D7EA7).withValues(alpha: 0.15),
               ),
               child: BackdropFilter(
                 filter: dart_ui.ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -126,9 +125,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
+                        color: Colors.white.withValues(alpha: 0.05),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                       ),
                       child: ClipOval(
                         child: Image.asset(
@@ -170,9 +169,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                           ),
                           child: Form(
                             key: _formKey,
@@ -202,6 +201,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                     controller: _dobController,
                                     label: 'Туған күні',
                                     icon: Icons.calendar_today_outlined,
+                                    readOnly: true,
+                                    onTap: _selectDate,
                                   ),
                                   const SizedBox(height: 16),
                                 ],
@@ -246,6 +247,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                     setState(() {
                                       _isLogin = !_isLogin;
                                       error = null;
+                                      if (!_isLogin) {
+                                        _loginController.clear();
+                                      } else {
+                                        _loginController.text = 'admin';
+                                      }
                                     });
                                   },
                                   child: Text(
@@ -274,11 +280,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     required String label,
     required IconData icon,
     bool isPassword = false,
+    bool readOnly = false,
+    VoidCallback? onTap,
     Function(String)? onSubmitted,
   }) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
+      readOnly: readOnly,
+      onTap: onTap,
       style: const TextStyle(color: Colors.white),
       onFieldSubmitted: onSubmitted,
       decoration: InputDecoration(
@@ -286,14 +296,14 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         labelStyle: const TextStyle(color: Colors.white60),
         prefixIcon: Icon(icon, color: Colors.white60),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Colors.white.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -302,6 +312,34 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       ),
       validator: (v) => (v == null || v.isEmpty) ? 'Міндетті өріс' : null,
     );
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF0EA5E9),
+              onPrimary: Colors.white,
+              surface: Color(0xFF1E293B),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _dobController.text =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      });
+    }
   }
 
   Widget _buildError(String msg) {
@@ -411,14 +449,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       'Traffic AI Жүйесі',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: IconButton(
@@ -465,7 +503,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               'Жиынтық',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textColor),
             ),
-            Icon(Icons.dashboard_rounded, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)),
+            Icon(Icons.dashboard_rounded, color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5)),
           ],
         ),
         const SizedBox(height: 16),
@@ -519,7 +557,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
       child: Column(
@@ -530,7 +568,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -546,7 +584,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Global Traffic Index', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    Text('Қала бойынша орташа балл', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 12)),
+                    Text('Қала бойынша орташа балл', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5), fontSize: 12)),
                   ],
                 ),
               ),
@@ -585,7 +623,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 12),
           Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: color)),
-          Text(title, style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontWeight: FontWeight.w500)),
+          Text(title, style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5), fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -613,7 +651,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Icon(icon, color: color, size: 20),
         const SizedBox(width: 12),
         Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14))),
-        Text(time, style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 12)),
+        Text(time, style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5), fontSize: 12)),
       ],
     );
   }
@@ -626,7 +664,7 @@ class _SparklinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.5)
+      ..color = color.withValues(alpha: 0.5)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;

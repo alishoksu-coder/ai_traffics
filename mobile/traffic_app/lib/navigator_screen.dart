@@ -52,7 +52,11 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   String? _recommendation;
   bool _loadingRec = false;
 
-  /// Транспорт с сервера
+  bool _antiStressMode = false;
+  bool _barrierFreeMode = false;
+  Map<String, dynamic>? _parkingData;
+
+  // Icons/ Транспорт с сервера
   List<MapVehicle> _vehicles = [];
   Timer? _vehiclePollTimer;
 
@@ -579,6 +583,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       _multimodalRec = null;
       _isForecastMode = false;
       _futureSegments.clear();
+      _parkingData = null;
     });
   }
 
@@ -612,6 +617,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         destLat: b!.latitude,
         destLng: b!.longitude,
         mode: _byCar ? RouteMode.driving : RouteMode.walking,
+        antiStress: _antiStressMode,
+        barrierFree: _barrierFreeMode,
       );
       if (!mounted) return;
       setState(() {
@@ -623,6 +630,13 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       });
       _fitBoundsToRoute();
       _fetchRecommendation();
+      if (_byCar) _fetchParking();
+      if (!_byCar && _barrierFreeMode) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('✅ Инклюзивті маршрут құрылды (баспалдақтарсыз)'),
+          backgroundColor: Colors.green,
+        ));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -648,6 +662,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         destLat: b!.latitude,
         destLng: b!.longitude,
         mode: _byCar ? RouteMode.driving : RouteMode.walking,
+        antiStress: _antiStressMode,
+        barrierFree: _barrierFreeMode,
       );
       if (!mounted) return;
       setState(() {
@@ -659,6 +675,13 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       });
       _fitBoundsToRoute();
       _fetchRecommendation();
+      if (_byCar) _fetchParking();
+      if (!_byCar && _barrierFreeMode) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('✅ Инклюзивті маршрут құрылды (баспалдақтарсыз)'),
+          backgroundColor: Colors.green,
+        ));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -666,6 +689,15 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         loading = false;
       });
     }
+  }
+
+  Future<void> _fetchParking() async {
+    if (_route == null || !_byCar) return;
+    int minutes = (_route!.durationSeconds / 60).round();
+    try {
+      final pData = await ApiClient().getParkings(minutes);
+      if (mounted) setState(() => _parkingData = pData);
+    } catch (_) {}
   }
 
   Future<void> _fetchRecommendation() async {
@@ -1132,6 +1164,68 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     );
   }
 
+  void _onMapLongPress(gmaps.LatLng latLng) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              children: [
+                Icon(Icons.warning, color: Colors.orangeAccent, size: 28),
+                SizedBox(width: 8),
+                Text('What-If Симуляция', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text('Digital Twin: перекрыть данный участок для симуляции?', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Отмена'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Внедрение искусственного затора...')));
+                      await ApiClient().simulateClosure(latLng.latitude, latLng.longitude, 15);
+                      // Перестроим маршрут
+                      if (a != null && b != null) {
+                        _buildRouteFromGoogle();
+                      }
+                    },
+                    child: const Text('Перекрыть', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasRoute = _route != null && _route!.points.length >= 2;
@@ -1147,6 +1241,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
               _mapController = c;
               _updateMapStyle();
             },
+            onLongPress: _onMapLongPress,
             polylines: _buildPolylines(),
             markers: _buildMarkers(),
             mapToolbarEnabled: false,
@@ -1311,6 +1406,47 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
+                            if (_byCar)
+                              Container(
+                                height: 32,
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _modeChip(Icons.flash_on_rounded, 'Тез', !_antiStressMode, () {
+                                      setState(() => _antiStressMode = false);
+                                      if (a != null && b != null) _buildRouteFromGoogle();
+                                    }),
+                                    _modeChip(Icons.self_improvement_rounded, 'Анти-Стресс', _antiStressMode, () {
+                                      setState(() => _antiStressMode = true);
+                                      if (a != null && b != null) _buildRouteFromGoogle();
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            if (!_byCar)
+                              Container(
+                                height: 32,
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _modeChip(Icons.accessible_forward_rounded, 'Кедергісіз', _barrierFreeMode, () {
+                                      setState(() => _barrierFreeMode = !_barrierFreeMode);
+                                      if (a != null && b != null) _buildRouteFromGoogle();
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            const SizedBox(width: 8),
                             _miniChip(Icons.home_rounded, 'Үй', () => _handleShortcutTap('home')),
                             const SizedBox(width: 8),
                             _miniChip(Icons.work_rounded, 'Жұмыс', () => _handleShortcutTap('work')),
@@ -1456,6 +1592,28 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                         : '${_route!.distanceText ?? ''} • $arrText',
                                     style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
                                   ),
+                                  if (_parkingData != null && _byCar) ...[
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.local_parking_rounded, color: Colors.blue, size: 16),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              _parkingData!['message'] ?? 'AI Паркинг: Орындар талданды',
+                                              style: const TextStyle(fontSize: 11, color: Colors.blue),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
                                 ],
                               );
                             }

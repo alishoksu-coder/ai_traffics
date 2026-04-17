@@ -1,5 +1,7 @@
 // admin.js
-const API_BASE = 'https://ai-traffics.onrender.com';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://127.0.0.1:8000' 
+  : 'https://ai-traffics.onrender.com';
 
 const loginContainer = document.getElementById('login-container');
 const dashboardContainer = document.getElementById('dashboard-container');
@@ -48,6 +50,10 @@ async function showDashboard(token) {
 
     const data = await res.json();
     
+    // Set admin name
+    const adminNameEl = document.getElementById('admin-name-display');
+    if (adminNameEl) adminNameEl.textContent = data.admin_name || 'Админ';
+
     // Fill stats
     document.getElementById('stat-locations').textContent = data.locations_count || 0;
     document.getElementById('stat-segments').textContent = data.segments_count || 0;
@@ -82,7 +88,14 @@ async function showDashboard(token) {
     try {
       const weatherRes = await fetch(`${API_BASE}/weather`);
       const weatherData = await weatherRes.json();
-      document.getElementById('stat-weather').innerHTML = `<strong style="font-size: 24px;">${weatherData.temp}°C</strong><br>${weatherData.description}<br><small style="color: #6B7280; margin-top: 4px; display: inline-block;">Трафик коэф.: ${weatherData.traffic_factor}x</small>`;
+      let impactHtml = '';
+      if (weatherData.traffic_factor > 1.0) {
+          const percent = Math.round((weatherData.traffic_factor - 1.0) * 100);
+          impactHtml = `<span style="color: #EF4444; font-weight: bold;">+${percent}%</span> (замедление)`;
+      } else {
+          impactHtml = `<span style="color: #10B981; font-weight: bold;">0%</span> (в норме)`;
+      }
+      document.getElementById('stat-weather').innerHTML = `<strong style="font-size: 24px;">${weatherData.temp}°C</strong><br><span style="font-size: 15px;">${weatherData.description}</span><br><small style="color: #6B7280; margin-top: 6px; display: inline-block; font-size: 13px;">Коэфф. замедления: ${impactHtml}</small>`;
     } catch(e) {
       document.getElementById('stat-weather').textContent = 'Мәлімет жоқ';
     }

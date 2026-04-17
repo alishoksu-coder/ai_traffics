@@ -228,10 +228,17 @@ def traffic_map(horizon: int = Query(0, ge=0, le=60)):
 
 
 @app.get("/traffic/history")
-def traffic_history(minutes: int = Query(60, ge=5, le=720)):
+def traffic_history(
+    minutes: int = Query(60, ge=5, le=43200),
+    grouping: str = Query("auto"),
+):
     conn = get_conn(settings.db_path)
     try:
-        return {"items": get_history(conn, minutes)}
+        data = get_history(conn, minutes, grouping)
+        return {"items": data}
+    except Exception as e:
+        print(f"Error in traffic_history endpoint: {e}")
+        return {"items": [], "error": str(e)}
     finally:
         conn.close()
 
@@ -705,7 +712,12 @@ def admin_dashboard(authorization: str = Header(None)):
         if items:
             avg_val = sum(it.get('value', 0.0) for it in items) / len(items)
 
+        # Получаем имя админа
+        admin_row = conn.execute("SELECT login FROM admin_users WHERE id = ?", (admin_id,)).fetchone()
+        admin_name = admin_row[0] if admin_row else "Админ"
+
         return {
+            "admin_name": admin_name,
             "locations_count": locations_count,
             "segments_count": segments_count,
             "friends_count": friends_count,

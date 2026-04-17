@@ -130,6 +130,7 @@ class Friend {
   final double? lat;
   final double? lon;
   final int? updatedAt;
+  final bool isConfirmed;
 
   const Friend({
     required this.id,
@@ -137,6 +138,7 @@ class Friend {
     this.lat,
     this.lon,
     this.updatedAt,
+    this.isConfirmed = true,
   });
 
   factory Friend.fromJson(Map<String, dynamic> json) {
@@ -157,6 +159,7 @@ class Friend {
       lat: lat != null ? (lat as num).toDouble() : null,
       lon: lon != null ? (lon as num).toDouble() : null,
       updatedAt: parsedDate,
+      isConfirmed: json['is_confirmed'] ?? true,
     );
   }
 }

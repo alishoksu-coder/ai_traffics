@@ -34,6 +34,7 @@ class _DriveScreenState extends State<DriveScreen> {
     });
     try {
       final items = await api.getRoadSegments(horizon);
+      if (!mounted) return;
       final clean = items.where((s) => s.points.length >= 2).toList();
       clean.sort((a, b) => (b.value ?? -1).compareTo(a.value ?? -1));
       setState(() {
@@ -41,6 +42,7 @@ class _DriveScreenState extends State<DriveScreen> {
         loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         error = e.toString();
         loading = false;
@@ -147,28 +149,32 @@ class _DriveScreenState extends State<DriveScreen> {
                             color: AppColors.primary, size: 24),
                       ),
                       const SizedBox(width: 14),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Прогноз загруженности',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                              letterSpacing: -0.3,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Прогноз загруженности',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).textTheme.bodyLarge?.color,
+                                letterSpacing: -0.3,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'г. Астана',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
+                            SizedBox(height: 2),
+                            Text(
+                              'г. Астана',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -224,7 +230,7 @@ class _DriveScreenState extends State<DriveScreen> {
                       'Пробка — $heavy улиц • Затор — $medium улиц',
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -333,10 +339,10 @@ class _DriveScreenState extends State<DriveScreen> {
                               children: [
                                 Text(
                                   streetName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -365,7 +371,7 @@ class _DriveScreenState extends State<DriveScreen> {
                                       'г. Астана',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                                       ),
                                     ),
                                   ],
@@ -374,7 +380,7 @@ class _DriveScreenState extends State<DriveScreen> {
                             ),
                           ),
                           Icon(Icons.chevron_right_rounded,
-                              color: AppColors.textSecondary, size: 24),
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.3), size: 24),
                         ],
                       ),
                     ),
@@ -402,7 +408,7 @@ class _DriveScreenState extends State<DriveScreen> {
         ),
         const SizedBox(width: 6),
         Text(label,
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6))),
       ],
     );
   }

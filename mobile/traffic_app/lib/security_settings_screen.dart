@@ -91,7 +91,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF4C45E5);
+    const primaryColor = Color(0xFF4C45E5);
 
     return Scaffold(
       appBar: AppBar(
@@ -126,14 +126,14 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   subtitle: const Text('Использовать встроенную защиту'),
                   value: _useBiometrics,
                   onChanged: _toggleBiometrics,
-                  activeColor: primaryColor,
+                  activeThumbColor: primaryColor,
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: primaryColor.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.fingerprint_rounded, color: primaryColor),
+                    child: const Icon(Icons.fingerprint_rounded, color: primaryColor),
                   ),
                 ),
                 Divider(height: 1, indent: 64, color: Theme.of(context).dividerColor.withOpacity(0.5)),

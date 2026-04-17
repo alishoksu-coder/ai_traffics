@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,8 +14,8 @@ import 'common.dart';
 import 'auth_wrapper.dart';
 
 class _AppColors {
-  static const primary = Color(0xFF0D7EA7);
-  static const primaryDark = Color(0xFF065A82);
+  static const primary = Color(0xFF007AFF);
+  static const primaryDark = Color(0xFF0056B3);
 }
 
 class TrafficApp extends StatelessWidget {
@@ -49,25 +50,30 @@ class TrafficApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: _AppColors.primary,
         brightness: brightness,
-        surface: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        surface: isDark ? const Color(0xFF000000) : const Color(0xFFF5F5F7), // Apple dark mode surface
       ),
       scaffoldBackgroundColor:
-          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+          isDark ? const Color(0xFF000000) : const Color(0xFFF5F5F7),
       appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        foregroundColor: isDark ? Colors.white : const Color(0xFF1E293B),
+        backgroundColor: isDark ? const Color(0xCC000000) : const Color(0xCCF5F5F7), // Transparent for glass if extended
+        foregroundColor: isDark ? Colors.white : const Color(0xFF1D1D1F),
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w700,
-          color: isDark ? Colors.white : const Color(0xFF1E293B),
+          letterSpacing: -0.5,
+          color: isDark ? Colors.white : const Color(0xFF1D1D1F),
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      textTheme: GoogleFonts.interTextTheme().apply(
+        bodyColor: isDark ? const Color(0xFFFFFFFF) : const Color(0xFF1D1D1F),
+        displayColor: isDark ? const Color(0xFFFFFFFF) : const Color(0xFF1D1D1F),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -216,15 +222,13 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
             )
           : null,
 
-      // ─── Bottom Navigation Bar (Floating Pill Style) ───
+      // ─── Bottom Navigation Bar (Glass style) ───
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Container(
             height: 64,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : Colors.white,
-              borderRadius: BorderRadius.circular(32),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
@@ -232,50 +236,60 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
                   offset: const Offset(0, 8),
                 ),
               ],
+              borderRadius: BorderRadius.circular(32),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(_tabs.length, (i) {
-                final isSelected = _index == i;
-                final t = _tabs[i];
-                return GestureDetector(
-                  onTap: () => _onTabSelected(i),
-                  behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.fastOutSlowIn,
-                    padding: isSelected 
-                        ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
-                        : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isSelected ? t.activeIcon : t.icon, 
-                          color: isSelected ? AppColors.primary : (isDark ? Colors.white54 : Colors.black45),
-                          size: 24,
-                        ),
-                        if (isSelected)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: Text(
-                              t.label,
-                              style: const TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
-                            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(32),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: isDark ? const Color(0xFF1C1C1E).withOpacity(0.7) : Colors.white.withOpacity(0.75),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(_tabs.length, (i) {
+                      final isSelected = _index == i;
+                      final t = _tabs[i];
+                      return GestureDetector(
+                        onTap: () => _onTabSelected(i),
+                        behavior: HitTestBehavior.opaque,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutExpo,
+                          padding: isSelected 
+                              ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
+                              : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                      ],
-                    ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isSelected ? t.activeIcon : t.icon, 
+                                color: isSelected ? AppColors.primary : (isDark ? Colors.white54 : const Color(0xFF86868B)),
+                                size: 24,
+                              ),
+                              if (isSelected)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 6),
+                                  child: Text(
+                                    t.label,
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
                   ),
-                );
-              }),
+                ),
+              ),
             ),
           ),
         ),

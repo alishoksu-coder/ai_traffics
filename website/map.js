@@ -235,6 +235,68 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
 // INITIAL LOAD
 fetchTrafficData(0);
 
+// 5.5 SMART PARKING LOGIC
+let parkingLayerGroup = L.layerGroup();
+let isParkingVisible = false;
+
+document.getElementById('btn-parking').addEventListener('click', async () => {
+  if (isParkingVisible) {
+    map.removeLayer(parkingLayerGroup);
+    document.getElementById('btn-parking').style.background = 'white';
+    isParkingVisible = false;
+    return;
+  }
+  
+  try {
+    const res = await fetch(`${API_BASE}/parking`);
+    if (!res.ok) throw new Error("API Error");
+    const data = await res.json();
+    
+    parkingLayerGroup.clearLayers();
+    
+    // Create Custom Parking Icon
+    const parkingIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: "<div style='background-color:#3B82F6; color:white; font-weight:bold; width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);'>P</div>",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+
+    data.items.forEach(p => {
+      const color = p.available > 20 ? '#10B981' : (p.available > 0 ? '#F59E0B' : '#EF4444');
+      const marker = L.marker([p.lat, p.lng], { icon: parkingIcon }).addTo(parkingLayerGroup);
+      
+      const popupHtml = `
+        <div style="font-family: 'Inter', sans-serif; min-width: 180px;">
+          <h4 style="margin:0 0 8px 0; border-bottom:1px solid #eee; padding-bottom:4px;">${p.name}</h4>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:#64748b; font-size:12px;">Бос орындар:</span>
+            <strong style="color:${color};">${p.available}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="color:#64748b; font-size:12px;">Сиымдылығы:</span>
+            <strong>${p.capacity}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="color:#64748b; font-size:12px;">Бағасы:</span>
+            <strong>${p.price}</strong>
+          </div>
+          <button class="btn btn-primary" style="width:100%; padding:6px; font-size:12px;">Орынды брондау</button>
+        </div>
+      `;
+      marker.bindPopup(popupHtml);
+    });
+    
+    parkingLayerGroup.addTo(map);
+    document.getElementById('btn-parking').style.background = '#e2e8f0';
+    isParkingVisible = true;
+    
+  } catch (error) {
+    console.error("Parking Fetch Error:", error);
+    alert("Кешіріңіз, парковка деректері жүктелмеді.");
+  }
+});
+
 // 6. SEARCH LOGIC (Nominatim OSM / 2GIS Style)
 const searchInput = document.getElementById('search-input');
 const clearBtn = document.getElementById('clear-search');
