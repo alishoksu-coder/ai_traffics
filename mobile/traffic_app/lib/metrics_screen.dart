@@ -90,6 +90,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
       {'name': 'Naive', 'data': naive},
       {'name': 'Moving Avg', 'data': ma},
       {'name': 'Trend LR', 'data': trend},
+      {'name': 'LSTM', 'data': m['lstm'] as Map<String, dynamic>?},
     ];
 
     for (final model in models) {
@@ -310,6 +311,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
               const Color(0xFF34C759)),
           row('Trend LR', 'Линейная регрессия',
               m['trend_lr'] as Map<String, dynamic>? ?? {}, AppColors.primary),
+          row('LSTM', 'Нейронная сеть (PyTorch)',
+              m['lstm'] as Map<String, dynamic>? ?? {}, const Color(0xFF5856D6)),
         ],
       ),
     );

@@ -65,6 +65,31 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
+    # Встречи с друзьями
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS meetings (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     TEXT NOT NULL,
+        friend_id   TEXT NOT NULL,
+        location_id INTEGER NOT NULL,
+        meeting_time TEXT NOT NULL,
+        status      TEXT DEFAULT 'pending'
+    );
+    """)
+
+    # Метрики моделей машинного обучения
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS model_metrics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        model_name TEXT NOT NULL,
+        horizon    INTEGER NOT NULL,
+        mae        REAL,
+        rmse       REAL,
+        n          INTEGER,
+        ts         INTEGER NOT NULL
+    );
+    """)
+
     cur.execute("""
     INSERT INTO locations (id, name, lat, lon)
     SELECT 1, 'Левый Берег (Байтерек)', 51.1283, 71.4305 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=1);

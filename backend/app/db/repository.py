@@ -360,3 +360,39 @@ def create_admin(conn: sqlite3.Connection, login: str, password_hash: str) -> No
         )
     except sqlite3.IntegrityError:
         pass  # login already exists
+
+
+# ---------- meetings ----------
+
+def create_meeting(conn: sqlite3.Connection, user_id: str, friend_id: str, location_id: int, meeting_time: str) -> int:
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO meetings (user_id, friend_id, location_id, meeting_time)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, friend_id, int(location_id), meeting_time))
+    return int(cur.lastrowid)
+
+
+def get_user_meetings(conn: sqlite3.Connection, user_id: str) -> List[Dict]:
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT m.id, m.user_id, m.friend_id, m.location_id, m.meeting_time, m.status, l.name as loc_name
+        FROM meetings m
+        JOIN locations l ON m.location_id = l.id
+        WHERE m.user_id = ? OR m.friend_id = ?
+        ORDER BY m.meeting_time ASC
+    """, (user_id, user_id))
+    rows = cur.fetchall()
+    
+    out: List[Dict] = []
+    for r in rows:
+        out.append({
+            "id": r[0],
+            "user_id": r[1],
+            "friend_id": r[2],
+            "location_id": r[3],
+            "meeting_time": r[4],
+            "status": r[5],
+            "location_name": r[6]
+        })
+    return out

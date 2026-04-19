@@ -8,6 +8,12 @@ class Settings(BaseSettings):
     seed: int = 42
     admin_login: str = "admin"
     admin_password: str = "admin123"
+    
+    supabase_url: str = "https://nxmefixitnmfzgaxlzsl.supabase.co"
+    supabase_key: str = ""
+
+    class Config:
+        env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
 
 settings = Settings()
 # Убедимся, что папка data существует

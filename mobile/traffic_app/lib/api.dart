@@ -501,6 +501,8 @@ class ApiClient {
   final http.Client _http;
   ApiClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
 
+  SupabaseClient get supabase => Supabase.instance.client;
+
   /// Получает прогнозируемые парковки (умный паркинг)
   Future<Map<String, dynamic>> getParkings(int horizon) async {
     try {
@@ -1282,14 +1284,15 @@ class ApiClient {
 
   Future<List<ModelMetric>> getModelMetrics(int horizon) async {
     try {
-      final response = await Supabase.instance.client
-          .from('model_metrics')
-          .select()
-          .eq('horizon', horizon);
-      final list = response as List<dynamic>;
-      return list.map((e) => ModelMetric.fromJson(e as Map<String, dynamic>)).toList();
+      final uri = Uri.parse('$kApiBaseUrl/model_metrics?horizon=$horizon');
+      final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final List<dynamic> list = jsonDecode(r.body);
+        return list.map((e) => ModelMetric.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      return [];
     } catch (e) {
-      print('Supabase getModelMetrics error: $e');
+      print('Backend getModelMetrics error: $e');
       return [];
     }
   }
@@ -1311,4 +1314,58 @@ class ApiClient {
     }
     return [];
   }
+
+  Future<List<Map<String, dynamic>>> getMeetings(String userId) async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/meetings?user_id=$userId');
+      final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final data = jsonDecode(r.body);
+        return List<Map<String, dynamic>>.from(data['items'] ?? []);
+      }
+    } catch (e) {
+      print('getMeetings error: $e');
+    }
+    return [];
+  }
+
+  Future<bool> createMeeting({
+    required String userId,
+    required String friendId,
+    required int locationId,
+    required String meetingTime,
+  }) async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/meetings');
+      final r = await _http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': userId,
+          'friend_id': friendId,
+          'location_id': locationId,
+          'meeting_time': meetingTime,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      return r.statusCode == 200;
+    } catch (e) {
+      print('createMeeting error: $e');
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLocations() async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/locations');
+      final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final data = jsonDecode(r.body);
+        return List<Map<String, dynamic>>.from(data['items'] ?? []);
+      }
+    } catch (e) {
+      print('getLocations error: $e');
+    }
+    return [];
+  }
 }
+

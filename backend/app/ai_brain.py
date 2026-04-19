@@ -6,9 +6,11 @@ import httpx
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
 
-# --- КОНФИГУРАЦИЯ SUPABASE ---
-SUPABASE_URL = "https://nxmefixitnmfzgaxlzsl.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54bWVmaXhpdG5tZnpnYXhsenNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjIzNzYsImV4cCI6MjA4OTQzODM3Nn0.g-fY2uUmraHS-Vs9zLcoF1mPuwnhlZzHPlrR_cYXOTU"
+from app.config import settings
+
+# --- КОНФИГУРАЦИЯ SUPABASE (из настроек) ---
+SUPABASE_URL = settings.supabase_url
+SUPABASE_KEY = settings.supabase_key
 
 class TrafficAI:
     def __init__(self, model_path="data/traffic_model.joblib"):

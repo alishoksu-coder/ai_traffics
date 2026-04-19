@@ -1247,7 +1247,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
             mapToolbarEnabled: false,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
-            trafficEnabled: _isForecastMode ? false : _byCar,
+            trafficEnabled: _byCar,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 180,
               bottom: hasRoute ? 120 : 40,

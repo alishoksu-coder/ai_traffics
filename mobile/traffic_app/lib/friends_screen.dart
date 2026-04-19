@@ -25,6 +25,7 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
   List<Map<String, dynamic>> requests = [];
   List<Map<String, dynamic>> allUsers = [];
   List<Map<String, dynamic>> searchResults = [];
+  List<Map<String, dynamic>> meetings = [];
   
   final TextEditingController _searchCtrl = TextEditingController();
   bool isSearching = false;
@@ -32,7 +33,7 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadAll();
   }
 
@@ -49,10 +50,12 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
       error = null;
     });
     try {
-      final results = await Future.wait([
+      final user = api.supabase.auth.currentUser;
+      final results = await Future.wait<dynamic>([
         api.getFriendsWithStatus(),
         api.getFriendRequests(),
         api.getAllUsers(),
+        if (user != null) api.getMeetings(user.id) else Future.value([]),
       ]);
 
       if (mounted) {
@@ -60,6 +63,9 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
           friends = results[0] as List<Friend>;
           requests = results[1] as List<Map<String, dynamic>>;
           allUsers = results[2] as List<Map<String, dynamic>>;
+          if (user != null) {
+            meetings = results[3] as List<Map<String, dynamic>>;
+          }
           loading = false;
         });
       }
@@ -137,6 +143,7 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
           tabs: [
             Tab(text: 'ДОСТАР (${friends.where((f) => f.isConfirmed).length})'),
             Tab(text: 'СҰРАНЫСТАР (${requests.length})'),
+            Tab(text: 'КЕЗДЕСУЛЕР (${meetings.length})'),
             const Tab(text: 'ТҮГЕЛІ'),
           ],
         ),
@@ -152,6 +159,7 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
                     children: [
                       _buildFriendsTab(isDark),
                       _buildRequestsTab(isDark),
+                      _buildMeetingsTab(isDark),
                       _buildDiscoverTab(isDark),
                     ],
                   ),
@@ -229,7 +237,11 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
         
         if (confirmed.isNotEmpty) ...[
           const _SectionHeader(title: 'МЕНІҢ ДОСТАРЫМ'),
-          ...confirmed.map((f) => _FriendTile(friend: f, isDark: isDark)),
+          ...confirmed.map((f) => _FriendTile(
+            friend: f, 
+            isDark: isDark,
+            onPlan: () => _showMeetingDialog(f),
+          )),
           const SizedBox(height: 24),
         ],
 
@@ -238,6 +250,142 @@ class _FriendsScreenState extends State<FriendsScreen> with SingleTickerProvider
           ...requested.map((f) => _FriendTile(friend: f, isDark: isDark, isPending: true)),
         ],
       ],
+    );
+  }
+
+  Widget _buildMeetingsTab(bool isDark) {
+    if (meetings.isEmpty) {
+      return _buildEmptyState(
+        Icons.calendar_today_rounded,
+        'Жоспарланған кездесулер жоқ',
+        'Достарыңызбен кездесуді жоспарлап, кептеліссіз уақытты таңдаңыз!',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: meetings.length,
+      itemBuilder: (ctx, i) {
+        final m = meetings[i];
+        return _MeetingTile(meeting: m, isDark: isDark);
+      },
+    );
+  }
+
+  void _showMeetingDialog(Friend friend) async {
+    final locs = await api.getLocations();
+    if (!mounted) return;
+    
+    int? selectedLocId;
+    DateTime selectedDate = DateTime.now().add(const Duration(hours: 1));
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(selectedDate);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocalState) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 20),
+              Text('${friend.name} атты доспен кездесу', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Кездесетін орын мен уақытты таңдаңыз. AI трафикті болжайды.', style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 24),
+              
+              const Text('ОРЫН ТАҢДАУ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey)),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int>(
+                value: selectedLocId,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.withOpacity(0.1),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
+                hint: const Text('Локацияны таңдаңыз'),
+                items: locs.map((l) => DropdownMenuItem<int>(
+                  value: l['id'],
+                  child: Text(l['name']),
+                )).toList(),
+                onChanged: (v) => setLocalState(() => selectedLocId = v),
+              ),
+              
+              const SizedBox(height: 24),
+              const Text('УАҚЫТ ТАҢДАУ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final d = await showDatePicker(context: context, initialDate: selectedDate, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 7)));
+                        if (d != null) setLocalState(() => selectedDate = d);
+                      },
+                      icon: const Icon(Icons.calendar_month),
+                      label: Text(DateFormat('dd.MM.yyyy').format(selectedDate)),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.all(16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final t = await showTimePicker(context: context, initialTime: selectedTime);
+                        if (t != null) setLocalState(() => selectedTime = t);
+                      },
+                      icon: const Icon(Icons.access_time),
+                      label: Text(selectedTime.format(context)),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.all(16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: selectedLocId == null ? null : () async {
+                    final fullDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
+                    final user = api.supabase.auth.currentUser;
+                    if (user == null) return;
+                    
+                    final ok = await api.createMeeting(
+                      userId: user.id,
+                      friendId: friend.id,
+                      locationId: selectedLocId!,
+                      meetingTime: fullDate.toIso8601String(),
+                    );
+                    
+                    if (ok) {
+                      Navigator.pop(ctx);
+                      _loadAll();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Кездесу сәтті жоспарланды!')));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4C45E5),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text('КЕЗДЕСУДІ ЖОСПАРЛАУ', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -360,8 +508,9 @@ class _FriendTile extends StatelessWidget {
   final Friend friend;
   final bool isDark;
   final bool isPending;
+  final VoidCallback? onPlan;
 
-  const _FriendTile({required this.friend, required this.isDark, this.isPending = false});
+  const _FriendTile({required this.friend, required this.isDark, this.isPending = false, this.onPlan});
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +580,66 @@ class _FriendTile extends StatelessWidget {
         ),
         trailing: isPending 
           ? const Icon(Icons.chevron_right_rounded, color: Colors.grey)
-          : (hasLocation ? Icon(Icons.arrow_forward_ios_rounded, size: 14, color: primaryColor) : null),
+          : IconButton(
+              icon: const Icon(Icons.calendar_today, color: primaryColor),
+              onPressed: onPlan,
+            ),
+      ),
+    );
+  }
+}
+
+class _MeetingTile extends StatelessWidget {
+  final Map<String, dynamic> meeting;
+  final bool isDark;
+
+  const _MeetingTile({required this.meeting, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final time = DateTime.tryParse(meeting['meeting_time'] ?? '');
+    final timeStr = time != null ? DateFormat('HH:mm, dd MMM').format(time) : 'Белгісіз';
+    const primaryColor = Color(0xFF4C45E5);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: primaryColor.withOpacity(0.1), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            child: const Icon(Icons.event_available_rounded, color: primaryColor),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(meeting['location_name'] ?? 'Орын', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(timeStr, style: TextStyle(color: primaryColor, fontWeight: FontWeight.w600, fontSize: 13)),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                child: const Text('БЕКІТІЛДІ', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 4),
+              const Text('Кептеліс: Төмен', style: TextStyle(fontSize: 10, color: Colors.grey)),
+            ],
+          ),
+        ],
       ),
     );
   }

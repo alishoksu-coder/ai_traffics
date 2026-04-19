@@ -233,7 +233,6 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Set<gmaps.Polyline> _buildPolylines() {
-    if (horizon == 0) return {};
     final Set<gmaps.Polyline> out = {};
     int idx = 0;
     for (final s in segments) {

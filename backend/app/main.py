@@ -431,6 +431,26 @@ def traffic_metrics_ui():
         "description": f"В среднем по городу {score} балла. {level}."
     }
 
+@app.get("/model_metrics")
+def get_model_metrics(horizon: int):
+    """
+    Возвращает метрики точности AI-моделей (MAE, RMSE) для указанного горизонта.
+    """
+    conn = get_conn(settings.db_path)
+    try:
+        # Берем самые свежие метрики для указанного горизонта
+        rows = conn.execute("""
+            SELECT model_name, horizon, mae, rmse, n, ts
+            FROM model_metrics
+            WHERE horizon = ?
+            AND ts = (SELECT MAX(ts) FROM model_metrics WHERE horizon = ?)
+        """, (horizon, horizon)).fetchall()
+        
+        # Конвертируем sqlite3.Row в словари
+        return [{"model_name": r[0], "horizon": r[1], "mae": r[2], "rmse": r[3], "n": r[4], "ts": r[5]} for r in rows]
+    finally:
+        conn.close()
+
 
 @app.get("/traffic/recommendation")
 async def get_traffic_recommendation(location_id: int = Query(None)):
@@ -649,6 +669,12 @@ class LoginRequest(BaseModel):
 class AddFriendRequest(BaseModel):
     name: str
 
+class MeetingRequest(BaseModel):
+    user_id: str
+    friend_id: str
+    location_id: int
+    meeting_time: str
+
 
 @app.post("/admin/login")
 def admin_login(req: LoginRequest):
@@ -749,3 +775,26 @@ def friends_add(req: AddFriendRequest):
         return {"id": fid, "name": req.name}
     finally:
         conn.close()
+
+
+@app.get("/meetings")
+def meetings_list(user_id: str):
+    conn = get_conn(settings.db_path)
+    try:
+        from .db.repository import get_user_meetings
+        return {"items": get_user_meetings(conn, user_id)}
+    finally:
+        conn.close()
+
+
+@app.post("/meetings")
+def meetings_create(req: MeetingRequest):
+    conn = get_conn(settings.db_path)
+    try:
+        from .db.repository import create_meeting
+        mid = create_meeting(conn, req.user_id, req.friend_id, req.location_id, req.meeting_time)
+        commit(conn)
+        return {"id": mid, "status": "success"}
+    finally:
+        conn.close()
+
