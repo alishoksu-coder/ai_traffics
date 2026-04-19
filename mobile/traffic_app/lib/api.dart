@@ -887,7 +887,8 @@ class ApiClient {
         } catch (_) {}
       }
 
-      if (!isAdmin && email != 'alisul123321@gmail.com') {
+      if (!isAdmin &&
+          !kAdminLoginBypassEmails.contains(email.trim().toLowerCase())) {
         await Supabase.instance.client.auth.signOut();
         throw Exception('Доступ запрещен: требуется флаг is_admin = true.');
       }
