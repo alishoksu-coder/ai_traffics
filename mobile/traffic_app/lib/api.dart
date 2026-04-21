@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'config.dart';
@@ -512,7 +513,7 @@ class ApiClient {
         return jsonDecode(r.body) as Map<String, dynamic>;
       }
     } catch (e) {
-      print('getParkings error: $e');
+      debugPrint('getParkings error: $e');
     }
     return {'items': []};
   }
@@ -533,7 +534,7 @@ class ApiClient {
         return UserProfile.fromJson(response);
       }
     } catch (e) {
-      print('getUserProfile error: $e');
+      debugPrint('getUserProfile error: $e');
     }
     return null;
   }
@@ -562,7 +563,7 @@ class ApiClient {
         ...updateData,
       });
     } catch (e) {
-      print('saveUserShortcut error: $e');
+      debugPrint('saveUserShortcut error: $e');
       throw Exception('Не удалось сохранить в БД: $e');
     }
   }
@@ -580,22 +581,29 @@ class ApiClient {
         }),
       );
       if (res.statusCode != 200) {
-        print('simulate_closure Error: ${res.statusCode}');
+        debugPrint('simulate_closure Error: ${res.statusCode}');
       }
     } catch (e) {
-      print('simulateClosure HTTP Error: $e');
+      debugPrint('simulateClosure HTTP Error: $e');
     }
   }
 
   Future<List<MapVehicle>> getVehicles() async {
     try {
-      final response = await Supabase.instance.client.from('vehicles').select();
-      final list = response as List<dynamic>;
-      return list
-          .map((e) => MapVehicle.fromJson(e as Map<String, dynamic>))
-          .toList();
+      // Берём данные из бэкенда (симулятор с 42 машинами), а не из Supabase
+      final response = await http
+          .get(Uri.parse('$kApiBaseUrl/vehicles'))
+          .timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final list = (data['items'] as List?) ?? [];
+        return list
+            .map((e) => MapVehicle.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
     } catch (e) {
-      print('Supabase getVehicles error: $e');
+      debugPrint('getVehicles error: $e');
       return [];
     }
   }
@@ -625,7 +633,7 @@ class ApiClient {
         );
       }).toList();
     } catch (e) {
-      print('Supabase error getFriends: $e');
+      debugPrint('Supabase error getFriends: $e');
       return [
         const Friend(id: '1', name: 'Демо-друг (Астана)', lat: 51.1283, lon: 71.4305),
       ];
@@ -644,7 +652,7 @@ class ApiClient {
         // Column 'last_seen' missing in DB schema, omitting
       }).eq('id', user.id);
     } catch (e) {
-      print('Error updating location: $e');
+      debugPrint('Error updating location: $e');
     }
   }
 
@@ -658,7 +666,7 @@ class ApiClient {
           .maybeSingle();
       return response as Map<String, dynamic>?;
     } catch (e) {
-      print('Search User error: $e');
+      debugPrint('Search User error: $e');
       return null;
     }
   }
@@ -699,7 +707,7 @@ class ApiClient {
       final response = await query.order('first_name');
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('getAllUsers error: $e');
+      debugPrint('getAllUsers error: $e');
       return [];
     }
   }
@@ -723,7 +731,7 @@ class ApiClient {
       final response = await request.limit(20);
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('searchUsers error: $e');
+      debugPrint('searchUsers error: $e');
       return [];
     }
   }
@@ -763,7 +771,7 @@ class ApiClient {
       }
       return requests;
     } catch (e) {
-      print('getFriendRequests error: $e');
+      debugPrint('getFriendRequests error: $e');
       return [];
     }
   }
@@ -807,7 +815,7 @@ class ApiClient {
         );
       }).toList();
     } catch (e) {
-      print('getFriendsWithStatus error: $e');
+      debugPrint('getFriendsWithStatus error: $e');
       return [];
     }
   }
@@ -849,7 +857,7 @@ class ApiClient {
           if (birthDate != null) 'birth_date': birthDate,
         });
       } catch (e) {
-        print('Авто-выдача прав не прошла (RLS). $e');
+        debugPrint('Авто-выдача прав не прошла (RLS). $e');
       }
     } on AuthException catch (e) {
       throw Exception(e.message);
@@ -1003,7 +1011,7 @@ class ApiClient {
             .toList();
       }
     } catch (e) {
-      print('Render API getRoadSegments error: $e');
+      debugPrint('Render API getRoadSegments error: $e');
     }
     return [];
   }
@@ -1024,7 +1032,7 @@ class ApiClient {
         return jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
       }
     } catch (e) {
-      print('Render API multimodal_analysis error: $e');
+      debugPrint('Render API multimodal_analysis error: $e');
     }
     
     // Fallback локальная логика (пока бэкенд на Render не обновится)
@@ -1056,7 +1064,7 @@ class ApiClient {
         return pts.cast<Map<String, dynamic>>();
       }
     } catch (e) {
-      print('Render API ar_points error: $e');
+      debugPrint('Render API ar_points error: $e');
     }
     // Fallback: Астана бойынша демо-нүктелер
     return [
@@ -1101,7 +1109,7 @@ class ApiClient {
         };
       }
     } catch (e) {
-      print('Render AI Recommendation error: $e');
+      debugPrint('Render AI Recommendation error: $e');
     }
     return {'text': 'Бұлттан AI-болжам алу мүмкін болмады.', 'action': 'drive'};
   }
@@ -1149,7 +1157,7 @@ class ApiClient {
         };
       }
     } catch (e) {
-      print('Weather API error: $e');
+      debugPrint('Weather API error: $e');
     }
     // Во время защиты диплома, если бесплатный ключ застрянет:
     return {
@@ -1243,7 +1251,7 @@ class ApiClient {
            );
         }
       } catch (e) {
-         print('Supabase direct traffic get error: $e');
+         debugPrint('Supabase direct traffic get error: $e');
       }
 
       // Если и это не сработает, обращаемся к Render
@@ -1259,7 +1267,7 @@ class ApiClient {
         );
       }
     } catch (e) {
-      print('Render traffic_metrics API error: $e');
+      debugPrint('Render traffic_metrics API error: $e');
     }
     
     return const TrafficMetrics(
@@ -1278,7 +1286,7 @@ class ApiClient {
       final list = response as List<dynamic>;
       return list.map((e) => PeakHour.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Supabase getPeakHours error: $e');
+      debugPrint('Supabase getPeakHours error: $e');
       return [];
     }
   }
@@ -1293,7 +1301,7 @@ class ApiClient {
       }
       return [];
     } catch (e) {
-      print('Backend getModelMetrics error: $e');
+      debugPrint('Backend getModelMetrics error: $e');
       return [];
     }
   }
@@ -1311,7 +1319,7 @@ class ApiClient {
         }
       }
     } catch (e) {
-      print('getTrafficHistory error: $e');
+      debugPrint('getTrafficHistory error: $e');
     }
     return [];
   }
@@ -1325,7 +1333,7 @@ class ApiClient {
         return List<Map<String, dynamic>>.from(data['items'] ?? []);
       }
     } catch (e) {
-      print('getMeetings error: $e');
+      debugPrint('getMeetings error: $e');
     }
     return [];
   }
@@ -1350,7 +1358,7 @@ class ApiClient {
       ).timeout(const Duration(seconds: 10));
       return r.statusCode == 200;
     } catch (e) {
-      print('createMeeting error: $e');
+      debugPrint('createMeeting error: $e');
       return false;
     }
   }
@@ -1364,7 +1372,7 @@ class ApiClient {
         return List<Map<String, dynamic>>.from(data['items'] ?? []);
       }
     } catch (e) {
-      print('getLocations error: $e');
+      debugPrint('getLocations error: $e');
     }
     return [];
   }
