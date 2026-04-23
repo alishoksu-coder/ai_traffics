@@ -22,8 +22,6 @@ class _TipsScreenState extends State<TipsScreen> {
   List<RoadSegment> segments = [];
   List<PeakHour> peakHours = [];
 
-  TrafficMetrics? _currentMetrics;
-
   @override
   void initState() {
     super.initState();
@@ -46,7 +44,6 @@ class _TipsScreenState extends State<TipsScreen> {
       setState(() {
         segments = clean;
         peakHours = pHours;
-        _currentMetrics = metrics;
         loading = false;
       });
     } catch (e) {
@@ -137,7 +134,7 @@ class _TipsScreenState extends State<TipsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -160,7 +157,7 @@ class _TipsScreenState extends State<TipsScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Прогноз нагрузки на сегодня', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 13)),
+          Text('Прогноз нагрузки на сегодня', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6), fontSize: 13)),
           const SizedBox(height: 24),
           Expanded(
             child: BarChart(
@@ -189,7 +186,7 @@ class _TipsScreenState extends State<TipsScreen> {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             '${value.toInt()}:00',
-                            style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.w600),
+                            style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6), fontSize: 11, fontWeight: FontWeight.w600),
                           ),
                         );
                       },
@@ -219,7 +216,7 @@ class _TipsScreenState extends State<TipsScreen> {
                         backDrawRodData: BackgroundBarChartRodData(
                           show: true,
                           toY: 100,
-                          color: Theme.of(context).dividerColor.withOpacity(0.3),
+                          color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
                         )
                       ),
                     ],
@@ -270,7 +267,7 @@ class _TipsScreenState extends State<TipsScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -323,9 +320,9 @@ class _TipsScreenState extends State<TipsScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -367,10 +364,10 @@ class _TipsScreenState extends State<TipsScreen> {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
+                                color: Colors.red.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                    color: Colors.red.withOpacity(0.3)),
+                                    color: Colors.red.withValues(alpha: 0.3)),
                               ),
                               child: Row(
                                 children: [
@@ -394,7 +391,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                           'Найдено ${heavy.length} сегментов с высокой загрузкой',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                                           ),
                                         ),
                                       ],
@@ -419,15 +416,15 @@ class _TipsScreenState extends State<TipsScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isHeavy
-                                      ? Colors.red.withOpacity(0.5)
+                                      ? Colors.red.withValues(alpha: 0.5)
                                       : isModerate
-                                          ? Colors.orange.withOpacity(0.3)
+                                          ? Colors.orange.withValues(alpha: 0.3)
                                           : Theme.of(context).dividerColor,
                                   width: isHeavy ? 2 : 1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
+                                    color: Colors.black.withValues(alpha: 0.04),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -440,7 +437,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                     height: 48,
                                     decoration: BoxDecoration(
                                       color: colorByValue(s.value)
-                                          .withOpacity(0.15),
+                                          .withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Icon(
@@ -469,7 +466,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                           _getRecommendation(s.value),
                                           style: TextStyle(
                                             fontSize: 13,
-                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                            color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                                           ),
                                         ),
                                         const SizedBox(height: 8),
@@ -483,7 +480,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                               ),
                                               decoration: BoxDecoration(
                                                 color: colorByValue(s.value)
-                                                    .withOpacity(0.15),
+                                                    .withValues(alpha: 0.15),
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                               ),
@@ -501,7 +498,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                               'Загрузка: ${s.value?.toStringAsFixed(0) ?? '—'}%',
                                               style: TextStyle(
                                                 fontSize: 11,
-                                                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                                color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                                               ),
                                             ),
                                           ],

@@ -177,7 +177,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(Icons.navigation_rounded,

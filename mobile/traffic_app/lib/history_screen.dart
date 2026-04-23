@@ -187,7 +187,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.6);
+    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -232,7 +232,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -277,7 +277,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                       const SizedBox(height: 12),
                       Text('Деректер жеткіліксіз', style: TextStyle(color: subtextColor, fontSize: 15)),
                       const SizedBox(height: 8),
-                      Text('Бэкенд тарихты жинап жатыр...', style: TextStyle(color: subtextColor.withOpacity(0.5), fontSize: 12)),
+                      Text('Бэкенд тарихты жинап жатыр...', style: TextStyle(color: subtextColor.withValues(alpha: 0.5), fontSize: 12)),
                     ],
                   ),
                 ),
@@ -312,9 +312,9 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: textColor.withOpacity(0.05)),
+                border: Border.all(color: textColor.withValues(alpha: 0.05)),
               ),
               child: Row(
                 children: [
@@ -341,7 +341,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
       children: [
         _legendItem('Нақты деректер', AppColors.primary, textColor),
         const SizedBox(width: 20),
-        _legendItem('AI Тренд', AppColors.primary.withOpacity(0.4), textColor, isDashed: true),
+        _legendItem('AI Тренд', AppColors.primary.withValues(alpha: 0.4), textColor, isDashed: true),
       ],
     );
   }
@@ -358,7 +358,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.7))),
+        Text(label, style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7))),
       ],
     );
   }
@@ -369,13 +369,13 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark 
-            ? [AppColors.primary.withOpacity(0.15), Colors.transparent] 
-            : [AppColors.primary.withOpacity(0.05), Colors.white],
+            ? [AppColors.primary.withValues(alpha: 0.15), Colors.transparent] 
+            : [AppColors.primary.withValues(alpha: 0.05), Colors.white],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,7 +397,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           const Divider(height: 32),
           Text(
             'Қорытынды: Модель келесі аптада жүктеменің 5%-ға төмендеуін болжайды.',
-            style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: textColor.withOpacity(0.8)),
+            style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: textColor.withValues(alpha: 0.8)),
           ),
         ],
       ),
@@ -409,9 +409,9 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: textColor.withOpacity(0.5)),
+          Icon(icon, size: 16, color: textColor.withValues(alpha: 0.5)),
           const SizedBox(width: 8),
-          Text(title, style: TextStyle(fontSize: 13, color: textColor.withOpacity(0.6))),
+          Text(title, style: TextStyle(fontSize: 13, color: textColor.withValues(alpha: 0.6))),
           const SizedBox(width: 4),
           Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor)),
         ],
@@ -423,7 +423,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
   Widget _buildPeriodSelector(bool isDark, Color textColor) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+        color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
       ),
       padding: const EdgeInsets.all(4),
@@ -461,14 +461,14 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                   color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                      ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
                       : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : textColor.withOpacity(0.6),
+                    color: isSelected ? Colors.white : textColor.withValues(alpha: 0.6),
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 14,
                   ),
@@ -528,14 +528,14 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accentColor.withOpacity(0.2)),
+          border: Border.all(color: accentColor.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.12),
+                color: accentColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: accentColor, size: 20),
@@ -545,7 +545,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 11, color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5))),
+                  Text(title, style: TextStyle(fontSize: 11, color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5))),
                   const SizedBox(height: 2),
                   Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge?.color)),
                 ],
@@ -594,7 +594,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                   child: Text(
                     '${value.toInt()}%',
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
                   ),
@@ -617,7 +617,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                   child: Text(
                     _formatAxisLabel(value),
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
                   ),
@@ -652,8 +652,8 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.primary.withOpacity(0.25),
-                  AppColors.primary.withOpacity(0.02),
+                  AppColors.primary.withValues(alpha: 0.25),
+                  AppColors.primary.withValues(alpha: 0.02),
                 ],
               ),
             ),
@@ -667,7 +667,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                 return LineTooltipItem(
                   '${_formatTooltip(spot.x)}\n',
                   TextStyle(
-                    color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.6),
+                    color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                   children: [

@@ -39,7 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final pass = _passCtrl.text.trim();
 
     if (email.isEmpty || pass.isEmpty) {
-      _showError('Барлық міндетті өрістерді толтырыңыз (Email және құпия сөз)');
+      _showError('Заполните все обязательные поля (Email и пароль)');
       return;
     }
 
@@ -77,7 +77,7 @@ class _AuthScreenState extends State<AuthScreen> {
               'birth_date': _dobCtrl.text.trim(),
             });
           } catch (e) {
-            debugPrint('RLS салдарынан профиль сақталмады, бірақ аккаунт сәтті құрылды: $e');
+            debugPrint('Профиль не записан из-за RLS, но аккаунт успешно создан: $e');
           }
         }
       }
@@ -90,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
     } on AuthException catch (e) {
       _showError(e.message);
     } catch (e) {
-      _showError('Қате орын алды: $e');
+      _showError('Произошла ошибка: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -120,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget _buildLogin(bool isDark) {
-    final primary = const Color(0xFF5A52FF);
+    const primary = Color(0xFF5A52FF);
     final textDark = isDark ? Colors.white : const Color(0xFF111827);
     final textSoft = isDark ? Colors.white60 : const Color(0xFF6B7280);
 
@@ -141,7 +141,7 @@ class _AuthScreenState extends State<AuthScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: primary.withOpacity(0.3),
+                  color: primary.withValues(alpha: 0.3),
                   blurRadius: 24,
                   offset: const Offset(0, 10),
                 )
@@ -155,19 +155,19 @@ class _AuthScreenState extends State<AuthScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Қош\nкелдіңіз!',
+                'Добро\nпожаловать!',
                 style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: textDark, height: 1.1, letterSpacing: -1),
               ),
               const SizedBox(height: 12),
               Text(
-                'Traffic AI-мен жұмысты жалғастыру үшін жүйеге кіріңіз',
+                'Войдите, чтобы продолжить работу с Traffic AI',
                 style: TextStyle(fontSize: 15, color: textSoft),
               ),
               const SizedBox(height: 32),
 
               _buildCustomField(_emailCtrl, 'Email', Icons.mail_outline_rounded, isDark: isDark),
               const SizedBox(height: 16),
-              _buildCustomField(_passCtrl, 'Құпия сөз', Icons.lock_outline_rounded, isPassword: true, isDark: isDark),
+              _buildCustomField(_passCtrl, 'Пароль', Icons.lock_outline_rounded, isPassword: true, isDark: isDark),
               
               const SizedBox(height: 32),
 
@@ -182,7 +182,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: _isLoading ? null : _submit,
                   child: _isLoading
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Кіру', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      : const Text('Войти', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
@@ -191,10 +191,10 @@ class _AuthScreenState extends State<AuthScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Аккаунтыңыз жоқ па? ', style: TextStyle(color: textSoft, fontSize: 14)),
+              Text('Нет аккаунта? ', style: TextStyle(color: textSoft, fontSize: 14)),
               GestureDetector(
                 onTap: () => setState(() => _isLogin = false),
-                child: Text('Тіркелу', style: TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 14)),
+                child: const Text('Зарегистрироваться', style: TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 14)),
               ),
             ],
           ),
@@ -204,7 +204,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget _buildRegister(bool isDark) {
-    final primary = const Color(0xFF5A52FF);
+    const primary = Color(0xFF5A52FF);
     final textDark = isDark ? Colors.white : const Color(0xFF111827);
     final textSoft = isDark ? Colors.white60 : const Color(0xFF6B7280);
 
@@ -223,32 +223,32 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Аккаунт\nқұру',
+            'Создать\nаккаунт',
             style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: textDark, height: 1.1, letterSpacing: -1),
           ),
           const SizedBox(height: 12),
           Text(
-            'Бізге қосылыңыз және ақылды маршруттарды құрыңыз',
+            'Присоединяйтесь к нам и прокладывайте умные маршруты',
             style: TextStyle(fontSize: 15, color: textSoft),
           ),
           const SizedBox(height: 32),
 
-          Text('ЖЕКЕ ДЕРЕКТЕР', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: primary)),
+          const Text('ЛИЧНЫЕ ДАННЫЕ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: primary)),
           const SizedBox(height: 16),
-          _buildCustomField(_firstNameCtrl, 'Аты', Icons.person_outline_rounded, isDark: isDark),
+          _buildCustomField(_firstNameCtrl, 'Имя', Icons.person_outline_rounded, isDark: isDark),
           const SizedBox(height: 12),
-          _buildCustomField(_lastNameCtrl, 'Тегі', Icons.badge_outlined, isDark: isDark),
+          _buildCustomField(_lastNameCtrl, 'Фамилия', Icons.badge_outlined, isDark: isDark),
           const SizedBox(height: 12),
-          _buildCustomField(_dobCtrl, 'Туған күні', Icons.calendar_today_outlined, isDark: isDark),
+          _buildCustomField(_dobCtrl, 'Дата рождения', Icons.calendar_today_outlined, isDark: isDark),
           const SizedBox(height: 12),
-          _buildCustomField(_phoneCtrl, 'Телефон нөмірі', Icons.phone_outlined, type: TextInputType.phone, isDark: isDark),
+          _buildCustomField(_phoneCtrl, 'Номер телефона', Icons.phone_outlined, type: TextInputType.phone, isDark: isDark),
           
           const SizedBox(height: 32),
-          Text('КІРУ ДЕРЕКТЕРІ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: primary)),
+          const Text('ДАННЫЕ ДЛЯ ВХОДА', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: primary)),
           const SizedBox(height: 16),
           _buildCustomField(_emailCtrl, 'Email', Icons.mail_outline_rounded, type: TextInputType.emailAddress, isDark: isDark),
           const SizedBox(height: 12),
-          _buildCustomField(_passCtrl, 'Құпия сөз', Icons.lock_outline_rounded, isPassword: true, isDark: isDark),
+          _buildCustomField(_passCtrl, 'Пароль', Icons.lock_outline_rounded, isPassword: true, isDark: isDark),
           
           const SizedBox(height: 32),
 
@@ -263,7 +263,7 @@ class _AuthScreenState extends State<AuthScreen> {
               onPressed: _isLoading ? null : _submit,
               child: _isLoading
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Тіркелу', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  : const Text('Зарегистрироваться', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
           
@@ -271,10 +271,10 @@ class _AuthScreenState extends State<AuthScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Аккаунтыңыз бар ма? ', style: TextStyle(color: textSoft, fontSize: 13)),
+              Text('Уже есть аккаунт? ', style: TextStyle(color: textSoft, fontSize: 13)),
               GestureDetector(
                 onTap: () => setState(() => _isLogin = true),
-                child: Text('Кіру', style: TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 14)),
+                child: const Text('Войти', style: TextStyle(color: primary, fontWeight: FontWeight.bold, fontSize: 14)),
               ),
             ],
           ),

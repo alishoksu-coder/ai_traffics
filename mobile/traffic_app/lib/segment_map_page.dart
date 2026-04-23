@@ -26,14 +26,14 @@ class SegmentMapPage extends StatelessWidget {
         polylineId: const gmaps.PolylineId('shadow'),
         points: gPoints,
         width: 10,
-        color: Colors.black.withOpacity(0.20),
+        color: Colors.black.withValues(alpha: 0.20),
         jointType: gmaps.JointType.round,
       ),
       gmaps.Polyline(
         polylineId: const gmaps.PolylineId('segment'),
         points: gPoints,
         width: 7,
-        color: color.withOpacity(0.95),
+        color: color.withValues(alpha: 0.95),
         jointType: gmaps.JointType.round,
       ),
     };

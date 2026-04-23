@@ -15,7 +15,6 @@ import 'auth_wrapper.dart';
 
 class _AppColors {
   static const primary = Color(0xFF007AFF);
-  static const primaryDark = Color(0xFF0056B3);
 }
 
 class TrafficApp extends StatelessWidget {
@@ -77,7 +76,7 @@ class TrafficApp extends StatelessWidget {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        indicatorColor: _AppColors.primary.withOpacity(0.2),
+        indicatorColor: _AppColors.primary.withValues(alpha: 0.2),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final color = states.contains(WidgetState.selected)
               ? _AppColors.primary
@@ -231,7 +230,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -243,7 +242,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
-                  color: isDark ? const Color(0xFF1C1C1E).withOpacity(0.7) : Colors.white.withOpacity(0.75),
+                  color: isDark ? const Color(0xFF1C1C1E).withValues(alpha: 0.7) : Colors.white.withValues(alpha: 0.75),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(_tabs.length, (i) {
@@ -259,7 +258,7 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
                               ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
                               : const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+                            color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(

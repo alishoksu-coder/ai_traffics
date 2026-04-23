@@ -34,7 +34,6 @@ class _DriveScreenState extends State<DriveScreen> {
     });
     try {
       final items = await api.getRoadSegments(horizon);
-      if (!mounted) return;
       final clean = items.where((s) => s.points.length >= 2).toList();
       clean.sort((a, b) => (b.value ?? -1).compareTo(a.value ?? -1));
       setState(() {
@@ -42,7 +41,6 @@ class _DriveScreenState extends State<DriveScreen> {
         loading = false;
       });
     } catch (e) {
-      if (!mounted) return;
       setState(() {
         error = e.toString();
         loading = false;
@@ -122,17 +120,17 @@ class _DriveScreenState extends State<DriveScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.04),
+                    color: AppColors.primary.withValues(alpha: 0.04),
                     blurRadius: 30,
                     offset: const Offset(0, 2),
                   ),
                 ],
-                border: Border.all(color: AppColors.divider.withOpacity(0.5)),
+                border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,39 +140,35 @@ class _DriveScreenState extends State<DriveScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: AppColors.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.traffic_rounded,
                             color: AppColors.primary, size: 24),
                       ),
                       const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Прогноз загруженности',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Theme.of(context).textTheme.bodyLarge?.color,
-                                letterSpacing: -0.3,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Прогноз загруженности',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                              letterSpacing: -0.3,
                             ),
-                            SizedBox(height: 2),
-                            Text(
-                              'г. Астана',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
-                                fontWeight: FontWeight.w500,
-                              ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'г. Астана',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -186,10 +180,10 @@ class _DriveScreenState extends State<DriveScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                            color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: Theme.of(context).dividerColor.withOpacity(0.4)),
+                                color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<int>(
@@ -228,9 +222,9 @@ class _DriveScreenState extends State<DriveScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'Пробка — $heavy улиц • Затор — $medium улиц',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -299,7 +293,7 @@ class _DriveScreenState extends State<DriveScreen> {
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   elevation: 0,
-                  shadowColor: Colors.black.withOpacity(0.06),
+                  shadowColor: Colors.black.withValues(alpha: 0.06),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
@@ -317,7 +311,7 @@ class _DriveScreenState extends State<DriveScreen> {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.2),
+                              color: color.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Center(
@@ -339,10 +333,10 @@ class _DriveScreenState extends State<DriveScreen> {
                               children: [
                                 Text(
                                   streetName,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                                    color: AppColors.textPrimary,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -354,7 +348,7 @@ class _DriveScreenState extends State<DriveScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: color.withOpacity(0.15),
+                                        color: color.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -367,11 +361,11 @@ class _DriveScreenState extends State<DriveScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
+                                    const Text(
                                       'г. Астана',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                        color: AppColors.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -379,8 +373,8 @@ class _DriveScreenState extends State<DriveScreen> {
                               ],
                             ),
                           ),
-                          Icon(Icons.chevron_right_rounded,
-                              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.3), size: 24),
+                          const Icon(Icons.chevron_right_rounded,
+                              color: AppColors.textSecondary, size: 24),
                         ],
                       ),
                     ),
@@ -408,7 +402,7 @@ class _DriveScreenState extends State<DriveScreen> {
         ),
         const SizedBox(width: 6),
         Text(label,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6))),
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
       ],
     );
   }

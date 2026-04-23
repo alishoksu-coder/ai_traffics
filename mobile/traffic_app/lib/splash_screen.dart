@@ -9,7 +9,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fade;
   late Animation<double> _scale;
@@ -23,11 +24,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeIn)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.0, 0.6, curve: Curves.easeIn)),
     );
 
     _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack)),
     );
 
     _controller.forward();
@@ -67,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0EA5E9).withOpacity(0.3),
+                        color: const Color(0xFF0EA5E9).withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       )
@@ -76,7 +81,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   child: ClipOval(
                     child: Image.asset(
                       'assets/images/logo.png',
-                      errorBuilder: (c, e, s) => const Icon(Icons.traffic, size: 80, color: Colors.blue),
+                      errorBuilder: (c, e, s) => const Icon(Icons.traffic,
+                          size: 80, color: Colors.blue),
                     ),
                   ),
                 ),

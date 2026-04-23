@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:traffic_app/common.dart';
@@ -22,7 +21,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
   Future<Map<String, dynamic>> _getMetrics(int horizon, int minutes) async {
     try {
       final metrics = await api.getModelMetrics(horizon);
-      
+
       final result = <String, dynamic>{
         "minutes_used": minutes,
       };
@@ -30,19 +29,27 @@ class _MetricsScreenState extends State<MetricsScreen> {
       for (var m in metrics) {
         // Приводим название модели к ключу в Map (Trend LR -> trend_lr)
         final key = m.modelName.toLowerCase().replaceAll(' ', '_');
-        result[key] = {
-          "mae": m.mae,
-          "rmse": m.rmse,
-          "n": m.n
-        };
+        result[key] = {"mae": m.mae, "rmse": m.rmse, "n": m.n};
       }
 
       // Если данных нет (база только создана и еще не накопила статистику),
       // возвращаем реалистичные демо-данные, чтобы UI не был пустым.
-      result["naive"] ??= {"mae": horizon == 30 ? 1.45 : 2.15, "rmse": horizon == 30 ? 1.80 : 2.65, "n": 0};
-      result["moving_avg"] ??= {"mae": horizon == 30 ? 1.10 : 1.70, "rmse": horizon == 30 ? 1.35 : 1.95, "n": 0};
-      result["trend_lr"] ??= {"mae": horizon == 30 ? 0.85 : 1.30, "rmse": horizon == 30 ? 1.05 : 1.62, "n": 0};
-      
+      result["naive"] ??= {
+        "mae": horizon == 30 ? 1.45 : 2.15,
+        "rmse": horizon == 30 ? 1.80 : 2.65,
+        "n": 0
+      };
+      result["moving_avg"] ??= {
+        "mae": horizon == 30 ? 1.10 : 1.70,
+        "rmse": horizon == 30 ? 1.35 : 1.95,
+        "n": 0
+      };
+      result["trend_lr"] ??= {
+        "mae": horizon == 30 ? 0.85 : 1.30,
+        "rmse": horizon == 30 ? 1.05 : 1.62,
+        "n": 0
+      };
+
       return result;
     } catch (e) {
       print('Metrics parse error: $e');
@@ -90,7 +97,6 @@ class _MetricsScreenState extends State<MetricsScreen> {
       {'name': 'Naive', 'data': naive},
       {'name': 'Moving Avg', 'data': ma},
       {'name': 'Trend LR', 'data': trend},
-      {'name': 'LSTM', 'data': m['lstm'] as Map<String, dynamic>?},
     ];
 
     for (final model in models) {
@@ -120,12 +126,22 @@ class _MetricsScreenState extends State<MetricsScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
-        decoration: cardDecoration(context).copyWith(
-          borderRadius: BorderRadius.circular(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isBest ? AppColors.primary : Theme.of(context).dividerColor.withOpacity(0.2),
-            width: isBest ? 2 : 0.5,
+            color: isBest
+                ? AppColors.primary
+                : Theme.of(context).dividerColor.withValues(alpha: 0.5),
+            width: isBest ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +151,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -230,12 +246,17 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
-      decoration: cardDecoration(context).copyWith(
-        borderRadius: BorderRadius.circular(24), // Even rounder base card
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
-          width: 1,
-        ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 
+                Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +266,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.psychology,
@@ -311,8 +332,6 @@ class _MetricsScreenState extends State<MetricsScreen> {
               const Color(0xFF34C759)),
           row('Trend LR', 'Линейная регрессия',
               m['trend_lr'] as Map<String, dynamic>? ?? {}, AppColors.primary),
-          row('LSTM', 'Нейронная сеть (PyTorch)',
-              m['lstm'] as Map<String, dynamic>? ?? {}, const Color(0xFF5856D6)),
         ],
       ),
     );
@@ -435,10 +454,10 @@ class _MetricsScreenState extends State<MetricsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: const Row(

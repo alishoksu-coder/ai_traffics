@@ -10,6 +10,16 @@ import 'package:traffic_app/app.dart';
 void main() {
   testWidgets('App builds', (WidgetTester tester) async {
     await tester.pumpWidget(const TrafficApp());
-    expect(find.text('Поиск'), findsOneWidget);
+    // Should be on Splash screen
+    expect(find.text('Traffic AI'), findsOneWidget);
+    
+    // Fast forward time for the Timer in SplashScreen
+    await tester.pump(const Duration(seconds: 4));
+    // Another pump to trigger the navigation after Timer
+    await tester.pump();
+    // One more to settle the next screen
+    await tester.pump(const Duration(seconds: 1));
+    
+    expect(find.text('Карта'), findsOneWidget);
   });
 }

@@ -59,16 +59,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
         // Ошибка биометрии, переходим к пину если он установлен
       }
     }
-    
+
     // Если биометрия не сработала или не включена, но включен ПИН
     if (_pinCode == null) {
-        setState(() {
-          _isAuthenticated = true;
-          _isLoading = false;
-        });
-        return;
+      setState(() {
+        _isAuthenticated = true;
+        _isLoading = false;
+      });
+      return;
     }
-    
+
     setState(() {
       _isLoading = false;
     });
@@ -101,7 +101,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
 class _PinCodeScreen extends StatefulWidget {
   final String? correctPin;
   final VoidCallback onSuccess;
-  
+
   const _PinCodeScreen({required this.correctPin, required this.onSuccess});
 
   @override
@@ -146,23 +146,23 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const primaryColor = Color(0xFF4C45E5);
-    
+
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F7FA),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F7FA),
       body: SafeArea(
         child: Column(
           children: [
             const Spacer(),
-            const Icon(Icons.lock_outline_rounded, size: 72, color: primaryColor),
+            const Icon(Icons.lock_outline_rounded,
+                size: 72, color: primaryColor),
             const SizedBox(height: 24),
-            Text(
-              'Введите PIN-код', 
-              style: TextStyle(
-                fontSize: 22, 
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87,
-              )
-            ),
+            Text('Введите PIN-код',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                )),
             const SizedBox(height: 48),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +175,11 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isFilled ? primaryColor : Colors.transparent,
-                    border: Border.all(color: isFilled ? primaryColor : (isDark ? Colors.white30 : Colors.black26), width: 2),
+                    border: Border.all(
+                        color: isFilled
+                            ? primaryColor
+                            : (isDark ? Colors.white30 : Colors.black26),
+                        width: 2),
                   ),
                 );
               }),
@@ -195,14 +199,15 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
                 ),
                 itemCount: 12,
                 itemBuilder: (context, index) {
-                  if (index == 9) return const SizedBox(); 
+                  if (index == 9) return const SizedBox();
                   if (index == 11) {
                     return InkWell(
                       onTap: _onDeleteTap,
                       customBorder: const CircleBorder(),
                       child: Center(
-                        child: Icon(Icons.backspace_outlined, size: 28, color: isDark ? Colors.white : Colors.black87)
-                      ),
+                          child: Icon(Icons.backspace_outlined,
+                              size: 28,
+                              color: isDark ? Colors.white : Colors.black87)),
                     );
                   }
                   final number = index == 10 ? '0' : '${index + 1}';
@@ -210,19 +215,19 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
                     onTap: () => _onNumberTap(number),
                     customBorder: const CircleBorder(),
                     child: Container(
-                       decoration: BoxDecoration(
-                         shape: BoxShape.circle,
-                         color: isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
-                       ),
-                       child: Center(
-                        child: Text(
-                          number, 
-                          style: TextStyle(
-                            fontSize: 32, 
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white : Colors.black87,
-                          )
-                        ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : Colors.black.withValues(alpha: 0.03),
+                      ),
+                      child: Center(
+                        child: Text(number,
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? Colors.white : Colors.black87,
+                            )),
                       ),
                     ),
                   );

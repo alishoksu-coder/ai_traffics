@@ -36,7 +36,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('К сожалению, биометрия не поддерживается на этом устройстве.'),
+              content: Text(
+                  'К сожалению, биометрия не поддерживается на этом устройстве.'),
               backgroundColor: Colors.red,
             ),
           );
@@ -63,7 +64,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         _pinCode = result;
       });
       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('PIN-код успешно установлен!'),
             backgroundColor: Colors.green,
@@ -80,7 +81,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       _pinCode = null;
     });
     if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('PIN-код удален'),
         ),
@@ -107,7 +108,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               fontSize: 13,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.5,
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.4),
+              color: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.color
+                  ?.withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(height: 16),
@@ -116,13 +121,16 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.06),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.06),
               ),
             ),
             child: Column(
               children: [
                 SwitchListTile(
-                  title: const Text('Вход по FaceID / Отпечатку', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: const Text('Вход по FaceID / Отпечатку',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: const Text('Использовать встроенную защиту'),
                   value: _useBiometrics,
                   onChanged: _toggleBiometrics,
@@ -130,39 +138,61 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.12),
+                      color: primaryColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.fingerprint_rounded, color: primaryColor),
+                    child: const Icon(Icons.fingerprint_rounded,
+                        color: primaryColor),
                   ),
                 ),
-                Divider(height: 1, indent: 64, color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                Divider(
+                    height: 1,
+                    indent: 64,
+                    color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.2),
+                      color: Colors.amber.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.password_rounded, color: Colors.amber),
+                    child:
+                        const Icon(Icons.password_rounded, color: Colors.amber),
                   ),
-                  title: Text(_pinCode == null ? 'Установить PIN-код' : 'Изменить PIN-код', style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text(_pinCode == null ? 'Резервный пароль из 4 цифр' : 'PIN-код защищает ваш вход'),
+                  title: Text(
+                      _pinCode == null
+                          ? 'Установить PIN-код'
+                          : 'Изменить PIN-код',
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text(_pinCode == null
+                      ? 'Резервный пароль из 4 цифр'
+                      : 'PIN-код защищает ваш вход'),
                   onTap: _setPin,
-                  trailing: Icon(Icons.chevron_right_rounded, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.3)),
+                  trailing: Icon(Icons.chevron_right_rounded,
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.color
+                          ?.withValues(alpha: 0.3)),
                 ),
                 if (_pinCode != null) ...[
-                  Divider(height: 1, indent: 64, color: Theme.of(context).dividerColor.withOpacity(0.5)),
+                  Divider(
+                      height: 1,
+                      indent: 64,
+                      color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                      child: const Icon(Icons.delete_outline_rounded,
+                          color: Colors.red),
                     ),
-                    title: const Text('Удалить PIN-код', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600)),
+                    title: const Text('Удалить PIN-код',
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.w600)),
                     onTap: _removePin,
                   ),
                 ]
@@ -188,7 +218,8 @@ class _PinSetupDialogState extends State<_PinSetupDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Новый PIN-код', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text('Новый PIN-код',
+          style: TextStyle(fontWeight: FontWeight.bold)),
       content: TextField(
         controller: _controller,
         keyboardType: TextInputType.number,
@@ -205,9 +236,8 @@ class _PinSetupDialogState extends State<_PinSetupDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context), 
-          child: const Text('Отмена')
-        ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена')),
         FilledButton(
           onPressed: () {
             if (_controller.text.length == 4) {
