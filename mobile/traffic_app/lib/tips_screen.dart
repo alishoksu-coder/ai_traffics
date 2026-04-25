@@ -57,17 +57,17 @@ class _TipsScreenState extends State<TipsScreen> {
   }
 
   String _getTrafficLevel(double? value) {
-    if (value == null) return 'Неизвестно';
-    if (value <= 30) return 'Свободно';
-    if (value <= 60) return 'Загружено';
-    return 'Пробка';
+    if (value == null) return 'Белгісіз';
+    if (value <= 30) return 'Бос';
+    if (value <= 60) return 'Жүктелген';
+    return 'Кептеліс';
   }
 
   String _getRecommendation(double? value) {
-    if (value == null) return 'Данных недостаточно';
-    if (value <= 30) return 'Маршрут свободен';
-    if (value <= 60) return 'Рекомендуется объехать';
-    return 'Серьёзная пробка — выберите альтернативный маршрут';
+    if (value == null) return 'Деректер жеткіліксіз';
+    if (value <= 30) return 'Маршрут бос';
+    if (value <= 60) return 'Айналып өту ұсынылады';
+    return 'Ауыр кептеліс — балама маршрут таңдаңыз';
   }
 
   IconData _getTrafficIcon(double? value) {
@@ -149,7 +149,7 @@ class _TipsScreenState extends State<TipsScreen> {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'AI Динамический Прогноз',
+                  'AI Динамикалық Болжам',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -157,7 +157,7 @@ class _TipsScreenState extends State<TipsScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Прогноз нагрузки на сегодня', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6), fontSize: 13)),
+          Text('Бүгінгі жүктеме болжамы', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6), fontSize: 13)),
           const SizedBox(height: 24),
           Expanded(
             child: BarChart(
@@ -238,13 +238,13 @@ class _TipsScreenState extends State<TipsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
-        'AI Рекомендации',
+        'AI Ұсыныстары',
         actions: [
           if (!loading)
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _load,
-              tooltip: 'Обновить',
+              tooltip: 'Жаңарту',
             ),
           if (loading)
             const Padding(
@@ -279,7 +279,7 @@ class _TipsScreenState extends State<TipsScreen> {
                     size: 20, color: AppColors.primary),
                 const SizedBox(width: 12),
                 const Text(
-                  'Прогноз:',
+                  'Болжам:',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -300,7 +300,7 @@ class _TipsScreenState extends State<TipsScreen> {
                       underline: const SizedBox(),
                       dropdownColor: Theme.of(context).cardColor,
                       items: const [
-                        DropdownMenuItem(value: 0, child: Text('Сейчас')),
+                        DropdownMenuItem(value: 0, child: Text('Қазір')),
                         DropdownMenuItem(value: 30, child: Text('+30 мин')),
                         DropdownMenuItem(value: 60, child: Text('+60 мин')),
                       ],
@@ -351,7 +351,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                 size: 64, color: AppColors.textSecondary),
                             const SizedBox(height: 16),
                             Text(
-                              'Нет данных по сегментам',
+                              'Сегменттер бойынша деректер жоқ',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ],
@@ -380,7 +380,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          'Критические пробки',
+                                          'Критикалық кептелістер',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -388,7 +388,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                           ),
                                         ),
                                         Text(
-                                          'Найдено ${heavy.length} сегментов с высокой загрузкой',
+                                          'Табылды ${heavy.length} жоғары жүктелген сегменттер',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
@@ -495,7 +495,7 @@ class _TipsScreenState extends State<TipsScreen> {
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
-                                              'Загрузка: ${s.value?.toStringAsFixed(0) ?? '—'}%',
+                                              'Жүктеме: ${s.value?.toStringAsFixed(0) ?? '—'}%',
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
@@ -516,9 +516,9 @@ class _TipsScreenState extends State<TipsScreen> {
                                 horizontal: 16, vertical: 8),
                             leading: const CircleAvatar(
                                 child: Icon(Icons.psychology)),
-                            title: const Text('AI Аналитика',
+                            title: const Text('AI Аналитикасы',
                                 style: TextStyle(fontWeight: FontWeight.w600)),
-                            subtitle: const Text('Точность прогнозов'),
+                            subtitle: const Text('Болжамдардың дәлдігі'),
                             trailing: const Icon(Icons.chevron_right),
                             onTap: () => Navigator.push(
                                 context,

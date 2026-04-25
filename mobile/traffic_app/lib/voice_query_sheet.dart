@@ -118,7 +118,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
   Future<void> _submit() async {
     final query = _controller.text.trim();
     if (query.isEmpty) {
-      setState(() => _error = 'Введите адрес или название места');
+      setState(() => _error = 'Мекенжайды немесе орынның атауын енгізіңіз');
       return;
     }
     setState(() {
@@ -133,7 +133,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
         perm = await Geolocator.requestPermission();
       }
       if (perm == LocationPermission.deniedForever) {
-        throw Exception('Доступ к геолокации запрещён. Включите в настройках.');
+        throw Exception('Геолокацияға рұқсат жоқ. Баптаулардан қосыңыз.');
       }
       if (perm == LocationPermission.denied) {
         throw Exception('Нужен доступ к геолокации для маршрута от вас.');
@@ -186,7 +186,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
               const SizedBox(width: 14),
               const Expanded(
                 child: Text(
-                  'Куда доехать?',
+                  'Қайда барасыз?',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -221,7 +221,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
                       : AppColors.textSecondary,
                 ),
                 onPressed: _isListening ? null : _startListening,
-                tooltip: 'Голосовой ввод',
+                tooltip: 'Дауыспен енгізу',
               ),
             ),
             textInputAction: TextInputAction.done,
@@ -262,7 +262,7 @@ class _VoiceQuerySheetContentState extends State<_VoiceQuerySheetContent> {
                         strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.directions_car_rounded, size: 22),
-            label: Text(_loading ? 'Построение маршрута...' : 'Поехать'),
+            label: Text(_loading ? 'Маршрут құрылуда...' : 'Жүру'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: AppColors.primary,

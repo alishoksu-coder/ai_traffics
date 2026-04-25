@@ -181,7 +181,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Text(
-                                'Лучшая',
+                                'Үздік',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -327,10 +327,10 @@ class _MetricsScreenState extends State<MetricsScreen> {
               const Color(0xFF8E8E93)),
           row(
               'Moving Avg',
-              'Скользящее среднее (k=5)',
+              'Жылжымалы орташа (k=5)',
               m['moving_avg'] as Map<String, dynamic>? ?? {},
               const Color(0xFF34C759)),
-          row('Trend LR', 'Линейная регрессия',
+          row('Trend LR', 'Сызықтық регрессия',
               m['trend_lr'] as Map<String, dynamic>? ?? {}, AppColors.primary),
         ],
       ),
@@ -380,13 +380,13 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
-        'AI Аналитика',
+        'AI Аналитикасы',
         actions: [
           if (!loading)
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _load,
-              tooltip: 'Обновить',
+              tooltip: 'Жаңарту',
             ),
           if (loading)
             const Padding(
@@ -417,7 +417,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Ошибка загрузки',
+                          'Жүктеу қатесі',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 8),
@@ -431,7 +431,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
                         ElevatedButton.icon(
                           onPressed: _load,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Повторить'),
+                          label: const Text('Қайталау'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -448,8 +448,8 @@ class _MetricsScreenState extends State<MetricsScreen> {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _card('Прогноз на +30 мин', m30, Icons.access_time),
-                    _card('Прогноз на +60 мин', m60, Icons.schedule),
+                    _card('+30 мин болжам', m30, Icons.access_time),
+                    _card('+60 мин болжам', m60, Icons.schedule),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),

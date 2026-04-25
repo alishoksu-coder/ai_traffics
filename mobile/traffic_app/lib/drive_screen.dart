@@ -71,9 +71,9 @@ class _DriveScreenState extends State<DriveScreen> {
   /// Текстовый статус загруженности: Свободно / Затор / Пробка.
   String _trafficStatusLabel(double? value) {
     if (value == null) return '—';
-    if (value <= 30) return 'Свободно';
-    if (value <= 60) return 'Затор';
-    return 'Пробка';
+    if (value <= 30) return 'Бос';
+    if (value <= 60) return 'Кептеліс';
+    return 'Кептеліс';
   }
 
   @override
@@ -88,7 +88,7 @@ class _DriveScreenState extends State<DriveScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: whiteAppBar(
-        'Маршруты',
+        'Маршруттар',
         actions: [
           if (loading)
             const Padding(
@@ -103,7 +103,7 @@ class _DriveScreenState extends State<DriveScreen> {
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               onPressed: _load,
-              tooltip: 'Обновить',
+              tooltip: 'Жаңарту',
             ),
         ],
       ),
@@ -151,7 +151,7 @@ class _DriveScreenState extends State<DriveScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Прогноз загруженности',
+                            'Жүктеме болжамы',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -191,7 +191,7 @@ class _DriveScreenState extends State<DriveScreen> {
                               isExpanded: true,
                               items: const [
                                 DropdownMenuItem(
-                                    value: 0, child: Text('Сейчас')),
+                                    value: 0, child: Text('Қазір')),
                                 DropdownMenuItem(
                                     value: 30, child: Text('+30 мин')),
                                 DropdownMenuItem(
@@ -213,9 +213,9 @@ class _DriveScreenState extends State<DriveScreen> {
                     spacing: 16,
                     runSpacing: 8,
                     children: [
-                      _legendChip(const Color(0xFF22C55E), 'Свободно'),
-                      _legendChip(const Color(0xFFF97316), 'Затор'),
-                      _legendChip(const Color(0xFFEF4444), 'Пробка'),
+                      _legendChip(const Color(0xFF22C55E), 'Бос'),
+                      _legendChip(const Color(0xFFF97316), 'Кептеліс'),
+                      _legendChip(const Color(0xFFEF4444), 'Кептеліс'),
                     ],
                   ),
                   if (!loading && segments.isNotEmpty) ...[
@@ -237,7 +237,7 @@ class _DriveScreenState extends State<DriveScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Поиск по улице или названию',
+                hintText: 'Көше немесе атауы бойынша іздеу',
                 prefixIcon: const Icon(Icons.search_rounded, size: 22),
                 filled: true,
                 fillColor: Theme.of(context).cardColor,
@@ -316,9 +316,9 @@ class _DriveScreenState extends State<DriveScreen> {
                             ),
                             child: Center(
                               child: Icon(
-                                statusLabel == 'Пробка'
+                                statusLabel == 'Кептеліс'
                                     ? Icons.traffic_rounded
-                                    : statusLabel == 'Затор'
+                                    : statusLabel == 'Кептеліс'
                                         ? Icons.warning_amber_rounded
                                         : Icons.check_circle_outline_rounded,
                                 size: 24,

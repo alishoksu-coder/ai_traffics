@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Умный мониторинг города',
+                  'Қаланың ақылды мониторингі',
                   style: TextStyle(
                     color: Colors.white60,
                     fontSize: 16,

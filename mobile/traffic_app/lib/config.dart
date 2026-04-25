@@ -1,6 +1,6 @@
-// Для тестов на локальном компьютере или телефоне:
-const String kApiBaseUrl = 'http://10.82.155.147:8000'; 
-// Используем IP компьютера 10.82.155.147, чтобы телефон его увидел.
+// Для тестов на локальном компьютере или телефоне (заменено на облачный Render):
+const String kApiBaseUrl = 'https://ai-traffics.onrender.com'; 
+// Используем Render, чтобы пользователи могли получить доступ к серверу через интернет.
 /// Google Maps API key (Maps SDK + Geocoding API)
 const String kGoogleMapsApiKey = 'AIzaSyAl5qz2U_ioqFuxDvZKi5wjwirqMFTr5OA';
 

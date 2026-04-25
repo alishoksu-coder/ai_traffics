@@ -125,10 +125,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     final savedLat = isHome ? _userProfile?.homeLat : _userProfile?.workLat;
     final savedLng = isHome ? _userProfile?.homeLng : _userProfile?.workLng;
     final savedTitle = isHome ? _userProfile?.homeTitle : _userProfile?.workTitle;
-    final label = isHome ? 'Дома' : 'Работы';
+    final label = isHome ? 'Үйде' : 'Жұмыс';
 
     if (savedLat != null && savedLng != null) {
-      _toController.text = savedTitle ?? (isHome ? "Дом" : "Работа");
+      _toController.text = savedTitle ?? (isHome ? "Үй" : "Жұмыс");
       setState(() => b = LatLng(savedLat, savedLng));
       _useMyLocation();
     } else {
@@ -154,7 +154,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   }
 
   Future<PlaceResult?> _showAddShortcutBottomSheet(String type, String label) async {
-    final titleControl = TextEditingController(text: type == 'home' ? 'Дом' : 'Работа');
+    final titleControl = TextEditingController(text: type == 'home' ? 'Үй' : 'Жұмыс');
     final addressControl = TextEditingController();
     bool sheetLoading = false;
 
@@ -252,7 +252,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                             children: [
                               Icon(Icons.edit_note_rounded, size: 20, color: isDark ? Colors.indigoAccent : Colors.indigo.shade800),
                               const SizedBox(width: 8),
-                              Text('Основное', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: isDark ? Colors.white : Colors.black87)),
+                              Text('Негізгі', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: isDark ? Colors.white : Colors.black87)),
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -267,7 +267,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          _buildPremiumTextField(addressControl, 'Например: Сыганак 17, Астана...', Icons.search_rounded),
+                          _buildPremiumTextField(addressControl, 'Мысалы: Сығанақ 17, Астана...', Icons.search_rounded),
 
                           const SizedBox(height: 24),
                           Container(
@@ -306,7 +306,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                               ),
                               onPressed: sheetLoading ? null : () async {
                                 if (addressControl.text.trim().isEmpty) {
-                                  ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Пожалуйста, введите адрес')));
+                                  ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Мекенжайды енгізіңіз')));
                                   return;
                                 }
                                 setStateSheet(() => sheetLoading = true);
@@ -315,7 +315,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                   Navigator.pop(ctx, res);
                                 } catch (e) {
                                   setStateSheet(() => sheetLoading = false);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Ничего не найдено, уточните запрос')));
+                                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Ештеңе табылмады, сұранысты нақтылаңыз')));
                                 }
                               },
                               child: sheetLoading 
@@ -325,7 +325,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                     children: [
                                       Icon(Icons.check_circle_outline_rounded, size: 22),
                                       SizedBox(width: 8),
-                                      Text('Сохранить адрес', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                      Text('Мекенжайды сақтау', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                                     ],
                                   ),
                             ),
@@ -494,7 +494,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       setState(() => a = LatLng(detail.lat, detail.lon));
       if (a != null && b != null) _buildRouteFromGoogle();
     } catch (_) {
-      if (mounted) setState(() => error = 'Не удалось загрузить адрес');
+      if (mounted) setState(() => error = 'Мекенжайды жүктеу мүмкін болмады');
     }
   }
 
@@ -508,7 +508,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       setState(() => b = LatLng(detail.lat, detail.lon));
       if (a != null && b != null) _buildRouteFromGoogle();
     } catch (_) {
-      if (mounted) setState(() => error = 'Не удалось загрузить адрес');
+      if (mounted) setState(() => error = 'Мекенжайды жүктеу мүмкін болмады');
     }
   }
 
@@ -533,19 +533,19 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Службы геолокации отключены.');
+        throw Exception('Геолокация қызметтері өшірілген.');
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('В доступе к геолокации отказано.');
+          throw Exception('Геолокацияға рұқсат берілмеді.');
         }
       }
       
       if (permission == LocationPermission.deniedForever) {
-        throw Exception('Доступ к геолокации запрещен навсегда.');
+        throw Exception('Геолокацияға рұқсат біржола бұғатталған.');
       } 
 
       Position position = await Geolocator.getCurrentPosition();
@@ -591,7 +591,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     final fromText = _fromController.text.trim();
     final toText = _toController.text.trim();
     if (fromText.isEmpty || toText.isEmpty) {
-      setState(() => error = 'Введите адрес «Откуда» и «Куда»');
+      setState(() => error = '«Қайдан» және «Қайда» мекенжайларын енгізіңіз');
       return;
     }
 
@@ -991,7 +991,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       out.add(gmaps.Marker(
         markerId: const gmaps.MarkerId('from'),
         position: gmaps.LatLng(a!.latitude, a!.longitude),
-        infoWindow: const gmaps.InfoWindow(title: 'Откуда'),
+        infoWindow: const gmaps.InfoWindow(title: 'Қайдан'),
         icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
             gmaps.BitmapDescriptor.hueGreen),
       ));
@@ -1000,7 +1000,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       out.add(gmaps.Marker(
         markerId: const gmaps.MarkerId('to'),
         position: gmaps.LatLng(b!.latitude, b!.longitude),
-        infoWindow: const gmaps.InfoWindow(title: 'Куда'),
+        infoWindow: const gmaps.InfoWindow(title: 'Қайда'),
         icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
             gmaps.BitmapDescriptor.hueRed),
       ));
@@ -1199,7 +1199,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Отмена'),
+                    child: const Text('Болдырмау'),
                   ),
                 ),
                 const SizedBox(width: 12),

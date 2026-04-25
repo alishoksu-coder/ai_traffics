@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'admin_login_screen.dart';
 import 'friends_screen.dart';
 import 'metrics_screen.dart';
+import 'history_screen.dart';
 import 'theme_notifier.dart';
 import 'auth_screen.dart';
 import 'security_settings_screen.dart';
@@ -35,7 +36,7 @@ class MoreScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Ещё',
+                      'Тағы',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -44,7 +45,7 @@ class MoreScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Профиль и настройки',
+                      'Профиль және баптаулар',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.8),
@@ -60,7 +61,7 @@ class MoreScreen extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(isDark ? Icons.wb_sunny_rounded : Icons.nights_stay_rounded, color: Colors.white),
                     onPressed: () => ThemeNotifier().toggleTheme(),
-                    tooltip: isDark ? 'Светлая тема' : 'Тёмная тема',
+                    tooltip: isDark ? 'Жарық тақырып' : 'Қараңғы тақырып',
                   ),
                 ),
               ],
@@ -82,38 +83,46 @@ class MoreScreen extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   children: [
                     // ── Основное ──
-                    const _SectionHeader(title: 'Основное'),
+                    const _SectionHeader(title: 'Негізгі'),
                     const SizedBox(height: 12),
                   _MenuCard(
                     children: [
                       _MenuItem(
                         icon: Icons.people_rounded,
                         iconColor: const Color(0xFF8B5CF6),
-                        title: 'Друзья',
-                        subtitle: 'Список и карта друзей',
+                        title: 'Достар',
+                        subtitle: 'Достар тізімі және карта',
                         onTap: () => Navigator.push(context, _buildPageRoute(const FriendsScreen())),
                       ),
                       _MenuDivider(),
                       _MenuItem(
                         icon: Icons.psychology_rounded,
                         iconColor: const Color(0xFF0EA5E9),
-                        title: 'AI Аналитика',
-                        subtitle: 'Точность прогнозов моделей',
+                        title: 'AI Аналитикасы',
+                        subtitle: 'Модельдер болжамдарының дәлдігі',
                         onTap: () => Navigator.push(context, _buildPageRoute(const MetricsScreen())),
+                      ),
+                      _MenuDivider(),
+                      _MenuItem(
+                        icon: Icons.history_rounded,
+                        iconColor: const Color(0xFFF43F5E),
+                        title: 'Трафик тарихы',
+                        subtitle: '12 сағат, күн, апта және ай',
+                        onTap: () => Navigator.push(context, _buildPageRoute(const TrafficHistoryScreen())),
                       ),
                     ],
                   ),
         
                   const SizedBox(height: 28),
                   // ── Управление ──
-                  const _SectionHeader(title: 'Управление'),
+                  const _SectionHeader(title: 'Басқару'),
                   const SizedBox(height: 12),
                   _MenuCard(
                     children: [
                       _MenuItem(
                         icon: Icons.admin_panel_settings_rounded,
                         iconColor: const Color(0xFFF59E0B),
-                        title: 'Админ-панель',
+                        title: 'Админ-панелі',
                         subtitle: 'Настройки системы',
                         onTap: () => Navigator.push(context, _buildPageRoute(const AdminLoginScreen())),
                       ),
@@ -121,8 +130,8 @@ class MoreScreen extends StatelessWidget {
                       _MenuItem(
                         icon: Icons.shield_rounded,
                         iconColor: const Color(0xFF10B981),
-                        title: 'Кибербезопасность',
-                        subtitle: 'FaceID, TouchID и PIN-коды',
+                        title: 'Киберқауіпсіздік',
+                        subtitle: 'FaceID, TouchID және PIN-кодтар',
                         onTap: () => Navigator.push(context, _buildPageRoute(const SecuritySettingsScreen())),
                       ),
                     ],
@@ -137,8 +146,8 @@ class MoreScreen extends StatelessWidget {
                       _MenuItem(
                         icon: Icons.account_circle_rounded,
                         iconColor: const Color(0xFF6366F1),
-                        title: 'Вход в систему',
-                        subtitle: 'Авторизуйтесь для синхронизации',
+                        title: 'Жүйеге кіру',
+                        subtitle: 'Синхрондау үшін авторизациядан өтіңіз',
                         onTap: () {
                           Navigator.push(context, _buildPageRoute(const AuthScreen()));
                         },
@@ -148,15 +157,15 @@ class MoreScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
                   // ── Настройки ──
-                  const _SectionHeader(title: 'Внешний вид'),
+                  const _SectionHeader(title: 'Сыртқы түрі'),
                   const SizedBox(height: 12),
                   _MenuCard(
                     children: [
                       _MenuItem(
                         icon: Icons.palette_rounded,
                         iconColor: const Color(0xFFEC4899),
-                        title: 'Тема оформления',
-                        subtitle: isDark ? 'Тёмная тема включена' : 'Светлая тема включена',
+                        title: 'Бездеу тақырыбы',
+                        subtitle: isDark ? 'Қараңғы тақырып қосылды' : 'Жарық тақырып қосылды',
                         trailing: Switch.adaptive(
                           value: isDark,
                           onChanged: (_) => ThemeNotifier().toggleTheme(),

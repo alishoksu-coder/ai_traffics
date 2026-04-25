@@ -66,7 +66,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('PIN-код успешно установлен!'),
+            content: Text('PIN-код сәтті орнатылды!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -83,7 +83,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('PIN-код удален'),
+          content: Text('PIN-код өшірілді'),
         ),
       );
     }
@@ -96,7 +96,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Кибербезопасность'),
+        title: const Text('Киберқауіпсіздік'),
         centerTitle: true,
       ),
       body: ListView(
@@ -129,9 +129,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
             child: Column(
               children: [
                 SwitchListTile(
-                  title: const Text('Вход по FaceID / Отпечатку',
+                  title: const Text('FaceID / Саусақ ізімен кіру',
                       style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Использовать встроенную защиту'),
+                  subtitle: const Text('Кірістірілген қорғанысты пайдалану'),
                   value: _useBiometrics,
                   onChanged: _toggleBiometrics,
                   activeThumbColor: primaryColor,
@@ -161,12 +161,12 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                   ),
                   title: Text(
                       _pinCode == null
-                          ? 'Установить PIN-код'
-                          : 'Изменить PIN-код',
+                          ? 'PIN-код орнату'
+                          : 'PIN-кодты өзгерту',
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(_pinCode == null
                       ? 'Резервный пароль из 4 цифр'
-                      : 'PIN-код защищает ваш вход'),
+                      : 'PIN-код кіруіңізді қорғайды'),
                   onTap: _setPin,
                   trailing: Icon(Icons.chevron_right_rounded,
                       color: Theme.of(context)
@@ -190,7 +190,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                       child: const Icon(Icons.delete_outline_rounded,
                           color: Colors.red),
                     ),
-                    title: const Text('Удалить PIN-код',
+                    title: const Text('PIN-кодты өшіру',
                         style: TextStyle(
                             color: Colors.red, fontWeight: FontWeight.w600)),
                     onTap: _removePin,
@@ -218,7 +218,7 @@ class _PinSetupDialogState extends State<_PinSetupDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Новый PIN-код',
+      title: const Text('Жаңа PIN-код',
           style: TextStyle(fontWeight: FontWeight.bold)),
       content: TextField(
         controller: _controller,
@@ -237,14 +237,14 @@ class _PinSetupDialogState extends State<_PinSetupDialog> {
       actions: [
         TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена')),
+            child: const Text('Болдырмау')),
         FilledButton(
           onPressed: () {
             if (_controller.text.length == 4) {
               Navigator.pop(context, _controller.text);
             }
           },
-          child: const Text('Сохранить'),
+          child: const Text('Сақтау'),
         ),
       ],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

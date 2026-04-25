@@ -31,6 +31,7 @@
       <div class="nav-links">
         <a href="#features">Мүмкіндіктер</a>
         <a href="#ai">AI Болжам</a>
+        <a href="#history">Тарих</a>
         <a href="#multimodal">Мультимодаль</a>
         <a href="#antistress">Анти-Стресс</a>
         <a href="#parking">AI Паркинг</a>
@@ -57,12 +58,13 @@
         <p class="hero-desc">Жасанды интеллект пен машиналық оқу арқылы қала трафигін нақты уақытта бақылаңыз.
           Кептелістерді 30 минут бұрын болжаңыз. Мультимодальды маршруттармен уақытыңызды үнемдеңіз.</p>
         <div class="hero-buttons">
-          <a href="#download" class="btn btn-primary btn-lg">
+          <a href="../mobile/traffic_app/build/app/outputs/flutter-apk/app-release.apk" download
+            class="btn btn-primary btn-lg">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M17.523 2H6.477C5.768 2 5.2 2.768 5.2 3.477v17.046C5.2 21.232 5.768 22 6.477 22h11.046c.709 0 1.277-.768 1.277-1.477V3.477C18.8 2.768 18.232 2 17.523 2zM12 20.5a1 1 0 110-2 1 1 0 010 2zM17 17H7V5h10v12z" />
             </svg>
-            Қосымшаны жүктеу
+            Қосымшаны жүктеу (APK)
           </a>
           <a href="../presentation.html" target="_blank" class="btn btn-outline btn-lg">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -202,7 +204,8 @@
         <div class="feature-card">
           <div class="feature-icon" style="--clr: #EC4899">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 16a4 4 0 100-8 4 4 0 000 8z" />
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 16a4 4 0 100-8 4 4 0 000 8z" />
             </svg>
           </div>
           <h3>Анти-Стресс маршрут</h3>
@@ -276,6 +279,92 @@
     </div>
   </section>
 
+  <!-- TRAFFIC HISTORY SECTION -->
+  <section class="history-section glass-section" id="history" style="padding: 100px 0; background: var(--bg-alt);">
+    <div class="container ai-inner reverse-mobile">
+      <div class="ai-visual">
+        <div class="ai-card glass-card history-card"
+          style="position: relative; background: #1e293b; border-radius: 20px; overflow: hidden; padding: 24px;">
+          <div
+            style="display: flex; gap: 8px; margin-bottom: 24px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px;">
+            <div
+              style="flex: 1; text-align: center; padding: 8px; background: #10B981; color: white; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+              12 Сағ</div>
+            <div
+              style="flex: 1; text-align: center; padding: 8px; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500;">
+              Күн</div>
+            <div
+              style="flex: 1; text-align: center; padding: 8px; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500;">
+              Апта</div>
+            <div
+              style="flex: 1; text-align: center; padding: 8px; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500;">
+              Ай</div>
+          </div>
+
+          <div
+            style="position: relative; height: 180px; display: flex; align-items: flex-end; gap: 8px; padding-top: 20px;">
+            <!-- Grid lines -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,0.1);">
+            </div>
+            <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,0.1);">
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; border-top: 1px solid rgba(255,255,255,0.2);">
+            </div>
+
+            <!-- Bars (mocking chart) -->
+            <div
+              style="flex: 1; background: rgba(16,185,129,0.2); height: 20%; border-radius: 6px 6px 0 0; position: relative;">
+              <div
+                style="position: absolute; top: -22px; width: 100%; text-align: center; font-size: 11px; font-weight:bold; color: #10B981;">
+                20%</div>
+            </div>
+            <div style="flex: 1; background: rgba(16,185,129,0.4); height: 40%; border-radius: 6px 6px 0 0;"></div>
+            <div style="flex: 1; background: rgba(245,158,11,0.6); height: 75%; border-radius: 6px 6px 0 0;">
+              <div
+                style="position: absolute; top: -22px; width: 100%; text-align: center; font-size: 11px; font-weight:bold; color: #F59E0B;">
+                75%</div>
+            </div>
+            <div
+              style="flex: 1; background: rgba(239,68,68,0.8); height: 95%; border-radius: 6px 6px 0 0; box-shadow: 0 0 15px rgba(239,68,68,0.4);">
+              <div
+                style="position: absolute; top: -22px; width: 100%; text-align: center; font-size: 11px; font-weight:bold; color: #EF4444;">
+                95%</div>
+            </div>
+            <div style="flex: 1; background: rgba(245,158,11,0.6); height: 60%; border-radius: 6px 6px 0 0;"></div>
+            <div style="flex: 1; background: rgba(16,185,129,0.5); height: 35%; border-radius: 6px 6px 0 0;"></div>
+            <div style="flex: 1; background: rgba(16,185,129,0.3); height: 25%; border-radius: 6px 6px 0 0;"></div>
+          </div>
+          <div
+            style="display: flex; justify-content: space-between; margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 500;">
+            <span>08:00</span>
+            <span>12:00</span>
+            <span>16:00</span>
+            <span>20:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="ai-text">
+        <div class="badge badge-green" style="background: rgba(16, 185, 129, .1); color: #10B981;">📊 Деректер тарихы
+        </div>
+        <h2>Қаланың <span class="gradient-text"
+            style="background: linear-gradient(135deg, #10B981, #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">жүктеме
+            тарихы</span></h2>
+        <p>Traffic AI тек болжап қана қоймай, қаланың барлық көлік ағындарын сақтайды. Кез келген уақыт аралығындағы
+          кептеліс деңгейін талдаңыз.</p>
+        <ul class="ai-features-list">
+          <li>
+            <div class="check" style="background: rgba(16,185,129,0.1); color: #10B981;">✓</div>
+            <span><strong>12 Сағаттық:</strong> Күндізгі трендтерді бақылау. Қай уақытта пик болатынын көріңіз.</span>
+          </li>
+          <li>
+            <div class="check" style="background: rgba(16,185,129,0.1); color: #10B981;">✓</div>
+            <span><strong>Апта / Ай:</strong> Маусымдық өзгерістер мен демалыс күндерінің статистикасы.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <!-- MULTIMODAL -->
   <section class="multimodal" id="multimodal">
     <div class="container">
@@ -332,33 +421,48 @@
   <section class="antistress-section glass-section" id="antistress">
     <div class="container ai-inner">
       <div class="ai-text">
-        <div class="badge badge-pink" style="background: rgba(236, 72, 153, .1); color: #EC4899;">🧘 Анти-Стресс режимі</div>
-        <h2>Бұрылысы көп <span class="gradient-text" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">күйзеліссіз</span> жол жүру</h2>
-        <p>Навигаторлар үнемі 2-3 минут үнемдеу үшін тар аулалар мен көптеген бұрылыстармен жүргізеді. Traffic AI 'Анти-Стресс' режимі ең тыныш, маневрі аз, қауіпсіз жолды таңдайды.</p>
+        <div class="badge badge-pink" style="background: rgba(236, 72, 153, .1); color: #EC4899;">🧘 Анти-Стресс режимі
+        </div>
+        <h2>Бұрылысы көп <span class="gradient-text"
+            style="background: linear-gradient(135deg, #EC4899, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">күйзеліссіз</span>
+          жол жүру</h2>
+        <p>Навигаторлар үнемі 2-3 минут үнемдеу үшін тар аулалар мен көптеген бұрылыстармен жүргізеді. Traffic AI
+          'Анти-Стресс' режимі ең тыныш, маневрі аз, қауіпсіз жолды таңдайды.</p>
         <div class="comparison" style="display: flex; gap: 16px; margin-top: 24px;">
-          <div class="comp-box bad" style="flex: 1; padding: 16px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px;">
-            <div class="comp-title" style="font-size: 12px; color: var(--text-soft); margin-bottom: 4px;">Қалыпты (Google)</div>
+          <div class="comp-box bad"
+            style="flex: 1; padding: 16px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px;">
+            <div class="comp-title" style="font-size: 12px; color: var(--text-soft); margin-bottom: 4px;">Қалыпты
+              (Google)</div>
             <div class="comp-val" style="font-weight: 700; color: #EF4444;">12 мин / 21 бұрылыс ⚠️</div>
           </div>
-          <div class="comp-box good" style="flex: 1; padding: 16px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; transform: scale(1.05); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);">
-            <div class="comp-title" style="font-size: 12px; color: var(--text-soft); margin-bottom: 4px;">Анти-Стресс (AI)</div>
+          <div class="comp-box good"
+            style="flex: 1; padding: 16px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; transform: scale(1.05); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);">
+            <div class="comp-title" style="font-size: 12px; color: var(--text-soft); margin-bottom: 4px;">Анти-Стресс
+              (AI)</div>
             <div class="comp-val" style="font-weight: 700; color: #10B981;">14 мин / 4 бұрылыс ✅</div>
           </div>
         </div>
       </div>
       <div class="ai-visual">
-        <div class="ai-card glass-card" style="position: relative; height: 350px; background: #1a1a2e; border-radius: 20px; overflow: hidden; padding: 20px; display: flex; align-items: center; justify-content: center;">
+        <div class="ai-card glass-card"
+          style="position: relative; height: 350px; background: #1a1a2e; border-radius: 20px; overflow: hidden; padding: 20px; display: flex; align-items: center; justify-content: center;">
           <div class="map-mockup" style="position: relative; width: 100%; height: 100%;">
             <!-- Zigzag path -->
-            <svg width="100%" height="100%" viewBox="0 0 300 200" preserveAspectRatio="none" style="position: absolute; top:0; left:0;">
-              <path d="M 20 180 L 80 180 L 80 120 L 140 120 L 140 80 L 200 80 L 200 20 L 280 20" fill="none" stroke="#EF4444" stroke-width="4" stroke-dasharray="6,6" opacity="0.5" />
+            <svg width="100%" height="100%" viewBox="0 0 300 200" preserveAspectRatio="none"
+              style="position: absolute; top:0; left:0;">
+              <path d="M 20 180 L 80 180 L 80 120 L 140 120 L 140 80 L 200 80 L 200 20 L 280 20" fill="none"
+                stroke="#EF4444" stroke-width="4" stroke-dasharray="6,6" opacity="0.5" />
               <!-- Smooth path -->
               <path d="M 20 180 L 280 20" fill="none" stroke="#10B981" stroke-width="6" />
               <circle cx="20" cy="180" r="8" fill="#5A52FF" />
               <circle cx="280" cy="20" r="8" fill="#F59E0B" />
             </svg>
-            <div style="position: absolute; top: 30px; left: 160px; background: rgba(239,68,68,0.2); border: 1px solid #EF4444; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 8px;">⚡ Тез</div>
-            <div style="position: absolute; bottom: 80px; left: 160px; background: rgba(16,185,129,0.2); border: 1px solid #10B981; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 8px; transform: scale(1.1); box-shadow: 0 4px 10px rgba(16,185,129,0.3);">🧘 Анти-Стресс</div>
+            <div
+              style="position: absolute; top: 30px; left: 160px; background: rgba(239,68,68,0.2); border: 1px solid #EF4444; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 8px;">
+              ⚡ Тез</div>
+            <div
+              style="position: absolute; bottom: 80px; left: 160px; background: rgba(16,185,129,0.2); border: 1px solid #10B981; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 8px; transform: scale(1.1); box-shadow: 0 4px 10px rgba(16,185,129,0.3);">
+              🧘 Анти-Стресс</div>
           </div>
         </div>
       </div>
@@ -371,35 +475,49 @@
       <div class="ai-visual">
         <div class="ai-card glass-card parking-card">
           <div class="ai-card-header">
-            <div class="icon-p" style="width: 24px; height: 24px; background: #3B82F6; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">P</div>
+            <div class="icon-p"
+              style="width: 24px; height: 24px; background: #3B82F6; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+              P</div>
             <span>MEGA Silk Way - Автотұрақ болжамы</span>
           </div>
           <div class="parking-bar-group" style="margin-top: 20px;">
             <div class="p-time" style="font-size: 13px; margin-bottom: 8px; font-weight: 600;">Қазір (18:00)</div>
-            <div class="p-track" style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden;">
+            <div class="p-track"
+              style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden;">
               <div class="p-fill" style="width:50%; height:100%; background:#10B981; border-radius: 6px;"></div>
             </div>
-            <div class="p-val" style="font-size: 12px; color: var(--text-soft); margin-top: 4px;">150 орын бар (50%)</div>
+            <div class="p-val" style="font-size: 12px; color: var(--text-soft); margin-top: 4px;">150 орын бар (50%)
+            </div>
           </div>
           <div class="parking-bar-group" style="margin-top: 24px;">
-            <div class="p-time" style="font-size: 13px; margin-bottom: 8px; font-weight: 600;">Келу уақыты (18:45) <span style="background: rgba(59,130,246,0.1); color: #3B82F6; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ETA</span></div>
-            <div class="p-track" style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden;">
+            <div class="p-time" style="font-size: 13px; margin-bottom: 8px; font-weight: 600;">Келу уақыты (18:45) <span
+                style="background: rgba(59,130,246,0.1); color: #3B82F6; padding: 2px 6px; border-radius: 4px; font-size: 10px;">ETA</span>
+            </div>
+            <div class="p-track"
+              style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px; overflow: hidden;">
               <div class="p-fill" style="width:95%; height:100%; background:#EF4444; border-radius: 6px;"></div>
             </div>
-            <div class="p-val" style="font-size: 12px; color: #EF4444; font-weight: 600; margin-top: 4px;">Орын жоқ (қатаң кептеліс)</div>
+            <div class="p-val" style="font-size: 12px; color: #EF4444; font-weight: 600; margin-top: 4px;">Орын жоқ
+              (қатаң кептеліс)</div>
           </div>
-          <div class="ai-recommendation" style="margin-top: 24px; background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.2);">
+          <div class="ai-recommendation"
+            style="margin-top: 24px; background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.2);">
             <div class="rec-icon">🤖</div>
             <div class="rec-text">
-              <strong>AI Паркинг:</strong> Сіздің келу уақытыңызға қарай негізгі тұрақ бос болмайды. Басқа тұрақты (Артқы жағынан) таңдау ұсынылады.
+              <strong>AI Паркинг:</strong> Сіздің келу уақытыңызға қарай негізгі тұрақ бос болмайды. Басқа тұрақты
+              (Артқы жағынан) таңдау ұсынылады.
             </div>
           </div>
         </div>
       </div>
       <div class="ai-text">
-        <div class="badge badge-blue" style="background: rgba(59, 130, 246, .1); color: #3B82F6;">🅿️ AI Предиктивті Паркинг</div>
-        <h2>Барар жеріңізде <span class="gradient-text" style="background: linear-gradient(135deg, #3B82F6, #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">бос орын</span> болатынын біліңіз</h2>
-        <p>Навигаторлар тек қазіргі жағдайды ғана көрсетеді. Traffic AI көлікпен жүру уақытыңызды (ETA) есептеп, баратын жеріңізде сіз жеткенде тұрақ қандай болатынын модельдейді.</p>
+        <div class="badge badge-blue" style="background: rgba(59, 130, 246, .1); color: #3B82F6;">🅿️ AI Предиктивті
+          Паркинг</div>
+        <h2>Барар жеріңізде <span class="gradient-text"
+            style="background: linear-gradient(135deg, #3B82F6, #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">бос
+            орын</span> болатынын біліңіз</h2>
+        <p>Навигаторлар тек қазіргі жағдайды ғана көрсетеді. Traffic AI көлікпен жүру уақытыңызды (ETA) есептеп, баратын
+          жеріңізде сіз жеткенде тұрақ қандай болатынын модельдейді.</p>
         <ul class="ai-features-list">
           <li>
             <div class="check" style="background: rgba(59,130,246,0.1); color: #3B82F6;">✓</div>
@@ -419,64 +537,100 @@
     <div class="container ai-inner">
       <div class="ai-text">
         <div class="badge badge-purple" style="background: rgba(139, 92, 246, .1); color: #8B5CF6;">👥 Қауымдастық</div>
-        <h2>Достарыңызбен <span class="gradient-text" style="background: linear-gradient(135deg, #8B5CF6, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">бірге</span> жоспарлаңыз</h2>
-        <p>Traffic AI тек жеке маршрут үшін ғана емес, достармен кездесуді ыңғайлы ету үшін де жұмыс істейді. Достарыңызды қосыңыз, локация бөлісіңіз және ең аз кептеліс болатын уақытты таңдаңыз.</p>
+        <h2>Достарыңызбен <span class="gradient-text"
+            style="background: linear-gradient(135deg, #8B5CF6, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">бірге</span>
+          жоспарлаңыз</h2>
+        <p>Traffic AI тек жеке маршрут үшін ғана емес, достармен кездесуді ыңғайлы ету үшін де жұмыс істейді.
+          Достарыңызды қосыңыз, локация бөлісіңіз және ең аз кептеліс болатын уақытты таңдаңыз.</p>
         <ul class="ai-features-list">
           <li>
             <div class="check" style="background: rgba(139,92,246,0.1); color: #8B5CF6;">✓</div>
-            <span><strong>Нақты уақыттағы локация:</strong> Достарыңыздың қайда екенін картадан тікелей көріп, бірге маршрут құрыңыз.</span>
+            <span><strong>Нақты уақыттағы локация:</strong> Достарыңыздың қайда екенін картадан тікелей көріп, бірге
+              маршрут құрыңыз.</span>
           </li>
           <li>
             <div class="check" style="background: rgba(139,92,246,0.1); color: #8B5CF6;">✓</div>
-            <span><strong>AI Кездесулер:</strong> Локация мен уақытты таңдаңыз. Жүйе кептелісті есептеп, оңтайлы уақытты ұсынады.</span>
+            <span><strong>AI Кездесулер:</strong> Локация мен уақытты таңдаңыз. Жүйе кептелісті есептеп, оңтайлы уақытты
+              ұсынады.</span>
           </li>
         </ul>
       </div>
       <div class="ai-visual">
-        <div class="ai-card glass-card friends-card" style="position: relative; background: #1e293b; border-radius: 20px; overflow: hidden; padding: 20px;">
-          <div class="ai-card-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+        <div class="ai-card glass-card friends-card"
+          style="position: relative; background: #1e293b; border-radius: 20px; overflow: hidden; padding: 20px;">
+          <div class="ai-card-header"
+            style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
             <span style="font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
+              </svg>
               Менің достарым
             </span>
           </div>
-          
-          <div class="friend-item" style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-            <div class="friend-avatar" style="width: 40px; height: 40px; border-radius: 20px; background: rgba(139, 92, 246, 0.2); color: #8B5CF6; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative;">
+
+          <div class="friend-item"
+            style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="friend-avatar"
+              style="width: 40px; height: 40px; border-radius: 20px; background: rgba(139, 92, 246, 0.2); color: #8B5CF6; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative;">
               А
-              <div style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #10B981; border-radius: 5px; border: 2px solid #1e293b;"></div>
+              <div
+                style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #10B981; border-radius: 5px; border: 2px solid #1e293b;">
+              </div>
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 14px;">Азамат</div>
               <div style="font-size: 11px; color: #10B981; margin-top: 2px;">Локация бөлісуде</div>
             </div>
             <div style="color: #8B5CF6; background: rgba(139,92,246,0.1); padding: 8px; border-radius: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
             </div>
           </div>
 
-          <div class="friend-item" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-            <div class="friend-avatar" style="width: 40px; height: 40px; border-radius: 20px; background: rgba(236, 72, 153, 0.2); color: #EC4899; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative;">
+          <div class="friend-item"
+            style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="friend-avatar"
+              style="width: 40px; height: 40px; border-radius: 20px; background: rgba(236, 72, 153, 0.2); color: #EC4899; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative;">
               Д
-              <div style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #64748b; border-radius: 5px; border: 2px solid #1e293b;"></div>
+              <div
+                style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: #64748b; border-radius: 5px; border: 2px solid #1e293b;">
+              </div>
             </div>
             <div style="flex: 1;">
               <div style="font-weight: 600; font-size: 14px;">Динара</div>
               <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Офлайн / Жасырын</div>
             </div>
             <div style="color: #8B5CF6; background: rgba(139,92,246,0.1); padding: 8px; border-radius: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
             </div>
           </div>
 
-          <div class="meeting-alert" style="margin-top: 16px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px;">
-            <div style="font-size: 12px; font-weight: 700; color: #10B981; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <div class="meeting-alert"
+            style="margin-top: 16px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px;">
+            <div
+              style="font-size: 12px; font-weight: 700; color: #10B981; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
               Жоспарланған кездесу
             </div>
             <div style="font-size: 14px; font-weight: 600; color: #fff;">MEGA Silk Way — 19:30</div>
-            <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; display: flex; align-items: center; gap: 4px;">
-              <span style="display: inline-block; width: 6px; height: 6px; background: #10B981; border-radius: 50%;"></span>
+            <div
+              style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+              <span
+                style="display: inline-block; width: 6px; height: 6px; background: #10B981; border-radius: 50%;"></span>
               AI: Бұл уақытта кептеліс төмен болады
             </div>
           </div>
@@ -489,50 +643,83 @@
   <section class="competitors-section" id="competitors" style="padding: 100px 0; background: var(--bg);">
     <div class="container">
       <div class="section-header">
-        <div class="badge badge-purple" style="background: rgba(139, 92, 246, .1); color: #8B5CF6;">⚖️ Аналогтарды талдау</div>
-        <h2>Екі түрлі <span class="gradient-text" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">шынайылық</span></h2>
+        <div class="badge badge-purple" style="background: rgba(139, 92, 246, .1); color: #8B5CF6;">⚖️ Аналогтарды
+          талдау</div>
+        <h2>Екі түрлі <span class="gradient-text"
+            style="background: linear-gradient(135deg, #8B5CF6, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">шынайылық</span>
+        </h2>
         <p>Неге біз күнделікті 2GIS қолдансақ та, кептелісте Яндекс қосамыз?</p>
       </div>
       <div class="comp-stats-container" style="display: flex; gap: 30px; flex-wrap: wrap; margin-top: 40px;">
-        <div class="comp-box" style="flex: 1; min-width: 300px; padding: 40px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);">
-          <h3 style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5em;">📱</span> Карталарды жалпы қолдану</h3>
+        <div class="comp-box"
+          style="flex: 1; min-width: 300px; padding: 40px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);">
+          <h3 style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;"><span
+              style="font-size: 1.5em;">📱</span> Карталарды жалпы қолдану</h3>
           <div style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>2GIS</strong> <span>73%</span></div>
-            <div style="height: 12px; background: rgba(16,185,129,0.1); border-radius: 6px;"><div style="width: 73%; height: 100%; background: #10B981; border-radius: 6px; box-shadow: 0 0 10px rgba(16,185,129,0.5);"></div></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>2GIS</strong>
+              <span>73%</span>
+            </div>
+            <div style="height: 12px; background: rgba(16,185,129,0.1); border-radius: 6px;">
+              <div
+                style="width: 73%; height: 100%; background: #10B981; border-radius: 6px; box-shadow: 0 0 10px rgba(16,185,129,0.5);">
+              </div>
+            </div>
           </div>
           <div style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>Google</strong> <span>24%</span></div>
-            <div style="height: 12px; background: rgba(59,130,246,0.1); border-radius: 6px;"><div style="width: 24%; height: 100%; background: #3B82F6; border-radius: 6px;"></div></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>Google</strong>
+              <span>24%</span>
+            </div>
+            <div style="height: 12px; background: rgba(59,130,246,0.1); border-radius: 6px;">
+              <div style="width: 24%; height: 100%; background: #3B82F6; border-radius: 6px;"></div>
+            </div>
           </div>
           <div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>Яндекс</strong> <span>3%</span></div>
-            <div style="height: 12px; background: rgba(239,68,68,0.1); border-radius: 6px;"><div style="width: 3%; height: 100%; background: #EF4444; border-radius: 6px;"></div></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><strong>Яндекс</strong>
+              <span>3%</span>
+            </div>
+            <div style="height: 12px; background: rgba(239,68,68,0.1); border-radius: 6px;">
+              <div style="width: 3%; height: 100%; background: #EF4444; border-radius: 6px;"></div>
+            </div>
           </div>
         </div>
-        
-        <div class="comp-box" style="flex: 1; min-width: 300px; padding: 40px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);">
-          <h3 style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5em;">🚗</span> Кептеліс үшін қолдану</h3>
-          <p style="color: var(--text-soft); font-size: 0.9em; margin-bottom: 25px;">(Логикалық модель бойынша таңдау)</p>
+
+        <div class="comp-box"
+          style="flex: 1; min-width: 300px; padding: 40px; background: var(--card-bg); border-radius: 24px; border: 1px solid var(--border);">
+          <h3 style="margin-bottom: 25px; display: flex; align-items: center; gap: 10px;"><span
+              style="font-size: 1.5em;">🚗</span> Кептеліс үшін қолдану</h3>
+          <p style="color: var(--text-soft); font-size: 0.9em; margin-bottom: 25px;">(Логикалық модель бойынша таңдау)
+          </p>
           <div style="display: flex; flex-direction: column; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239,68,68,0.05); border-radius: 12px; border-left: 4px solid #EF4444;">
-              <span style="width: 30px; height: 30px; background: rgba(239,68,68,0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">1</span>
-              <strong style="font-size: 1.1em;">Яндекс</strong> <span style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; margin-left: auto;">№1 Таңдау</span>
+            <div
+              style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(239,68,68,0.05); border-radius: 12px; border-left: 4px solid #EF4444;">
+              <span
+                style="width: 30px; height: 30px; background: rgba(239,68,68,0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">1</span>
+              <strong style="font-size: 1.1em;">Яндекс</strong> <span
+                style="background: rgba(239,68,68,0.1); color: #EF4444; padding: 4px 8px; border-radius: 6px; font-size: 0.8em; margin-left: auto;">№1
+                Таңдау</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 12px; border-left: 4px solid #10B981;">
-              <span style="width: 30px; height: 30px; background: rgba(16,185,129,0.2); color: #10B981; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">2</span>
+            <div
+              style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 12px; border-left: 4px solid #10B981;">
+              <span
+                style="width: 30px; height: 30px; background: rgba(16,185,129,0.2); color: #10B981; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">2</span>
               <strong style="font-size: 1.1em;">2GIS</strong>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(59,130,246,0.05); border-radius: 12px; border-left: 4px solid #3B82F6;">
-              <span style="width: 30px; height: 30px; background: rgba(59,130,246,0.2); color: #3B82F6; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">3</span>
+            <div
+              style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(59,130,246,0.05); border-radius: 12px; border-left: 4px solid #3B82F6;">
+              <span
+                style="width: 30px; height: 30px; background: rgba(59,130,246,0.2); color: #3B82F6; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold;">3</span>
               <strong style="font-size: 1.1em;">Google Maps</strong>
             </div>
           </div>
         </div>
       </div>
       <div style="text-align: center; margin-top: 40px;">
-        <div style="display: inline-block; padding: 20px 30px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px;">
+        <div
+          style="display: inline-block; padding: 20px 30px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px;">
           <p style="font-size: 1.1em; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-            <strong> Traffic AI не үшін қажет?</strong><br>Бұл екі әлемнің ең жақсысын біріктіретін шешім: Қазақстанға толық бейімделген сенімді инфрақұрылым (карта) <strong>+</strong> нақты уақыттағы және болашақтағы кептелісті қуатты <strong>LSTM нейрожелісімен</strong> болжау.
+            <strong> Traffic AI не үшін қажет?</strong><br>Бұл екі әлемнің ең жақсысын біріктіретін шешім: Қазақстанға
+            толық бейімделген сенімді инфрақұрылым (карта) <strong>+</strong> нақты уақыттағы және болашақтағы
+            кептелісті қуатты <strong>LSTM нейрожелісімен</strong> болжау.
           </p>
         </div>
       </div>

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
@@ -32,9 +35,24 @@ class _MapScreenState extends State<MapScreen> {
   bool _loadingPlace = false;
   gmaps.GoogleMapController? _mapController;
   int _overallPoints = 0;
-  String _trafficLevel = 'Свободно';
+  String _trafficLevel = 'Бос';
   String? _weatherDesc;
   double? _temp;
+  
+  // Vehicles logic
+  List<MapVehicle> _vehicles = [];
+  Timer? _vehiclesTimer;
+  
+  // Custom Icons
+  gmaps.BitmapDescriptor? _carIcon;
+  gmaps.BitmapDescriptor? _busIcon;
+  
+  // Events & Alerts
+  List<Map<String, dynamic>> _userEvents = [];
+  gmaps.BitmapDescriptor? _eventAccidentIcon;
+  gmaps.BitmapDescriptor? _eventRepairIcon;
+  gmaps.BitmapDescriptor? _eventCameraIcon;
+  bool _alertShown = false;
 
   /// Координаты после нажатия «Моё местоположение» — показываем маркер.
   gmaps.LatLng? _myLocation;
@@ -43,13 +61,137 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _load();
+    _startVehiclesTimer();
+    _initIcons();
     ThemeNotifier().addListener(_updateMapStyle);
+  }
+
+  Future<void> _initIcons() async {
+    _carIcon = await _getMarkerBitmap(80, isBus: false);
+    _busIcon = await _getMarkerBitmap(90, isBus: true);
+    _eventAccidentIcon = await _getEventMarkerBitmap('💥', Colors.red);
+    _eventRepairIcon = await _getEventMarkerBitmap('🚧', Colors.orange);
+    _eventCameraIcon = await _getEventMarkerBitmap('📸', Colors.blueGrey);
+    if (mounted) setState(() {});
+  }
+
+  Future<gmaps.BitmapDescriptor> _getEventMarkerBitmap(String emoji, Color bgColor) async {
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+    const double size = 90;
+    const double radius = size / 2;
+    
+    // Shadow
+    final Paint shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawCircle(const Offset(radius, radius + 4), radius - 6, shadowPaint);
+
+    // Background circle
+    final Paint paint = Paint()..color = bgColor;
+    canvas.drawCircle(const Offset(radius, radius), radius - 6, paint);
+
+    // Border
+    final Paint borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
+    canvas.drawCircle(const Offset(radius, radius), radius - 6, borderPaint);
+
+    // Emoji
+    TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: emoji,
+      style: const TextStyle(fontSize: 40),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(radius - textPainter.width / 2, radius - textPainter.height / 2),
+    );
+
+    final ui.Image img = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
+    final ByteData? data = await img.toByteData(format: ui.ImageByteFormat.png);
+    return gmaps.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+  }
+
+  Future<gmaps.BitmapDescriptor> _getMarkerBitmap(int size, {required bool isBus}) async {
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+    
+    final double radius = size / 2;
+    
+    // Shadow
+    final Paint shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+    canvas.drawCircle(Offset(radius, radius + 4), radius - 4, shadowPaint);
+
+    // Background circle
+    final Paint paint = Paint()..color = isBus ? const Color(0xFFF97316) : const Color(0xFF8B5CF6);
+    canvas.drawCircle(Offset(radius, radius), radius - 4, paint);
+
+    // Border
+    final Paint borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+    canvas.drawCircle(Offset(radius, radius), radius - 4, borderPaint);
+
+    // Icon (TextPainter with MaterialIcons font)
+    TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(isBus ? Icons.directions_bus.codePoint : Icons.directions_car_rounded.codePoint),
+      style: TextStyle(
+        fontSize: size * 0.55,
+        fontFamily: Icons.directions_bus.fontFamily,
+        package: Icons.directions_bus.fontPackage,
+        color: Colors.white,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(radius - textPainter.width / 2, radius - textPainter.height / 2),
+    );
+
+    final ui.Image img = await pictureRecorder.endRecording().toImage(size, size);
+    final ByteData? data = await img.toByteData(format: ui.ImageByteFormat.png);
+    return gmaps.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
 
   @override
   void dispose() {
+    _vehiclesTimer?.cancel();
     ThemeNotifier().removeListener(_updateMapStyle);
     super.dispose();
+  }
+
+  void _startVehiclesTimer() {
+    _fetchVehicles();
+    _fetchEvents();
+    _vehiclesTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      _fetchVehicles();
+      _fetchEvents();
+    });
+  }
+
+  Future<void> _fetchVehicles() async {
+    try {
+      final v = await api.getVehicles();
+      if (mounted) {
+        setState(() => _vehicles = v);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final events = await api.getEvents();
+      if (mounted) {
+        setState(() => _userEvents = events);
+      }
+    } catch (_) {}
   }
 
   void _updateMapStyle() {
@@ -79,7 +221,7 @@ class _MapScreenState extends State<MapScreen> {
       } catch (_) {}
 
       // 3. Детальные метрики
-      String level = 'Свободно';
+      String level = 'Бос';
       try {
         final metrics = await api.getTrafficMetrics();
         pts = metrics.globalScore;
@@ -103,9 +245,38 @@ class _MapScreenState extends State<MapScreen> {
           _temp = temp;
           loading = false;
         });
+        
+        if (!_alertShown) {
+          _alertShown = true;
+          _checkSmartAlert();
+        }
       }
     } catch (_) {
       if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> _checkSmartAlert() async {
+    final alert = await api.getSmartAlert();
+    if (alert != null && alert['has_alert'] == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(alert['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 4),
+              Text(alert['body'], style: const TextStyle(fontSize: 14)),
+            ],
+          ),
+          backgroundColor: alert['title'].toString().contains('🟢') ? Colors.green.shade800 : Colors.red.shade800,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height - 180, left: 16, right: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          duration: const Duration(seconds: 6),
+        ),
+      );
     }
   }
 
@@ -146,7 +317,7 @@ class _MapScreenState extends State<MapScreen> {
       _mapController?.animateCamera(gmaps.CameraUpdate.zoomTo(15));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Местоположение отмечено на карте'),
+          content: Text('Орналасқан жер картада белгіленген'),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
@@ -351,7 +522,7 @@ class _MapScreenState extends State<MapScreen> {
                   globalTabIndex.value = 1; // Переключаемся на Навигатор
                 },
                 icon: const Icon(Icons.route_rounded, size: 22),
-                label: const Text('Построить маршрут'),
+                label: const Text('Маршрут құру'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -418,9 +589,48 @@ class _MapScreenState extends State<MapScreen> {
         position: _myLocation!,
         icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(
             gmaps.BitmapDescriptor.hueAzure),
-        infoWindow: const gmaps.InfoWindow(title: 'Вы здесь'),
+        infoWindow: const gmaps.InfoWindow(title: 'Сіз осындасыз'),
       ));
     }
+    
+    // Add vehicles
+    for (final v in _vehicles) {
+      final isBus = v.type == 'bus';
+      out.add(gmaps.Marker(
+        markerId: gmaps.MarkerId('vehicle_${v.id}'),
+        position: gmaps.LatLng(v.lat, v.lon),
+        icon: isBus ? (_busIcon ?? gmaps.BitmapDescriptor.defaultMarker) : (_carIcon ?? gmaps.BitmapDescriptor.defaultMarker),
+        anchor: const Offset(0.5, 0.5), // Center the icon
+        infoWindow: gmaps.InfoWindow(
+          title: isBus ? '🚌 Автобус' : '🚗 Көлік',
+          snippet: v.routeName,
+        ),
+      ));
+    }
+    
+    // Add user events
+    for (final e in _userEvents) {
+      gmaps.BitmapDescriptor? icon;
+      String title = '';
+      if (e['event_type'] == 'accident') {
+        icon = _eventAccidentIcon;
+        title = '💥 ДТП (Жол апаты)';
+      } else if (e['event_type'] == 'repair') {
+        icon = _eventRepairIcon;
+        title = '🚧 Ремонт (Жол жөндеу)';
+      } else if (e['event_type'] == 'camera') {
+        icon = _eventCameraIcon;
+        title = '📸 Камера';
+      }
+      out.add(gmaps.Marker(
+        markerId: gmaps.MarkerId('event_${e['id']}'),
+        position: gmaps.LatLng(e['lat'], e['lng']),
+        icon: icon ?? gmaps.BitmapDescriptor.defaultMarker,
+        anchor: const Offset(0.5, 0.5),
+        infoWindow: gmaps.InfoWindow(title: title),
+      ));
+    }
+    
     return out;
   }
 
@@ -495,7 +705,7 @@ class _MapScreenState extends State<MapScreen> {
                       children: [
                         Text('Алиш1rqp Сулейменов', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                         SizedBox(height: 4),
-                        Text('Перейти в профиль', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                        Text('Профильге өту', style: TextStyle(color: Colors.white54, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -503,19 +713,19 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
             const Divider(color: Colors.white10),
-            _drawerItem(Icons.map_outlined, 'Скачать карту', () {
+            _drawerItem(Icons.map_outlined, 'Картаны жүктеу', () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Скачивание оффлайн карты началось...')),
               );
             }),
-            _drawerItem(Icons.directions_walk_rounded, 'Поиск проезда', () {
+            _drawerItem(Icons.directions_walk_rounded, 'Жол іздеу', () {
               Navigator.pop(context);
               globalTabIndex.value = 1; // Переключаемся на Навигатор
             }),
-            _drawerItem(Icons.share_location_outlined, 'Делиться геопозицией', () {
+            _drawerItem(Icons.share_location_outlined, 'Геопозициямен бөлісу', () {
               Navigator.pop(context);
-              globalTabIndex.value = 3; // Вкладка 'Друзья', если она там
+              globalTabIndex.value = 3; // Вкладка 'Достар', если она там
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Переход к списку друзей...')),
               );
@@ -531,9 +741,9 @@ class _MapScreenState extends State<MapScreen> {
               Navigator.pop(context);
               globalTabIndex.value = 2; // AI Советы
             }),
-            _drawerItem(Icons.settings_outlined, 'Настройки', () {
+            _drawerItem(Icons.settings_outlined, 'Баптаулар', () {
               Navigator.pop(context);
-              globalTabIndex.value = 4; // Вкладка 'Ещё' (профиль/настройки)
+              globalTabIndex.value = 4; // Вкладка 'Тағы' (профиль/настройки)
             }),
           ],
         ),
@@ -569,6 +779,7 @@ class _MapScreenState extends State<MapScreen> {
                 _updateMapStyle();
               },
               onTap: _onMapTap,
+              onLongPress: _onMapLongPress,
               polylines: _buildPolylines(),
               markers: _buildMarkers(),
               mapToolbarEnabled: true,
@@ -683,7 +894,7 @@ class _MapScreenState extends State<MapScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                     child: Row(
                       children: [
-                        Expanded(child: _horizonChip(0, 'Сейчас')),
+                        Expanded(child: _horizonChip(0, 'Қазір')),
                         const SizedBox(width: 8),
                         Expanded(child: _horizonChip(30, '30 мин')),
                         const SizedBox(width: 8),
@@ -712,7 +923,7 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                     SizedBox(width: 8),
-                    Text('Загрузка...', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                    Text('Жүктелуде...', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
                 ),
               ),
@@ -763,7 +974,7 @@ class _MapScreenState extends State<MapScreen> {
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(
-                      'Поиск',
+                      'Іздеу',
                       style: TextStyle(color: Colors.white54, fontSize: 17, fontWeight: FontWeight.w500),
                     ),
                   ),
@@ -791,5 +1002,73 @@ class _MapScreenState extends State<MapScreen> {
     if (points <= 6) return Colors.orange;
     if (points <= 8) return Colors.red;
     return const Color(0xFF7F1D1D); // Dark red
+  }
+
+  void _onMapLongPress(gmaps.LatLng pos) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const Text('Жол оқиғасын хабарлау', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Картадағы басқа жүргізушілерге көмектесіңіз', style: TextStyle(fontSize: 14, color: Colors.grey)),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _eventButton(ctx, '💥', 'ДТП', 'accident', pos),
+                _eventButton(ctx, '🚧', 'Ремонт', 'repair', pos),
+                _eventButton(ctx, '📸', 'Камера', 'camera', pos),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _eventButton(BuildContext ctx, String emoji, String label, String type, gmaps.LatLng pos) {
+    return InkWell(
+      onTap: () async {
+        Navigator.pop(ctx);
+        final success = await api.postEvent(type, pos.latitude, pos.longitude);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Оқиға сәтті қосылды!')));
+          _fetchEvents(); // update immediately
+        }
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+            ),
+            child: Text(emoji, style: const TextStyle(fontSize: 32)),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
   }
 }

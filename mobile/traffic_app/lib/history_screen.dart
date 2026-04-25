@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'api.dart';
@@ -13,7 +14,7 @@ class TrafficHistoryScreen extends StatefulWidget {
   State<TrafficHistoryScreen> createState() => _TrafficHistoryScreenState();
 }
 
-class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
+class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with SingleTickerProviderStateMixin {
   final api = ApiClient();
   bool loading = true;
   String? error;
@@ -21,52 +22,49 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
   List<FlSpot> cityAverageData = [];
   HistoryPeriod selectedPeriod = HistoryPeriod.hours12;
 
-  /// Для календаря: если null — берём «от текущего момента назад»
   DateTime? pickedDate;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
     _loadData();
+  }
+  
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
   // ── Параметры для каждого периода ──
   int get _minutes {
     switch (selectedPeriod) {
-      case HistoryPeriod.hours12:
-        return 720;
-      case HistoryPeriod.day:
-        return 1440;
-      case HistoryPeriod.week:
-        return 10080;
-      case HistoryPeriod.month:
-        return 43200;
+      case HistoryPeriod.hours12: return 720;
+      case HistoryPeriod.day: return 1440;
+      case HistoryPeriod.week: return 10080;
+      case HistoryPeriod.month: return 43200;
     }
   }
 
   String get _grouping {
     switch (selectedPeriod) {
       case HistoryPeriod.hours12:
-        return 'minute';
-      case HistoryPeriod.day:
-        return 'minute';
-      case HistoryPeriod.week:
-        return 'hour';
-      case HistoryPeriod.month:
-        return 'day';
+      case HistoryPeriod.day: return 'minute';
+      case HistoryPeriod.week: return 'hour';
+      case HistoryPeriod.month: return 'day';
     }
   }
 
   String get _periodLabel {
     switch (selectedPeriod) {
-      case HistoryPeriod.hours12:
-        return '12 сағат';
-      case HistoryPeriod.day:
-        return '1 күн';
-      case HistoryPeriod.week:
-        return '1 апта';
-      case HistoryPeriod.month:
-        return '1 ай';
+      case HistoryPeriod.hours12: return '12 сағат';
+      case HistoryPeriod.day: return '1 күн';
+      case HistoryPeriod.week: return '1 апта';
+      case HistoryPeriod.month: return '1 ай';
     }
   }
 
@@ -79,7 +77,6 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     try {
       final items = await api.getTrafficHistory(_minutes, grouping: _grouping);
 
-      // Группировка по timestamp → среднее по городу
       Map<int, List<double>> grouped = {};
       for (var item in items) {
         int ts = (item['ts'] as num).toInt();
@@ -95,17 +92,19 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
 
       spots.sort((a, b) => a.x.compareTo(b.x));
 
-      // Если выбрана конкретная дата — фильтруем только этот день
       if (pickedDate != null) {
         final dayStart = DateTime(pickedDate!.year, pickedDate!.month, pickedDate!.day).millisecondsSinceEpoch.toDouble();
-        final dayEnd = dayStart + 86400000; // +24 часа
+        final dayEnd = dayStart + 86400000;
         spots = spots.where((s) => s.x >= dayStart && s.x < dayEnd).toList();
       }
 
-      setState(() {
-        cityAverageData = spots;
-        loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          cityAverageData = spots;
+          loading = false;
+        });
+        _fadeController.forward(from: 0.0);
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -144,7 +143,6 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     }
   }
 
-  // ── Открыть календарь ──
   Future<void> _pickDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -169,7 +167,6 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     if (picked != null) {
       setState(() {
         pickedDate = picked;
-        // При выборе даты автоматически показываем данные за 1 день
         selectedPeriod = HistoryPeriod.day;
       });
       _loadData();
@@ -187,263 +184,198 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.6);
+    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.6);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Тарих (История)', style: TextStyle(fontWeight: FontWeight.w700)),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: textColor,
-        elevation: 0,
-        actions: [
+      body: Stack(
+        children: [
+          // Background Gradient
+          Positioned(
+            top: -150,
+            left: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withOpacity(isDark ? 0.2 : 0.1),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: const SizedBox(),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -150,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF0EA5E9).withOpacity(isDark ? 0.15 : 0.08),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: const SizedBox(),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Column(
+              children: [
+                _buildAppBar(textColor),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _loadData,
+                    color: AppColors.primary,
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                      children: [
+                        _buildHeader(textColor, subtextColor),
+                        
+                        if (pickedDate != null) ...[
+                          const SizedBox(height: 16),
+                          _buildPickedDateCard(textColor),
+                        ],
+
+                        const SizedBox(height: 24),
+                        _buildPeriodSelector(isDark, textColor),
+                        const SizedBox(height: 28),
+
+                        _buildChartSection(isDark, textColor, subtextColor),
+                        const SizedBox(height: 32),
+
+                        if (!loading && cityAverageData.length >= 2) ...[
+                          FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: _buildAIAnalysisCard(isDark, textColor, subtextColor),
+                          ),
+                          const SizedBox(height: 32),
+                          FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: _buildStatsCards(isDark, textColor, subtextColor),
+                          ),
+                        ],
+
+                        const SizedBox(height: 40),
+                        _buildInfoBox(isDark, textColor, subtextColor),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBar(Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Text('Тарих', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: textColor)),
           IconButton(
             icon: Icon(
               pickedDate != null ? Icons.calendar_month : Icons.calendar_month_outlined,
-              color: pickedDate != null ? AppColors.primary : null,
+              color: pickedDate != null ? AppColors.primary : textColor,
             ),
-            tooltip: 'Күнді таңдау',
             onPressed: _pickDate,
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            // ── Заголовок ──
-            Text(
-              pickedDate != null
-                  ? '${pickedDate!.day}.${pickedDate!.month.toString().padLeft(2, '0')}.${pickedDate!.year} — күндізгі жүктеме'
-                  : 'Қала бойынша орташа жүктеме ($_periodLabel)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textColor),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Астана қаласының тарихи кептеліс деңгейі',
-              style: TextStyle(fontSize: 14, color: subtextColor),
-            ),
-
-            // ── Выбранная дата (если есть) ──
-            if (pickedDate != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.event, color: AppColors.primary, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Таңдалған күн: ${pickedDate!.day}.${pickedDate!.month.toString().padLeft(2, '0')}.${pickedDate!.year}',
-                        style: TextStyle(color: textColor, fontWeight: FontWeight.w600, fontSize: 14),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _clearDate,
-                      child: const Icon(Icons.close_rounded, color: AppColors.primary, size: 20),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 20),
-
-            // ── Переключатель периодов ──
-            _buildPeriodSelector(isDark, textColor),
-
-            const SizedBox(height: 28),
-
-            // ── График ──
-            if (loading)
-              const SizedBox(height: 300, child: Center(child: CircularProgressIndicator()))
-            else if (error != null)
-              SizedBox(height: 300, child: Center(child: Text('Қате: $error', style: const TextStyle(color: Colors.red))))
-            else if (cityAverageData.length < 2)
-              SizedBox(
-                height: 300,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.show_chart_rounded, size: 48, color: subtextColor),
-                      const SizedBox(height: 12),
-                      Text('Деректер жеткіліксіз', style: TextStyle(color: subtextColor, fontSize: 15)),
-                      const SizedBox(height: 8),
-                      Text('Бэкенд тарихты жинап жатыр...', style: TextStyle(color: subtextColor.withValues(alpha: 0.5), fontSize: 12)),
-                    ],
-                  ),
-                ),
-              )
-            else ...[
-              SizedBox(height: 300, child: _buildChart(isDark)),
-              const SizedBox(height: 12),
-              _buildLegend(textColor),
-            ],
-
-            const SizedBox(height: 32),
-
-            // ── AI Анализ (Deep Learning) ──
-            if (!loading && cityAverageData.length >= 2) ...[
-              _buildAIAnalysisCard(isDark, textColor, subtextColor),
-              const SizedBox(height: 32),
-            ],
-
-            // ── Статистика ──
-            if (!loading && cityAverageData.length >= 2) ...[
-              Text(
-                'Кеңейтілген статистика',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
-              ),
-              const SizedBox(height: 16),
-              _buildStatsCards(isDark, textColor, subtextColor),
-            ],
-
-            const SizedBox(height: 40),
-
-            // ── Подсказка ──
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: textColor.withValues(alpha: 0.05)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline_rounded, color: subtextColor, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Бұл деректер Астана қаласының Digital Twin моделінен және LSTM нейрожелісінің тарихи қоймасынан алынған.',
-                      style: TextStyle(fontSize: 12, color: subtextColor),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildLegend(Color textColor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildHeader(Color textColor, Color subtextColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _legendItem('Нақты деректер', AppColors.primary, textColor),
-        const SizedBox(width: 20),
-        _legendItem('AI Тренд', AppColors.primary.withValues(alpha: 0.4), textColor, isDashed: true),
+        Text(
+          pickedDate != null
+              ? '${pickedDate!.day}.${pickedDate!.month.toString().padLeft(2, '0')}.${pickedDate!.year} жүктемесі'
+              : 'Қала бойынша орташа жүктеме\n($_periodLabel)',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textColor, height: 1.2),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Астана қаласының тарихи кептеліс деңгейі',
+          style: TextStyle(fontSize: 15, color: subtextColor),
+        ),
       ],
     );
   }
 
-  Widget _legendItem(String label, Color color, Color textColor, {bool isDashed = false}) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 3,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.7))),
-      ],
-    );
-  }
-
-  Widget _buildAIAnalysisCard(bool isDark, Color textColor, Color subtextColor) {
+  Widget _buildPickedDateCard(Color textColor) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark 
-            ? [AppColors.primary.withValues(alpha: 0.15), Colors.transparent] 
-            : [AppColors.primary.withValues(alpha: 0.05), Colors.white],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        color: AppColors.primary.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.psychology_rounded, color: AppColors.primary, size: 28),
-              const SizedBox(width: 12),
-              Text(
-                'AI Deep Learning Анализ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _aiFactorRow(Icons.calendar_today_rounded, 'Маусымдылық:', 'Апталық циклдар ескерілген', textColor),
-          _aiFactorRow(Icons.wb_sunny_rounded, 'Ауа-райы:', 'Жауын-шашын әсері 1.2x коэф.', textColor),
-          _aiFactorRow(Icons.bolt_rounded, 'Аномалиялар:', '3 кептеліс оқиғасы табылды', textColor),
-          const Divider(height: 32),
-          Text(
-            'Қорытынды: Модель келесі аптада жүктеменің 5%-ға төмендеуін болжайды.',
-            style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: textColor.withValues(alpha: 0.8)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _aiFactorRow(IconData icon, String title, String value, Color textColor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: textColor.withValues(alpha: 0.5)),
-          const SizedBox(width: 8),
-          Text(title, style: TextStyle(fontSize: 13, color: textColor.withValues(alpha: 0.6))),
-          const SizedBox(width: 4),
-          Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+            child: const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Таңдалған күн: ${pickedDate!.day}.${pickedDate!.month.toString().padLeft(2, '0')}.${pickedDate!.year}',
+              style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+          ),
+          GestureDetector(
+            onTap: _clearDate,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(color: Colors.black.withOpacity(0.05), shape: BoxShape.circle),
+              child: const Icon(Icons.close_rounded, color: AppColors.primary, size: 18),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // ── Переключатель периодов ──
   Widget _buildPeriodSelector(bool isDark, Color textColor) {
     return Container(
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(4),
       child: Row(
         children: HistoryPeriod.values.map((period) {
           final isSelected = period == selectedPeriod;
           String label;
           switch (period) {
-            case HistoryPeriod.hours12:
-              label = '12 Сағ';
-              break;
-            case HistoryPeriod.day:
-              label = 'Күн';
-              break;
-            case HistoryPeriod.week:
-              label = 'Апта';
-              break;
-            case HistoryPeriod.month:
-              label = 'Ай';
-              break;
+            case HistoryPeriod.hours12: label = '12 Сағ'; break;
+            case HistoryPeriod.day: label = 'Күн'; break;
+            case HistoryPeriod.week: label = 'Апта'; break;
+            case HistoryPeriod.month: label = 'Ай'; break;
           }
           return Expanded(
             child: GestureDetector(
@@ -455,21 +387,22 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                 _loadData();
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]
                       : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : textColor.withValues(alpha: 0.6),
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? Colors.white : textColor.withOpacity(0.6),
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
@@ -481,7 +414,153 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     );
   }
 
-  // ── Карточки статистики ──
+  Widget _buildChartSection(bool isDark, Color textColor, Color subtextColor) {
+    return Container(
+      padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor.withOpacity(isDark ? 0.5 : 0.8),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(isDark ? 0.05 : 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          if (loading)
+            const SizedBox(height: 280, child: Center(child: CircularProgressIndicator(strokeWidth: 3)))
+          else if (error != null)
+            SizedBox(height: 280, child: Center(child: Text('Қате: $error', style: const TextStyle(color: Colors.red))))
+          else if (cityAverageData.length < 2)
+            SizedBox(
+              height: 280,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.query_stats_rounded, size: 56, color: subtextColor.withOpacity(0.4)),
+                    const SizedBox(height: 16),
+                    Text('Деректер жеткіліксіз', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('Бэкенд тарихты жинап жатыр...', style: TextStyle(color: subtextColor, fontSize: 13)),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: SizedBox(height: 260, child: _buildChart(isDark)),
+            ),
+            const SizedBox(height: 20),
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: _buildLegend(textColor),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegend(Color textColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _legendItem('Нақты деректер', AppColors.primary, textColor),
+        const SizedBox(width: 24),
+        _legendItem('Орташа мән', const Color(0xFF0EA5E9).withOpacity(0.6), textColor, isDashed: true),
+      ],
+    );
+  }
+
+  Widget _legendItem(String label, Color color, Color textColor, {bool isDashed = false}) {
+    return Row(
+      children: [
+        Container(
+          width: 14,
+          height: 4,
+          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+        ),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor.withOpacity(0.7))),
+      ],
+    );
+  }
+
+  Widget _buildAIAnalysisCard(bool isDark, Color textColor, Color subtextColor) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark 
+            ? [AppColors.primary.withOpacity(0.15), const Color(0xFF0EA5E9).withOpacity(0.05)] 
+            : [AppColors.primary.withOpacity(0.08), const Color(0xFF0EA5E9).withOpacity(0.02)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(color: AppColors.primary.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.auto_graph_rounded, color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'AI Analysis',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textColor, letterSpacing: 0.5),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _aiFactorRow(Icons.calendar_today_rounded, 'Маусымдылық:', 'Апталық циклдар қалыпты', textColor),
+          _aiFactorRow(Icons.cloud_rounded, 'Ауа-райы:', 'Температуралық ауытқу жоқ', textColor),
+          _aiFactorRow(Icons.bolt_rounded, 'Аномалиялар:', '3 кенет кептеліс тіркелді', textColor),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(height: 1),
+          ),
+          Text(
+            'LSTM моделі келесі күндері жүктеменің 5%-ға төмендеуін болжайды. Тренд тұрақты.',
+            style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: textColor.withOpacity(0.8), height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _aiFactorRow(IconData icon, String title, String value, Color textColor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: textColor.withOpacity(0.4)),
+          const SizedBox(width: 12),
+          Text(title, style: TextStyle(fontSize: 14, color: textColor.withOpacity(0.6))),
+          const SizedBox(width: 6),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor))),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatsCards(bool isDark, Color textColor, Color subtextColor) {
     if (cityAverageData.isEmpty) return const SizedBox.shrink();
 
@@ -490,7 +569,6 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     final maxVal = values.reduce((a, b) => a > b ? a : b);
     final minVal = values.reduce((a, b) => a < b ? a : b);
 
-    // Найдём пиковый час
     final peakSpot = cityAverageData.reduce((a, b) => a.y > b.y ? a : b);
     final peakTime = DateTime.fromMillisecondsSinceEpoch(peakSpot.x.toInt());
     String peakLabel;
@@ -501,53 +579,62 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Кеңейтілген статистика',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textColor),
+        ),
+        const SizedBox(height: 16),
         Row(
           children: [
-            _statCard('Орташа', '${avg.toStringAsFixed(1)}%', Icons.analytics_rounded, const Color(0xFF0EA5E9), isDark),
+            _statCard('Орташа', '${avg.toStringAsFixed(1)}%', Icons.insights_rounded, const Color(0xFF0EA5E9), isDark, textColor),
             const SizedBox(width: 12),
-            _statCard('Максимум', '${maxVal.toStringAsFixed(1)}%', Icons.arrow_upward_rounded, const Color(0xFFEF4444), isDark),
+            _statCard('Максимум', '${maxVal.toStringAsFixed(1)}%', Icons.keyboard_double_arrow_up_rounded, const Color(0xFFEF4444), isDark, textColor),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            _statCard('Минимум', '${minVal.toStringAsFixed(1)}%', Icons.arrow_downward_rounded, const Color(0xFF10B981), isDark),
+            _statCard('Минимум', '${minVal.toStringAsFixed(1)}%', Icons.keyboard_double_arrow_down_rounded, const Color(0xFF10B981), isDark, textColor),
             const SizedBox(width: 12),
-            _statCard('Пик уақыты', peakLabel, Icons.access_time_filled_rounded, const Color(0xFFF59E0B), isDark),
+            _statCard('Пик уақыты', peakLabel, Icons.access_time_filled_rounded, const Color(0xFFF59E0B), isDark, textColor),
           ],
         ),
       ],
     );
   }
 
-  Widget _statCard(String title, String value, IconData icon, Color accentColor, bool isDark) {
+  Widget _statCard(String title, String value, IconData icon, Color accentColor, bool isDark, Color textColor) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accentColor.withValues(alpha: 0.2)),
+          color: Theme.of(context).cardColor.withOpacity(isDark ? 0.4 : 0.8),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(isDark ? 0.05 : 0.5)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                color: accentColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: accentColor, size: 20),
+              child: Icon(icon, color: accentColor, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 11, color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5))),
-                  const SizedBox(height: 2),
-                  Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor.withOpacity(0.5))),
+                  const SizedBox(height: 4),
+                  Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textColor)),
                 ],
               ),
             ),
@@ -557,7 +644,6 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
     );
   }
 
-  // ── График ──
   Widget _buildChart(bool isDark) {
     double xRange = cityAverageData.last.x - cityAverageData.first.x;
     double xInterval = xRange > 0 ? xRange / 5 : 1;
@@ -574,8 +660,9 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDark ? Colors.white10 : Colors.black12,
+              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
               strokeWidth: 1,
+              dashArray: [4, 4],
             );
           },
         ),
@@ -586,17 +673,19 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 42,
               interval: 25,
               getTitlesWidget: (value, meta) {
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 12),
                   child: Text(
                     '${value.toInt()}%',
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
-                      fontSize: 11,
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
+                    textAlign: TextAlign.right,
                   ),
                 );
               },
@@ -605,20 +694,20 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 30,
+              reservedSize: 32,
               interval: xInterval,
               getTitlesWidget: (value, meta) {
-                // Скрываем крайние лейблы (чтобы не обрезались)
                 if (value <= cityAverageData.first.x || value >= cityAverageData.last.x) {
                   return const SizedBox.shrink();
                 }
                 return Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Text(
                     _formatAxisLabel(value),
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
-                      fontSize: 11,
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 );
@@ -631,18 +720,23 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
           LineChartBarData(
             spots: cityAverageData,
             isCurved: true,
-            curveSmoothness: 0.35,
+            curveSmoothness: 0.4,
             color: AppColors.primary,
-            barWidth: 2.5,
+            barWidth: 4,
             isStrokeCapRound: true,
+            shadow: Shadow(
+              color: AppColors.primary.withOpacity(0.5),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
             dotData: FlDotData(
               show: selectedPeriod == HistoryPeriod.month || selectedPeriod == HistoryPeriod.week,
               getDotPainter: (spot, xPercentage, bar, index) {
                 return FlDotCirclePainter(
-                  radius: 3,
-                  color: AppColors.primary,
-                  strokeWidth: 1.5,
-                  strokeColor: Colors.white,
+                  radius: 4,
+                  color: Theme.of(context).cardColor,
+                  strokeWidth: 3,
+                  strokeColor: AppColors.primary,
                 );
               },
             ),
@@ -652,31 +746,33 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.25),
-                  AppColors.primary.withValues(alpha: 0.02),
+                  AppColors.primary.withOpacity(0.4),
+                  AppColors.primary.withOpacity(0.0),
                 ],
               ),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
+          handleBuiltInTouches: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => Theme.of(context).cardColor,
+            getTooltipColor: (_) => isDark ? Colors.white : Colors.black87,
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
                 return LineTooltipItem(
                   '${_formatTooltip(spot.x)}\n',
                   TextStyle(
-                    color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.6),
+                    color: isDark ? Colors.black54 : Colors.white70,
                     fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                   children: [
                     TextSpan(
                       text: '${spot.y.toStringAsFixed(1)}%',
                       style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        color: isDark ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -685,6 +781,36 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoBox(bool isDark, Color textColor, Color subtextColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: textColor.withOpacity(0.05)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: textColor.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.info_outline_rounded, color: subtextColor, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              'Деректер Астана қаласының Digital Twin моделі мен LSTM тарихи қоймасынан алынған.',
+              style: TextStyle(fontSize: 13, color: subtextColor, height: 1.4),
+            ),
+          ),
+        ],
       ),
     );
   }

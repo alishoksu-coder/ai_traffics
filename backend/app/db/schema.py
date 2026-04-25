@@ -90,6 +90,17 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     );
     """)
 
+    # Пользовательские события (ДТП, Ремонт, Камера)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS user_events (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_type  TEXT NOT NULL,
+        lat         REAL NOT NULL,
+        lng         REAL NOT NULL,
+        created_at  INTEGER NOT NULL
+    );
+    """)
+
     cur.execute("""
     INSERT INTO locations (id, name, lat, lon)
     SELECT 1, 'Левый Берег (Байтерек)', 51.1283, 71.4305 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=1);

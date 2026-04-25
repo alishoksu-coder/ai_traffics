@@ -45,6 +45,8 @@ document.getElementById('btn-location').addEventListener('click', () => {
 // Layers
 let trafficLayerGroup = L.layerGroup().addTo(map);
 let arPointsLayerGroup = L.layerGroup().addTo(map);
+let vehiclesLayerGroup = L.layerGroup().addTo(map);
+let eventsLayerGroup = L.layerGroup().addTo(map);
 
 // Variables
 const API_BASE = 'https://ai-traffics.onrender.com';
@@ -234,6 +236,97 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
 
 // INITIAL LOAD
 fetchTrafficData(0);
+
+// 5.1 FETCH VEHICLES (LIVE CARS & BUSES)
+const carIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='font-size:20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));'>🚗</div>",
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+const busIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='font-size:20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));'>🚌</div>",
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+async function fetchVehicles() {
+  try {
+    const res = await fetch(`${API_BASE}/vehicles`);
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    vehiclesLayerGroup.clearLayers();
+    
+    data.items.forEach(v => {
+      const icon = v.type === 'bus' ? busIcon : carIcon;
+      const marker = L.marker([v.lat, v.lon], { icon: icon });
+      marker.bindTooltip(`<b>${v.type === 'bus' ? 'Автобус' : 'Көлік'}</b><br>${v.route_name}`, { className: 'custom-tooltip' });
+      vehiclesLayerGroup.addLayer(marker);
+    });
+  } catch (error) {
+    console.error("Vehicles Data Error:", error);
+  }
+}
+
+fetchVehicles();
+setInterval(fetchVehicles, 3000); // Update every 3 seconds
+
+// 5.2 FETCH CROWDSOURCED EVENTS
+const accidentIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='font-size:24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); background:rgba(239,68,68,0.2); border-radius:50%; padding:2px;'>💥</div>",
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
+});
+
+const repairIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='font-size:24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); background:rgba(245,158,11,0.2); border-radius:50%; padding:2px;'>🚧</div>",
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
+});
+
+const cameraIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='font-size:24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); background:rgba(100,116,139,0.2); border-radius:50%; padding:2px;'>📸</div>",
+  iconSize: [32, 32],
+  iconAnchor: [16, 16]
+});
+
+async function fetchEvents() {
+  try {
+    const res = await fetch(`${API_BASE}/events`);
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    eventsLayerGroup.clearLayers();
+    
+    if(data.items) {
+      data.items.forEach(e => {
+        let icon = accidentIcon;
+        let title = 'ДТП (Жол апаты)';
+        if (e.event_type === 'repair') { icon = repairIcon; title = 'Ремонт (Жол жөндеу)'; }
+        else if (e.event_type === 'camera') { icon = cameraIcon; title = 'Камера'; }
+        
+        const marker = L.marker([e.lat, e.lng], { icon: icon });
+        
+        const minsAgo = Math.floor((Date.now()/1000 - e.created_at) / 60);
+        let timeStr = minsAgo <= 0 ? 'Жаңа ғана' : `${minsAgo} мин бұрын`;
+        
+        marker.bindTooltip(`<b>${title}</b><br><span style="color:gray;font-size:11px;">${timeStr} добавлен</span>`, { className: 'custom-tooltip' });
+        eventsLayerGroup.addLayer(marker);
+      });
+    }
+  } catch (error) {
+    console.error("Events Data Error:", error);
+  }
+}
+
+fetchEvents();
+setInterval(fetchEvents, 5000); // Poll every 5 seconds
 
 // 5.5 SMART PARKING LOGIC
 let parkingLayerGroup = L.layerGroup();

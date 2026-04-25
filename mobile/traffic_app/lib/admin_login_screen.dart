@@ -65,7 +65,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         if (!mounted) return;
         
         setState(() {
-          error = 'Успешно! Если включено подтверждение – проверьте почту.';
+          error = 'Сәтті! Егер растау қосулы болса - поштаңызды тексеріңіз.';
           loading = false;
         });
         
@@ -181,13 +181,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                 if (!_isLogin) ...[
                                   _buildTextField(
                                     controller: _firstNameController,
-                                    label: 'Имя',
+                                    label: 'Аты',
                                     icon: Icons.person_outline,
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     controller: _lastNameController,
-                                    label: 'Фамилия',
+                                    label: 'Тегі',
                                     icon: Icons.badge_outlined,
                                   ),
                                   const SizedBox(height: 16),
@@ -199,7 +199,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     controller: _dobController,
-                                    label: 'Дата рождения',
+                                    label: 'Туған күні',
                                     icon: Icons.calendar_today_outlined,
                                   ),
                                   const SizedBox(height: 16),
@@ -212,7 +212,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                   controller: _passwordController,
-                                  label: 'Пароль',
+                                  label: 'Құпиясөз',
                                   icon: Icons.lock_outline,
                                   isPassword: true,
                                   onSubmitted: (_) => _submit(),
@@ -238,7 +238,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                           width: 24,
                                           child: CircularProgressIndicator(
                                               strokeWidth: 2, color: Colors.white))
-                                      : Text(_isLogin ? 'Вход в систему' : 'Зарегистрироваться'),
+                                      : Text(_isLogin ? 'Жүйеге кіру' : 'Тіркелу'),
                                 ),
                                 const SizedBox(height: 16),
                                 TextButton(
@@ -249,7 +249,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                     });
                                   },
                                   child: Text(
-                                    _isLogin ? 'Нет аккаунта? Регистрация' : 'Уже есть аккаунт? Войти',
+                                    _isLogin ? 'Аккаунтыңыз жоқ па? Тіркелу' : 'Аккаунтыңыз бар ма? Кіру',
                                     style: const TextStyle(color: Colors.white70),
                                   ),
                                 ),
@@ -300,7 +300,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 2),
         ),
       ),
-      validator: (v) => (v == null || v.isEmpty) ? 'Обязательное поле' : null,
+      validator: (v) => (v == null || v.isEmpty) ? 'Міндетті өріс' : null,
     );
   }
 
@@ -426,7 +426,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.refresh_rounded, color: Colors.white),
                     onPressed: loading ? null : _load,
-                    tooltip: 'Обновить',
+                    tooltip: 'Жаңарту',
                   ),
                 ),
               ],
@@ -462,7 +462,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Сводка',
+              'Қорытынды',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textColor),
             ),
             Icon(Icons.dashboard_rounded, color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5)),
@@ -475,7 +475,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
         const SizedBox(height: 24),
         Text(
-          'Статистика узлов',
+          'Түйіндер статистикасы',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textColor),
         ),
         const SizedBox(height: 16),
@@ -490,8 +490,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           crossAxisSpacing: 16,
           childAspectRatio: 1.3,
           children: [
-            _buildStatBox('Локации', '${stats?['locations_count'] ?? 0}', Icons.place, const Color(0xFF6366F1)),
-            _buildStatBox('Сегменты', '${stats?['segments_count'] ?? 0}', Icons.alt_route, const Color(0xFF0EA5E9)),
+            _buildStatBox('Локациялар', '${stats?['locations_count'] ?? 0}', Icons.place, const Color(0xFF6366F1)),
+            _buildStatBox('Сегменттер', '${stats?['segments_count'] ?? 0}', Icons.alt_route, const Color(0xFF0EA5E9)),
             _buildStatBox('Транспорт', '${stats?['vehicles_count'] ?? 0}', Icons.directions_car, const Color(0xFFF59E0B)),
             _buildStatBox('Хотспоты', '${stats?['hotspots'] ?? 0}', Icons.local_fire_department, const Color(0xFFEF4444)),
           ],
@@ -499,7 +499,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
         const SizedBox(height: 32),
         Text(
-          'Активность системы',
+          'Жүйенің белсенділігі',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textColor),
         ),
         const SizedBox(height: 12),
@@ -546,7 +546,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Global Traffic Index', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    Text('Средний балл по городу', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5), fontSize: 12)),
+                    Text('Қала бойынша орташа балл', style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5), fontSize: 12)),
                   ],
                 ),
               ),

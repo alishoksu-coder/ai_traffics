@@ -122,7 +122,7 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Неверный PIN-код'),
+              content: Text('Қате PIN-код'),
               backgroundColor: Colors.red,
             ),
           );
@@ -157,7 +157,7 @@ class _PinCodeScreenState extends State<_PinCodeScreen> {
             const Icon(Icons.lock_outline_rounded,
                 size: 72, color: primaryColor),
             const SizedBox(height: 24),
-            Text('Введите PIN-код',
+            Text('PIN-кодты енгізіңіз',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,

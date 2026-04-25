@@ -106,7 +106,7 @@ Future<GoogleDirectionsResult> getGoogleDirections({
     throw Exception('Directions: $err');
   }
   final routes = data['routes'] as List?;
-  if (routes == null || routes.isEmpty) throw Exception('Маршрут не найден');
+  if (routes == null || routes.isEmpty) throw Exception('Маршрут табылмады');
   
   Map<String, dynamic> bestRoute = routes[0] as Map<String, dynamic>;
   
@@ -155,7 +155,7 @@ Future<GoogleDirectionsResult> getGoogleDirections({
       }
     }
     // Легкий хак для защиты диплома: если лестниц вообще нет (оба 0),
-    // берем второй маршрут просто чтобы показать "Альтернативу" для колясок.
+    // берем второй маршрут просто чтобы показать "Баламасын" для колясок.
     if (minStairs == 0 && routes.length > 1 && bestRoute == routes[0]) {
        bestRoute = routes[1] as Map<String, dynamic>;
     }
@@ -165,7 +165,7 @@ Future<GoogleDirectionsResult> getGoogleDirections({
   final overview = route['overview_polyline'] as Map<String, dynamic>?;
   final encoded = overview?['points'] as String?;
   if (encoded == null || encoded.isEmpty)
-    throw Exception('Нет геометрии маршрута');
+    throw Exception('Маршрут геометриясы жоқ');
 
   final points = decodePolyline(encoded);
   final legs = route['legs'] as List?;
@@ -243,9 +243,9 @@ Future<String> getAddressForLatLng(double lat, double lng) async {
     throw Exception('Geocoding: $err');
   }
   final results = data['results'] as List?;
-  if (results == null || results.isEmpty) return 'Адрес не найден';
+  if (results == null || results.isEmpty) return 'Мекенжай табылмады';
   final first = results[0] as Map<String, dynamic>;
-  return (first['formatted_address'] as String?) ?? 'Адрес не найден';
+  return (first['formatted_address'] as String?) ?? 'Мекенжай табылмады';
 }
 
 /// Результат поиска места по запросу (прямое геокодирование).
@@ -306,9 +306,9 @@ Future<PlaceResult> getPlaceDetails(String placeId) async {
   if (r.statusCode != 200)
     throw Exception('Place Details: HTTP ${r.statusCode}');
   final data = jsonDecode(r.body) as Map<String, dynamic>;
-  if (data['status'] != 'OK') throw Exception('Место не найдено');
+  if (data['status'] != 'OK') throw Exception('Орын табылмады');
   final result = data['result'] as Map<String, dynamic>?;
-  if (result == null) throw Exception('Нет данных');
+  if (result == null) throw Exception('Деректер жоқ');
   final geo = result['geometry'] as Map<String, dynamic>?;
   final loc = geo?['location'] as Map<String, dynamic>?;
   final formatted = result['formatted_address'] as String? ?? '';
@@ -404,11 +404,11 @@ Future<PlaceDetailsFull> getPlaceDetailsFull(String placeId) async {
   if (r.statusCode != 200)
     throw Exception('Place Details: HTTP ${r.statusCode}');
   final data = jsonDecode(r.body) as Map<String, dynamic>;
-  if (data['status'] != 'OK') throw Exception('Место не найдено');
+  if (data['status'] != 'OK') throw Exception('Орын табылмады');
   final result = data['result'] as Map<String, dynamic>?;
-  if (result == null) throw Exception('Нет данных');
+  if (result == null) throw Exception('Деректер жоқ');
 
-  final name = (result['name'] as String?) ?? 'Место';
+  final name = (result['name'] as String?) ?? 'Орын';
   final rating = (result['rating'] as num?)?.toDouble();
   final userRatingsTotal = (result['user_ratings_total'] as num?)?.toInt();
   final address = (result['formatted_address'] as String?) ?? '';
@@ -467,7 +467,7 @@ Future<PlaceDetailsFull> getPlaceDetailsFull(String placeId) async {
 /// Прямое геокодирование: по тексту запроса (адрес или название места) возвращает координаты.
 Future<PlaceResult> getPlaceFromQuery(String query) async {
   final q = query.trim();
-  if (q.isEmpty) throw Exception('Введите адрес или название места');
+  if (q.isEmpty) throw Exception('Мекенжайды немесе орынның атауын енгізіңіз');
   // Добавляем «Астана» для лучшего результата по городу
   final address =
       q.contains('Астана') || q.contains('Astana') ? q : '$q, Астана';
@@ -539,7 +539,7 @@ class ApiClient {
     return null;
   }
 
-  /// Сохраняет "Дом" или "Работа" в Supabase profiles
+  /// Сохраняет "Үй" или "Жұмыс" в Supabase profiles
   Future<void> saveUserShortcut(String type, String title, double lat, double lng) async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) throw Exception('Пользователь не авторизован');
@@ -1375,6 +1375,56 @@ class ApiClient {
       debugPrint('getLocations error: $e');
     }
     return [];
+  }
+
+  // ─── Crowdsourcing & Smart Alerts ───
+
+  Future<bool> postEvent(String eventType, double lat, double lng) async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/events');
+      final r = await _http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'event_type': eventType,
+          'lat': lat,
+          'lng': lng,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      return r.statusCode == 200;
+    } catch (e) {
+      debugPrint('postEvent error: $e');
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getEvents() async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/events');
+      final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        final data = jsonDecode(r.body);
+        if (data['items'] != null) {
+          return List<Map<String, dynamic>>.from(data['items']);
+        }
+      }
+    } catch (e) {
+      debugPrint('getEvents error: $e');
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> getSmartAlert() async {
+    try {
+      final uri = Uri.parse('$kApiBaseUrl/smart_alert');
+      final r = await _http.get(uri).timeout(const Duration(seconds: 10));
+      if (r.statusCode == 200) {
+        return jsonDecode(r.body) as Map<String, dynamic>;
+      }
+    } catch (e) {
+      debugPrint('getSmartAlert error: $e');
+    }
+    return null;
   }
 }
 

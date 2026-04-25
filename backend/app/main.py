@@ -798,3 +798,90 @@ def meetings_create(req: MeetingRequest):
     finally:
         conn.close()
 
+# ─── Crowdsourcing & Smart Alerts ───
+import time
+
+class UserEventRequest(BaseModel):
+    event_type: str
+    lat: float
+    lng: float
+
+@app.post("/events")
+def create_event(req: UserEventRequest):
+    conn = get_conn(settings.db_path)
+    try:
+        cur = conn.cursor()
+        now = int(time.time())
+        cur.execute(
+            "INSERT INTO user_events (event_type, lat, lng, created_at) VALUES (?, ?, ?, ?)",
+            (req.event_type, req.lat, req.lng, now)
+        )
+        conn.commit()
+        
+        # Симулируем эффект на трафик
+        strength = 80.0 if req.event_type == "accident" else (60.0 if req.event_type == "repair" else 20.0)
+        sim.add_custom_hotspot(req.lat, req.lng, strength=strength, radius_deg=0.01, ttl_seconds=3600)
+        
+        return {"status": "success", "id": cur.lastrowid}
+    finally:
+        conn.close()
+
+@app.get("/events")
+def get_events():
+    conn = get_conn(settings.db_path)
+    try:
+        # Вернуть только актуальные события (за последние 2 часа)
+        now = int(time.time())
+        threshold = now - 7200
+        cur = conn.cursor()
+        rows = cur.execute(
+            "SELECT id, event_type, lat, lng, created_at FROM user_events WHERE created_at > ?",
+            (threshold,)
+        ).fetchall()
+        
+        items = []
+        for r in rows:
+            items.append({
+                "id": r[0],
+                "event_type": r[1],
+                "lat": r[2],
+                "lng": r[3],
+                "created_at": r[4]
+            })
+        return {"items": items}
+    finally:
+        conn.close()
+
+@app.get("/smart_alert")
+async def get_smart_alert():
+    """
+    Генерирует умное пуш-уведомление для пользователя на основе погоды и трендов трафика.
+    """
+    weather = await weather_service.get_current_weather()
+    items = sim.snapshot(30)
+    avg_future_traffic = 0.0
+    if items:
+        avg_future_traffic = sum(it.get('value', 0.0) for it in items) / len(items)
+        
+    wf = weather.get('traffic_factor', 1.0)
+    
+    if wf > 1.3 or avg_future_traffic > 70:
+        return {
+            "has_alert": True,
+            "title": "Умное предупреждение 🚨",
+            "body": f"Ожидаются сильные пробки из-за плохих погодных условий ({weather['description']}). Рекомендуем выехать на 15 минут раньше!"
+        }
+    elif wf > 1.1 or avg_future_traffic > 50:
+        return {
+            "has_alert": True,
+            "title": "Внимание на дорогах ⚠️",
+            "body": f"Трафик начинает уплотняться ({weather['description']}). Планируйте маршрут заранее."
+        }
+        
+    # Если всё хорошо, возвращаем позитивный алерт, который мы тоже можем показать
+    return {
+        "has_alert": True,
+        "title": "Дороги свободны 🟢",
+        "body": "Сейчас отличное время для поездки. Погода благоприятная!"
+    }
+
