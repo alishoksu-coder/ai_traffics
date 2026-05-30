@@ -2,16 +2,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'map_screen.dart';
-import 'navigator_screen.dart';
-import 'drive_screen.dart';
-import 'tips_screen.dart';
-import 'more_screen.dart';
-import 'splash_screen.dart';
-import 'theme_notifier.dart';
-import 'voice_query_sheet.dart';
-import 'common.dart';
-import 'auth_wrapper.dart';
+import 'ui/screens/map_screen.dart';
+import 'ui/screens/navigator/navigator_screen.dart';
+import 'ui/screens/drive_screen.dart';
+import 'ui/screens/tips_screen.dart';
+import 'ui/screens/more_screen.dart';
+import 'ui/screens/splash_screen.dart';
+import 'core/theme_notifier.dart';
+import 'ui/screens/voice_query_sheet.dart';
+import 'core/common.dart';
+import 'ui/screens/auth_wrapper.dart';
 
 class _AppColors {
   static const primary = Color(0xFF007AFF);

@@ -1,0 +1,791 @@
+======================================================================
+1. БЕТТІ ПАРАМЕТРЛЕРІ (Page Setup)
+======================================================================
+
+Section 0:
+  Сол жақ шеті (Left margin):   1079500  = 3.0 cm
+  Оң жақ шеті (Right margin):  361950  = 1.01 cm
+  Жоғарғы шеті (Top margin):   660400  = 1.83 cm
+  Төменгі шеті (Bottom margin):177800  = 0.49 cm
+  Бет ені (Page width):         7562850  = 21.01 cm
+  Бет биіктігі (Page height):   10693400  = 29.7 cm
+  Header distance:              457200  = 1.27 cm
+  Footer distance:              457200  = 1.27 cm
+
+Section 1:
+  Сол жақ шеті (Left margin):   1079500  = 3.0 cm
+  Оң жақ шеті (Right margin):  361950  = 1.01 cm
+  Жоғарғы шеті (Top margin):   660400  = 1.83 cm
+  Төменгі шеті (Bottom margin):177800  = 0.49 cm
+  Бет ені (Page width):         7562850  = 21.01 cm
+  Бет биіктігі (Page height):   10693400  = 29.7 cm
+  Header distance:              450215  = 1.25 cm
+  Footer distance:              450215  = 1.25 cm
+
+Section 2:
+  Сол жақ шеті (Left margin):   1079500  = 3.0 cm
+  Оң жақ шеті (Right margin):  361950  = 1.01 cm
+  Жоғарғы шеті (Top margin):   660400  = 1.83 cm
+  Төменгі шеті (Bottom margin):177800  = 0.49 cm
+  Бет ені (Page width):         7562850  = 21.01 cm
+  Бет биіктігі (Page height):   10693400  = 29.7 cm
+  Header distance:              450215  = 1.25 cm
+  Footer distance:              450215  = 1.25 cm
+
+Section 3:
+  Сол жақ шеті (Left margin):   1079500  = 3.0 cm
+  Оң жақ шеті (Right margin):  361950  = 1.01 cm
+  Жоғарғы шеті (Top margin):   660400  = 1.83 cm
+  Төменгі шеті (Bottom margin):177800  = 0.49 cm
+  Бет ені (Page width):         7562850  = 21.01 cm
+  Бет биіктігі (Page height):   10693400  = 29.7 cm
+  Header distance:              450215  = 1.25 cm
+  Footer distance:              450215  = 1.25 cm
+
+Section 4:
+  Сол жақ шеті (Left margin):   1079500  = 3.0 cm
+  Оң жақ шеті (Right margin):  361950  = 1.01 cm
+  Жоғарғы шеті (Top margin):   660400  = 1.83 cm
+  Төменгі шеті (Bottom margin):177800  = 0.49 cm
+  Бет ені (Page width):         7562850  = 21.01 cm
+  Бет биіктігі (Page height):   10693400  = 29.7 cm
+  Header distance:              450215  = 1.25 cm
+  Footer distance:              450215  = 1.25 cm
+
+Section 5:
+  Сол жақ шеті (Left margin):   1080135  = 3.0 cm
+  Оң жақ шеті (Right margin):  539750  = 1.5 cm
+  Жоғарғы шеті (Top margin):   720090  = 2.0 cm
+  Төменгі шеті (Bottom margin):720090  = 2.0 cm
+  Бет ені (Page width):         7560310  = 21.0 cm
+  Бет биіктігі (Page height):   10692130  = 29.7 cm
+  Header distance:              449580  = 1.25 cm
+  Footer distance:              450215  = 1.25 cm
+
+Section 6:
+  Сол жақ шеті (Left margin):   1080135  = 3.0 cm
+  Оң жақ шеті (Right margin):  539750  = 1.5 cm
+  Жоғарғы шеті (Top margin):   720090  = 2.0 cm
+  Төменгі шеті (Bottom margin):720090  = 2.0 cm
+  Бет ені (Page width):         7560310  = 21.0 cm
+  Бет биіктігі (Page height):   10692130  = 29.7 cm
+  Header distance:              449580  = 1.25 cm
+  Footer distance:              449580  = 1.25 cm
+
+======================================================================
+2. АБЗАЦ СТИЛЬДЕРІ (Paragraph Formatting)
+======================================================================
+
+--- Паттерн #1 (қолданылу саны: 497) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [162] Кіріспе
+    [165] Қазіргі таңда ақпараттық технологиялардың қарқынды дамуы цифрлық ойын индустрияс
+    [166] Ойын индустриясында ерекше танымал жанрлардың бірі - FPS (First Person Shooter),
+
+--- Паттерн #2 (қолданылу саны: 132) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [186] (бос)
+    [187] (бос)
+    [188] (бос)
+
+--- Паттерн #3 (қолданылу саны: 127) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [45] (бос)
+    [46] (бос)
+    [47] (бос)
+
+--- Паттерн #4 (қолданылу саны: 99) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [96] 2.4 Aseprite бағдарламасын UI және 2D элементтер жасау 	          32
+    [97] 2.5 Ойын   архитектурасын   жобалау   және   модульдік  құрылым  құру принциптер
+    [1196] using UnityEngine;
+
+--- Паттерн #5 (қолданылу саны: 98) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [48] «Қорғауға жіберілді»
+    [49] Компьютерлік және
+    [50] програмалық инженерия
+
+--- Паттерн #6 (қолданылу саны: 69) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [946] 3.6 FindYourSound ойынындағы деңгейлерді жобалау және құру
+    [949] Кез келген ойын жобасында техникалық механикалармен қатар ойын өтетін орта, яғни
+    [950] FindYourSound ойыны бірнеше деңгейден тұратын құрылымда жобаланды. Әр деңгей ойы
+
+--- Паттерн #7 (қолданылу саны: 59) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [944] (бос)
+    [945] (бос)
+    [947] (бос)
+
+--- Паттерн #8 (қолданылу саны: 51) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [42] Қазақстан Республикасының Ғылым және жоғары білім министрлігі
+    [44] Л.Н. Гумилев атындағы Еуразия ұлттық университеті
+    [69] 6B06104 - «Есептеу техникасы және бағдарламалық қамтамасыз ету» білім беру бағда
+
+--- Паттерн #9 (қолданылу саны: 43) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [1] (бос)
+    [2] (бос)
+    [3] (бос)
+
+--- Паттерн #10 (қолданылу саны: 25) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [82] (бос)
+    [110] (бос)
+    [111] (бос)
+
+--- Паттерн #11 (қолданылу саны: 23) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [43] (бос)
+    [83] (бос)
+    [84] (бос)
+
+--- Паттерн #12 (қолданылу саны: 22) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [133] Дипломдық жұмыстың тақырыбы: «Unity қозғалтқышында логикалық 3D ойындарын әзірле
+    [135] Жұмысқа қажетті бастапқы деректер (заңдар, әдебиет көздері, зертханалық және өнд
+    [148] Unity Technologies. URL: https://docs.unity3d.com/Manual/index.html
+
+--- Паттерн #13 (қолданылу саны: 15) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 0.64 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [1136] Unity Technologies. Unity Scripting API. URL: https://docs.unity3d.com/ScriptRef
+    [1137] Unity Learn. FPS Microgame Tutorials. URL: https://learn.unity.com/project/fps-t
+    [1138] Unity Asset Store. Development Assets and Tools. URL: https://assetstore.unity.c
+
+--- Паттерн #14 (қолданылу саны: 10) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [952] (бос)
+    [956] (бос)
+    [986] (бос)
+
+--- Паттерн #15 (қолданылу саны: 8) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [11] Unity қозғалтқышында логикалық 3D ойындарын әзірлеу
+    [16] ДИПЛОМДЫҚ ЖҰМЫС
+    [18] 6B06104 - «Есептеу техникасы және бағдарламалық қамтамасыз ету» білім беру бағда
+
+--- Паттерн #16 (қолданылу саны: 5) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): -0.5 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 204470
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [141] Ойын индустриясын зерттеу;
+    [142] Ойын жасау;
+    [143] Қорытынды жасау.
+
+--- Паттерн #17 (қолданылу саны: 5) ---
+  Стиль:          Normal (Web)
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [563] (бос)
+    [565] (бос)
+    [587] (бос)
+
+--- Паттерн #18 (қолданылу саны: 4) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [41] (бос)
+    [119] (бос)
+    [152] (бос)
+
+--- Паттерн #19 (қолданылу саны: 4) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [104] 3.6 FindYourSound ойынындағы деңгейлерді жобалау және құру 	          61
+    [953] Кесте 11
+    [954] FindYourSound ойынындағы деңгейлердің сипаттамасы
+
+--- Паттерн #20 (қолданылу саны: 3) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 204470
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [122] Ақпараттық технологиялар факультеті
+    [123] Компьютерлік және программалық инженерия кафедрасы
+    [126] Бекітемін
+
+--- Паттерн #21 (қолданылу саны: 3) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): -0.49 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [144] Графикалық материалдар тізімі (сызбалар, кестелер, диаграммалар және т.б.):
+    [147] Ұсынылатын негізгі әдебиеттер тізімі:
+    [154] Дипломдық жұмысты орындау кестесі
+
+--- Паттерн #22 (қолданылу саны: 3) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 0
+  Line spacing rule:         AT_LEAST (3)
+  Мысалдар:
+    [720] Кесте 8
+    [721] Камера эффектілерінің міндеттері
+    [722] (бос)
+
+--- Паттерн #23 (қолданылу саны: 2) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    True
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [62] ДИПЛОМДЫҚ ЖҰМЫС
+    [65] Тақырыбы: «Unity қозғалтқышында логикалық 3D ойындарын әзірлеу»
+
+--- Паттерн #24 (қолданылу саны: 2) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): 203835
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [131] Дипломдық жұмысты орындауға ТАПСЫРМА
+    [132] Студент Темержан Ернат Білімбекұлы, 4 курс, B057-6104-22-05 тобы, 6B06104 - «Есе
+
+--- Паттерн #25 (қолданылу саны: 2) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): -0.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 174625
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [138] Aseprite;
+    [139] Visual Studio.
+
+--- Паттерн #26 (қолданылу саны: 2) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [224] (бос)
+    [225] (бос)
+
+--- Паттерн #27 (қолданылу саны: 1) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): -1.14 cm
+  Абзац алдындағы бос орын (Space before): 46990
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 2.0
+  Line spacing rule:         DOUBLE (2)
+  Мысалдар:
+    [0] Қазақстан Республикасы Ғылым және жоғары білім министрлігі Л.Н.Гумилев атындағы 
+
+--- Паттерн #28 (қолданылу саны: 1) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [86] МАЗМҰНЫ
+
+--- Паттерн #29 (қолданылу саны: 1) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): 0.0 cm
+  Абзац алдындағы бос орын (Space before): 46990
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [120] Л.Н. Гумилев атындағы Еуразия ұлттық университеті
+
+--- Паттерн #30 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): -0.49 cm
+  Абзац алдындағы бос орын (Space before): 635
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 204470
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [134] Білім алушының аяқталған жұмысты тапсыру мерзімі: 20 мамыр 2025 ж.
+
+--- Паттерн #31 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): -0.29 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 204470
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [136] Unity;
+
+--- Паттерн #32 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): -0.29 cm
+  Абзац алдындағы бос орын (Space before): 635
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 203835
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [137] Blender;
+
+--- Паттерн #33 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): -0.49 cm
+  Абзац алдындағы бос орын (Space before): 635
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 204470
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [140] Дипломдық жұмыста қарастырылатын сұрақтар тізімі:
+
+--- Паттерн #34 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 203835
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [149] - Blender Foundation. Blender Manual. Official   documentation for 3D modeling, 
+
+--- Паттерн #35 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 203835
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [150] -Microsoft Learn. C# Documentation. Official reference for C# programming langua
+
+--- Паттерн #36 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): 1270
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [151] Жұмыс бойынша кеңестер (оларға қатысты жұмыс бөлімдерін көрсете отырып)
+
+--- Паттерн #37 (қолданылу саны: 1) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 159385
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [158] қолы	аты-жөні, ғылыми атағы, лауазымы
+
+--- Паттерн #38 (қолданылу саны: 1) ---
+  Стиль:          Body Text
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): 1905
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 203835
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [159] Тапсырманы қабылдады: студент	Темержан Е. Б.
+
+--- Паттерн #39 (қолданылу саны: 1) ---
+  Стиль:          Normal
+  Шрифт:          None
+  Шрифт өлшемі:   None  = None pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): 160020
+  Line spacing rule:         EXACTLY (4)
+  Мысалдар:
+    [160] қолы	аты-жөн
+
+--- Паттерн #40 (қолданылу саны: 1) ---
+  Стиль:          Normal
+  Шрифт:          Times New Roman
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         None (style default)
+  Қызыл жол (First line indent): 1.25 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   0
+  Жол аралық (Line spacing): 1.0
+  Line spacing rule:         SINGLE (0)
+  Мысалдар:
+    [223] 1. FPS жанрындағы ойындарды және дыбысқа негізделген механика-ларды зерттеу
+
+--- Паттерн #41 (қолданылу саны: 1) ---
+  Стиль:          Normal (Web)
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         CENTER (ортаға)
+  Қызыл жол (First line indent): None cm
+  Абзац алдындағы бос орын (Space before): 0
+  Абзац кейінгі бос орын (Space after):   152400
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [588] Сурет 22 – Архитектура
+
+--- Паттерн #42 (қолданылу саны: 1) ---
+  Стиль:          List Paragraph
+  Шрифт:          None
+  Шрифт өлшемі:   177800  = 14.0 pt
+  Қалың (Bold):    None
+  Курсив (Italic): None
+  Туралау:         JUSTIFY (екі жақтан тегістеу)
+  Қызыл жол (First line indent): 0.62 cm
+  Абзац алдындағы бос орын (Space before): None
+  Абзац кейінгі бос орын (Space after):   None
+  Жол аралық (Line spacing): None
+  Line spacing rule:         None
+  Мысалдар:
+    [1135] Unity Technologies. Unity Manual. URL: https://docs.unity3d.com/Manual/index.htm
+
+======================================================================
+3. ТАҚЫРЫПТАР СТИЛІ (Headings)
+======================================================================
+  [62] Style='Normal', Align=CENTER (ортаға), Indent=0cm
+       Font=Times New Roman, Size=14.0pt, Bold=True, AllCaps=None
+       "ДИПЛОМДЫҚ ЖҰМЫС"
+  [65] Style='Normal', Align=CENTER (ортаға), Indent=0cm
+       Font=Times New Roman, Size=14.0pt, Bold=True, AllCaps=None
+       "Тақырыбы: «Unity қозғалтқышында логикалық 3D ойындарын әзірлеу»"
+  [131] Style='Body Text', Align=JUSTIFY (екі жақтан тегістеу), Indent=0cm
+       Font=None, Size=?pt, Bold=None, AllCaps=None
+       "Дипломдық жұмысты орындауға ТАПСЫРМА"
+
+======================================================================
+4. КЕСТЕЛЕР (Tables)
+======================================================================
+  Кестелер саны: 13
+  Кесте 1: 8 жол x 5 баған, бірінші ұяшық: "Номер, бөлім, тарау атауы"
+  Кесте 2: 10 жол x 4 баған, бірінші ұяшық: "№"
+  Кесте 3: 6 жол x 2 баған, бірінші ұяшық: "Ерекшелік"
+  Кесте 4: 6 жол x 2 баған, бірінші ұяшық: "Функция"
+  Кесте 5: 6 жол x 2 баған, бірінші ұяшық: "Элемент"
+  Кесте 6: 4 жол x 3 баған, бірінші ұяшық: "Қару түрі"
+  Кесте 7: 4 жол x 3 баған, бірінші ұяшық: "Платформа"
+  Кесте 8: 6 жол x 2 баған, бірінші ұяшық: "Бағыт"
+  Кесте 9: 4 жол x 3 баған, бірінші ұяшық: "Бағдарлама"
+  Кесте 10: 6 жол x 3 баған, бірінші ұяшық: "Эффект атауы"
+  Кесте 11: 6 жол x 3 баған, бірінші ұяшық: "Модуль"
+  Кесте 12: 5 жол x 4 баған, бірінші ұяшық: "Қару типі"
+  Кесте 13: 8 жол x 3 баған, бірінші ұяшық: "Деңгей"
+
+======================================================================
+5. СУРЕТТЕР (Images)
+======================================================================
+  Суреттер саны: 40
