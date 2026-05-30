@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config.dart';
 import '../models/models.dart';
+import '../core/common.dart';
 
 class ApiClient {
   final http.Client _http;
@@ -104,13 +105,16 @@ class ApiClient {
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         final list = (data['items'] as List?) ?? [];
+        globalDataStatus.value = DataSourceStatus.live;
         return list
             .map((e) => MapVehicle.fromJson(e as Map<String, dynamic>))
             .toList();
       }
+      globalDataStatus.value = DataSourceStatus.fallback;
       return [];
     } catch (e) {
       debugPrint('getVehicles error: $e');
+      globalDataStatus.value = DataSourceStatus.fallback;
       return [];
     }
   }
@@ -171,7 +175,7 @@ class ApiClient {
           .select('id, first_name, last_name, email')
           .eq('email', email.trim().toLowerCase())
           .maybeSingle();
-      return response as Map<String, dynamic>?;
+      return response;
     } catch (e) {
       debugPrint('Search User error: $e');
       return null;
@@ -402,8 +406,7 @@ class ApiClient {
         } catch (_) {}
       }
 
-      if (!isAdmin &&
-          !kAdminLoginBypassEmails.contains(email.trim().toLowerCase())) {
+      if (!isAdmin) {
         await Supabase.instance.client.auth.signOut();
         throw Exception('Доступ запрещен: требуется флаг is_admin = true.');
       }
@@ -513,6 +516,7 @@ class ApiClient {
       if (r.statusCode == 200) {
         final data = jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
         final list = data['items'] as List<dynamic>? ?? [];
+        globalDataStatus.value = DataSourceStatus.live;
         return list
             .map((e) => RoadSegment.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -520,6 +524,7 @@ class ApiClient {
     } catch (e) {
       debugPrint('Render API getRoadSegments error: $e');
     }
+    globalDataStatus.value = DataSourceStatus.fallback;
     return [];
   }
 

@@ -190,16 +190,89 @@ class _HomeShellState extends State<HomeShell> with TickerProviderStateMixin {
 
     return Scaffold(
       extendBody: true, // Позволяет контенту (особенно карте) быть под навигацией
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        physics: const NeverScrollableScrollPhysics(),
-        children: const [
-          MapScreen(),
-          NavigatorScreen(),
-          DriveScreen(),
-          TipsScreen(),
-          MoreScreen(),
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            physics: const NeverScrollableScrollPhysics(),
+            children: const [
+              MapScreen(),
+              NavigatorScreen(),
+              DriveScreen(),
+              TipsScreen(),
+              MoreScreen(),
+            ],
+          ),
+          // Индикатор статуса данных
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 0,
+            right: 0,
+            child: ValueListenableBuilder<DataSourceStatus>(
+              valueListenable: globalDataStatus,
+              builder: (context, status, _) {
+                if (status == DataSourceStatus.live) return const SizedBox.shrink();
+
+                Color bgColor;
+                String label;
+                IconData icon;
+
+                switch (status) {
+                  case DataSourceStatus.fallback:
+                    bgColor = Colors.orange.shade700;
+                    label = 'Резервтік деректер (Fallback)';
+                    icon = Icons.warning_amber_rounded;
+                    break;
+                  case DataSourceStatus.demo:
+                    bgColor = Colors.purple.shade600;
+                    label = 'Демо режимі';
+                    icon = Icons.science_rounded;
+                    break;
+                  case DataSourceStatus.offline:
+                    bgColor = Colors.red.shade700;
+                    label = 'Офлайн (Желі жоқ)';
+                    icon = Icons.cloud_off_rounded;
+                    break;
+                  default:
+                    return const SizedBox.shrink();
+                }
+
+                return Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: bgColor.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(icon, color: Colors.white, size: 14),
+                        const SizedBox(width: 6),
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
 

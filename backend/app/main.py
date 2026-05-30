@@ -8,6 +8,7 @@ from fastapi import FastAPI, Query, Header, HTTPException
 from pydantic import BaseModel
 
 from app.config import settings
+from app.schemas import SimulationRequest, MultimodalRequest, RouteCalculateRequest, LoginRequest, AddFriendRequest, MeetingRequest, UserEventRequest
 from app.db.database import get_conn
 from app.db.schema import ensure_schema
 from app.db.repository import (
@@ -146,14 +147,14 @@ def get_parking(horizon: int = Query(0, ge=0, le=120)):
     """
     import random
     import time
-    parkings = [
-        {"id": 1, "name": "ТРЦ Хан Шатыр", "lat": 51.1326, "lng": 71.4037, "capacity": 200, "price": "200 ₸/сағ"},
-        {"id": 2, "name": "Бәйтерек Монументі", "lat": 51.1283, "lng": 71.4304, "capacity": 150, "price": "300 ₸/сағ"},
-        {"id": 3, "name": "Астана Опера", "lat": 51.1256, "lng": 71.4162, "capacity": 80, "price": "Тегін (Бесплатно)"},
-        {"id": 4, "name": "MEGA Silk Way", "lat": 51.0888, "lng": 71.4187, "capacity": 500, "price": "100 ₸/сағ"},
-        {"id": 5, "name": "Abu Dhabi Plaza", "lat": 51.1197, "lng": 71.4390, "capacity": 300, "price": "500 ₸/сағ"},
-        {"id": 6, "name": "Керуен (Keruen)", "lat": 51.1281, "lng": 71.4248, "capacity": 120, "price": "400 ₸/сағ"}
-    ]
+    import json
+    import os
+    json_path = os.path.join(os.path.dirname(__file__), "..", "data", "parkings.json")
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            parkings = json.load(f)
+    except FileNotFoundError:
+        parkings = []
     
     # Предиктивный фактор загруженности
     trend_factor = 1.0
@@ -537,10 +538,6 @@ async def get_traffic_recommendation(location_id: int = Query(None)):
     finally:
         conn.close()
 
-class SimulationRequest(BaseModel):
-    lat: float
-    lon: float
-    duration_min: int = 15
 
 @app.post("/traffic/simulate_closure")
 def simulate_closure(req: SimulationRequest):
@@ -555,9 +552,6 @@ def simulate_closure(req: SimulationRequest):
         "message": f"Очаг пробки успешно создан. Действует {req.duration_min} мин."
     }
 
-class MultimodalRequest(BaseModel):
-    duration_now_sec: int
-    distance_meters: int
 
 @app.post("/traffic/multimodal_analysis")
 async def multimodal_analysis(req: MultimodalRequest):
@@ -582,20 +576,20 @@ async def multimodal_analysis(req: MultimodalRequest):
     # Мультимодальный путь: допустим, едем на машине 60% пути, затем берем самокат.
     # Машина (60%): без симуляции пробок на дальнем участке
     # Самокат (40%): скорость фиксированная ~15 км/ч (4 м/с)
-    car_distance = req.distance_meters * 0.6
-    scooter_distance = req.distance_meters * 0.4
+    car_distance = req.distance_meters * settings.multimodal_car_ratio
+    scooter_distance = req.distance_meters * settings.multimodal_scooter_ratio
     
     # На авто первая часть (предположим пробки еще не собрались): 
     # Средняя скорость ~ 30 км/ч = 8.33 м/с
-    car_time = car_distance / 8.33
-    scooter_time = scooter_distance / 4.0
+    car_time = car_distance / settings.multimodal_car_speed_ms
+    scooter_time = scooter_distance / settings.multimodal_scooter_speed_ms
     
     # Плюс время на пересадку ~ 3 минуты (180 сек)
-    t3 = int(car_time + scooter_time + 180)
+    t3 = int(car_time + scooter_time + settings.multimodal_transfer_time_sec)
     
     # Если изначально расстояние очень короткое (меньше 2 км), самокат выгоднее сразу
-    if req.distance_meters < 2000:
-        t3 = int(req.distance_meters / 4.0)
+    if req.distance_meters < settings.multimodal_scooter_only_dist_m:
+        t3 = int(req.distance_meters / settings.multimodal_scooter_speed_ms)
 
     recommend = t3 < t2
     
@@ -608,11 +602,6 @@ async def multimodal_analysis(req: MultimodalRequest):
         "message": f"С учетом будущего затора, комбинированный маршрут сэкономит {max(0, (t2 - t3)//60)} минут." if recommend else "Оставайтесь на текущем маршруте."
     }
 
-class RouteCalculateRequest(BaseModel):
-    start_node_id: int
-    end_node_id: int
-    mode: str = "car_fast"  # car_fast, pedestrian, barrier_free, anti_stress
-    horizon_min: int = 0    # Traffic prediction horizon in minutes
 
 @app.post("/routes/calculate")
 def calculate_multicriteria_route(req: RouteCalculateRequest):
@@ -662,18 +651,8 @@ def get_vehicles():
 
 # ─── Admin endpoints ───
 
-class LoginRequest(BaseModel):
-    login: str
-    password: str
 
-class AddFriendRequest(BaseModel):
-    name: str
 
-class MeetingRequest(BaseModel):
-    user_id: str
-    friend_id: str
-    location_id: int
-    meeting_time: str
 
 
 @app.post("/admin/login")
@@ -801,10 +780,6 @@ def meetings_create(req: MeetingRequest):
 # ─── Crowdsourcing & Smart Alerts ───
 import time
 
-class UserEventRequest(BaseModel):
-    event_type: str
-    lat: float
-    lng: float
 
 @app.post("/events")
 def create_event(req: UserEventRequest):

@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../services/api_client.dart';
+
 import '../../services/google_maps_service.dart';
 import '../../core/common.dart';
 

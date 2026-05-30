@@ -78,7 +78,6 @@ class _DriveScreenState extends State<DriveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final heavy = segments.where((s) => (s.value ?? 0) > 60).length;
     final medium = segments.where((s) {
       final v = s.value ?? 0;

@@ -15,6 +15,16 @@ final ValueNotifier<GlobalRouteRequest?> globalRouteRequest =
     ValueNotifier(null);
 final ValueNotifier<int> globalTabIndex = ValueNotifier(0);
 
+enum DataSourceStatus {
+  live,     // Данные из реального времени (или симулятора бэкенда, работающего корректно)
+  fallback, // Кэшированные или запасные данные
+  demo,     // Демо-данные для диплома
+  offline   // Нет подключения к сети
+}
+
+final ValueNotifier<DataSourceStatus> globalDataStatus =
+    ValueNotifier(DataSourceStatus.live);
+
 /// Палитра приложения (карты трафика, кнопки, карточки)
 class AppColors {
   static const primary = Color(0xFF0D7EA7);

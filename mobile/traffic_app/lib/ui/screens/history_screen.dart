@@ -184,7 +184,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
-    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.6);
+    final subtextColor = (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -199,7 +199,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(isDark ? 0.2 : 0.1),
+                color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.1),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -215,7 +215,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF0EA5E9).withOpacity(isDark ? 0.15 : 0.08),
+                color: const Color(0xFF0EA5E9).withValues(alpha: isDark ? 0.15 : 0.08),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
@@ -322,15 +322,15 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.15),
+        color: AppColors.primary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
             child: const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 20),
           ),
           const SizedBox(width: 12),
@@ -344,7 +344,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
             onTap: _clearDate,
             child: Container(
               padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: Colors.black.withOpacity(0.05), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.05), shape: BoxShape.circle),
               child: const Icon(Icons.close_rounded, color: AppColors.primary, size: 18),
             ),
           ),
@@ -357,11 +357,11 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -394,14 +394,14 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
                   color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))]
+                      ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))]
                       : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : textColor.withOpacity(0.6),
+                    color: isSelected ? Colors.white : textColor.withValues(alpha: 0.6),
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -418,12 +418,12 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
     return Container(
       padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 24),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor.withOpacity(isDark ? 0.5 : 0.8),
+        color: Theme.of(context).cardColor.withValues(alpha: isDark ? 0.5 : 0.8),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(isDark ? 0.05 : 0.5)),
+        border: Border.all(color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -442,7 +442,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.query_stats_rounded, size: 56, color: subtextColor.withOpacity(0.4)),
+                    Icon(Icons.query_stats_rounded, size: 56, color: subtextColor.withValues(alpha: 0.4)),
                     const SizedBox(height: 16),
                     Text('Деректер жеткіліксіз', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
@@ -473,7 +473,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
       children: [
         _legendItem('Нақты деректер', AppColors.primary, textColor),
         const SizedBox(width: 24),
-        _legendItem('Орташа мән', const Color(0xFF0EA5E9).withOpacity(0.6), textColor, isDashed: true),
+        _legendItem('Орташа мән', const Color(0xFF0EA5E9).withValues(alpha: 0.6), textColor, isDashed: true),
       ],
     );
   }
@@ -487,7 +487,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
           decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor.withOpacity(0.7))),
+        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor.withValues(alpha: 0.7))),
       ],
     );
   }
@@ -498,15 +498,15 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark 
-            ? [AppColors.primary.withOpacity(0.15), const Color(0xFF0EA5E9).withOpacity(0.05)] 
-            : [AppColors.primary.withOpacity(0.08), const Color(0xFF0EA5E9).withOpacity(0.02)],
+            ? [AppColors.primary.withValues(alpha: 0.15), const Color(0xFF0EA5E9).withValues(alpha: 0.05)] 
+            : [AppColors.primary.withValues(alpha: 0.08), const Color(0xFF0EA5E9).withValues(alpha: 0.02)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         boxShadow: [
-          BoxShadow(color: AppColors.primary.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(color: AppColors.primary.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: Column(
@@ -517,7 +517,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.auto_graph_rounded, color: AppColors.primary, size: 24),
@@ -539,7 +539,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
           ),
           Text(
             'LSTM моделі келесі күндері жүктеменің 5%-ға төмендеуін болжайды. Тренд тұрақты.',
-            style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: textColor.withOpacity(0.8), height: 1.4),
+            style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: textColor.withValues(alpha: 0.8), height: 1.4),
           ),
         ],
       ),
@@ -551,9 +551,9 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: textColor.withOpacity(0.4)),
+          Icon(icon, size: 18, color: textColor.withValues(alpha: 0.4)),
           const SizedBox(width: 12),
-          Text(title, style: TextStyle(fontSize: 14, color: textColor.withOpacity(0.6))),
+          Text(title, style: TextStyle(fontSize: 14, color: textColor.withValues(alpha: 0.6))),
           const SizedBox(width: 6),
           Expanded(child: Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: textColor))),
         ],
@@ -610,11 +610,11 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor.withOpacity(isDark ? 0.4 : 0.8),
+          color: Theme.of(context).cardColor.withValues(alpha: isDark ? 0.4 : 0.8),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(isDark ? 0.05 : 0.5)),
+          border: Border.all(color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.5)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
         child: Row(
@@ -622,7 +622,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.15),
+                color: accentColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: accentColor, size: 22),
@@ -632,7 +632,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor.withOpacity(0.5))),
+                  Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor.withValues(alpha: 0.5))),
                   const SizedBox(height: 4),
                   Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textColor)),
                 ],
@@ -660,7 +660,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
               strokeWidth: 1,
               dashArray: [4, 4],
             );
@@ -681,7 +681,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
                   child: Text(
                     '${value.toInt()}%',
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -705,7 +705,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
                   child: Text(
                     _formatAxisLabel(value),
                     style: TextStyle(
-                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withOpacity(0.5),
+                      color: (Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey).withValues(alpha: 0.5),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -725,7 +725,7 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
             barWidth: 4,
             isStrokeCapRound: true,
             shadow: Shadow(
-              color: AppColors.primary.withOpacity(0.5),
+              color: AppColors.primary.withValues(alpha: 0.5),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -746,8 +746,8 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.primary.withOpacity(0.4),
-                  AppColors.primary.withOpacity(0.0),
+                  AppColors.primary.withValues(alpha: 0.4),
+                  AppColors.primary.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -789,16 +789,16 @@ class _TrafficHistoryScreenState extends State<TrafficHistoryScreen> with Single
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+        color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withOpacity(0.05)),
+        border: Border.all(color: textColor.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: textColor.withOpacity(0.05),
+              color: textColor.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.info_outline_rounded, color: subtextColor, size: 20),

@@ -49,21 +49,11 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   List<PlacePrediction> _toSuggestions = [];
   Timer? _debounce;
 
-  /// Умная рекомендация (AI-совет)
-  String? _recommendation;
-  bool _loadingRec = false;
 
   bool _antiStressMode = false;
   bool _barrierFreeMode = false;
   Map<String, dynamic>? _parkingData;
 
-  // Icons/ Транспорт с сервера
-  List<MapVehicle> _vehicles = [];
-  Timer? _vehiclePollTimer;
-
-  gmaps.BitmapDescriptor? _carIcon;
-  gmaps.BitmapDescriptor? _busIcon;
-  TrafficMetrics? _trafficMetrics;
   UserProfile? _userProfile;
 
   bool _isForecastMode = false;
@@ -76,7 +66,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   void initState() {
     super.initState();
     _loadProfile();
-    _initIcons();
     ThemeNotifier().addListener(_updateMapStyle);
     globalRouteRequest.addListener(_onGlobalRouteRequest);
     
@@ -91,7 +80,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   void dispose() {
     globalRouteRequest.removeListener(_onGlobalRouteRequest);
     ThemeNotifier().removeListener(_updateMapStyle);
-    _vehiclePollTimer?.cancel();
     _debounce?.cancel();
     _fromController.dispose();
     _toController.dispose();
@@ -205,9 +193,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                 width: 64,
                                 height: 64,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                                 ),
                                 child: Icon(
                                   type == 'home' ? Icons.home_rounded : Icons.business_center_rounded,
@@ -274,7 +262,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: purpleColor.withOpacity(0.06),
+                              color: purpleColor.withValues(alpha: 0.06),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -382,82 +370,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     }
   }
 
-  Future<void> _initIcons() async {
-    _carIcon = await _buildMarkerIcon(Icons.directions_car,
-        const Color(0xFFF59E0B)); // Желтая/Оранжевая для машин
-    _busIcon = await _buildMarkerIcon(
-        Icons.directions_bus, const Color(0xFF10B981)); // Зеленая для автобуса
-    if (mounted) setState(() {});
-  }
-
-  Future<gmaps.BitmapDescriptor> _buildMarkerIcon(
-      IconData iconData, Color color) async {
-    final dart_ui.PictureRecorder pictureRecorder = dart_ui.PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    const double size = 90;
-
-    // Draw background circle
-    final Paint paint = Paint()..color = color;
-    canvas.drawCircle(const Offset(size / 2, size / 2), size / 2, paint);
-
-    // Draw outline
-    final Paint outline = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 6
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(const Offset(size / 2, size / 2), size / 2 - 3, outline);
-
-    // Draw icon
-    TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
-    textPainter.text = TextSpan(
-      text: String.fromCharCode(iconData.codePoint),
-      style: TextStyle(
-        fontSize: size * 0.6,
-        fontFamily: iconData.fontFamily,
-        package: iconData.fontPackage,
-        color: Colors.white,
-      ),
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-          size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
-    );
-
-    final img = await pictureRecorder
-        .endRecording()
-        .toImage(size.toInt(), size.toInt());
-    final data = await img.toByteData(format: dart_ui.ImageByteFormat.png);
-    return gmaps.BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-  }
-
-  void _startVehiclePolling() {
-    _fetchVehicles();
-    _vehiclePollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      _fetchVehicles();
-    });
-  }
-
-  Future<void> _fetchVehicles() async {
-    try {
-      final v = await ApiClient().getVehicles();
-      // Fetch metrics less frequently
-      TrafficMetrics? m;
-      if (_vehicles.isEmpty || (DateTime.now().second % 15 == 0)) {
-        try {
-          m = await ApiClient().getTrafficMetrics();
-        } catch (_) {}
-      }
-
-      if (mounted) {
-        setState(() {
-          _vehicles = v;
-          if (m != null) _trafficMetrics = m;
-        });
-      }
-    } catch (_) {}
-  }
 
   void _onFromChanged(String value) {
     _clearRoute();
@@ -580,7 +492,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     setState(() {
       _route = null;
       error = null;
-      _recommendation = null;
       _multimodalRec = null;
       _isForecastMode = false;
       _futureSegments.clear();
@@ -630,7 +541,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         _multimodalRec = null;
       });
       _fitBoundsToRoute();
-      _fetchRecommendation();
       if (_byCar) _fetchParking();
       if (!_byCar && _barrierFreeMode) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -675,7 +585,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         _multimodalRec = null;
       });
       _fitBoundsToRoute();
-      _fetchRecommendation();
       if (_byCar) _fetchParking();
       if (!_byCar && _barrierFreeMode) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -701,21 +610,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     } catch (_) {}
   }
 
-  Future<void> _fetchRecommendation() async {
-    if (!_byCar) return;
-    setState(() => _loadingRec = true);
-    try {
-      final rec = await ApiClient().getTrafficRecommendation();
-      if (mounted) {
-        setState(() {
-          _recommendation = rec['message'];
-          _loadingRec = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _loadingRec = false);
-    }
-  }
+
 
   Future<void> _fetchForecastAndMultimodal() async {
     if (_route == null) return;
@@ -827,17 +722,17 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: isCritical ? Colors.red.withOpacity(0.08) : Colors.orange.withOpacity(0.08),
+                  color: isCritical ? Colors.red.withValues(alpha: 0.08) : Colors.orange.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isCritical ? Colors.red.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+                    color: isCritical ? Colors.red.withValues(alpha: 0.3) : Colors.orange.withValues(alpha: 0.3),
                   ),
                 ),
                 child: ListTile(
                   leading: Container(
                     width: 44, height: 44,
                     decoration: BoxDecoration(
-                      color: isCritical ? Colors.red.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+                      color: isCritical ? Colors.red.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -932,7 +827,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           polylineId: gmaps.PolylineId('future_${seg.id}'),
           points: pts,
           width: 8,
-          color: clr.withOpacity(0.55),
+          color: clr.withValues(alpha: 0.55),
           jointType: gmaps.JointType.round,
         ));
       }
@@ -1024,146 +919,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     return out;
   }
 
-  Color _getTrafficColor(int score) {
-    if (score <= 3) return const Color(0xFF10B981); // Green
-    if (score <= 6) return const Color(0xFFF59E0B); // Orange
-    return const Color(0xFFEF4444); // Red
-  }
-
-  Widget _buildTrafficScore() {
-    final score = _trafficMetrics?.globalScore ?? 0;
-    final color = _getTrafficColor(score);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: dart_ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.5), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.1),
-                blurRadius: 10,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '$score',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'КЕПТЕЛІСТЕР',
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  Text(
-                    _trafficMetrics?.level ?? '',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSavedRoutes() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SizedBox(
-        height: 48,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          clipBehavior: Clip.none,
-          children: [
-            _savedRouteChip(Icons.home_rounded, 'Үй', () {
-              _toController.text = "Сығанақ, 17 (Үй)";
-              setState(() => b = const LatLng(51.12760, 71.42780));
-              _useMyLocation();
-            }),
-            const SizedBox(width: 12),
-            _savedRouteChip(Icons.work_rounded, 'Жұмыс', () {
-              _toController.text = "Мәңгілік Ел, 55 (Жұмыс)";
-              setState(() => b = const LatLng(51.09241, 71.41908));
-              _useMyLocation();
-            }),
-            const SizedBox(width: 12),
-            _savedRouteChip(Icons.add_rounded, 'Қосу', () {
-              // В будущем открытие модального окна добавления избранного
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Әзірлеу сатысында...')),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _savedRouteChip(IconData icon, String label, VoidCallback onTap) {
-    return Material(
-      color: Theme.of(context).cardColor.withOpacity(0.9),
-      borderRadius: BorderRadius.circular(24),
-      elevation: 4,
-      shadowColor: Colors.black12,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.divider.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              if (label.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
-              ]
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _onMapLongPress(gmaps.LatLng latLng) {
     showModalBottomSheet(
@@ -1263,7 +1018,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
               child: Material(
                 color: Theme.of(context).cardColor,
                 elevation: 6,
-                shadowColor: Colors.black.withOpacity(0.15),
+                shadowColor: Colors.black.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -1310,7 +1065,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                       contentPadding: EdgeInsets.zero,
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -1345,7 +1100,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                       contentPadding: EdgeInsets.zero,
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                        borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -1370,7 +1125,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                               width: 36,
                               height: 36,
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.08),
+                                color: AppColors.primary.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Icon(Icons.swap_vert_rounded, color: AppColors.primary, size: 20),
@@ -1389,7 +1144,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                               height: 32,
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
-                                border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
@@ -1412,7 +1167,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                 height: 32,
                                 padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
@@ -1434,7 +1189,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                 height: 32,
                                 padding: const EdgeInsets.all(2),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+                                  border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
@@ -1460,9 +1215,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: Colors.indigo.withOpacity(0.1),
+                                          color: Colors.indigo.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: Colors.indigo.withOpacity(0.3)),
+                                          border: Border.all(color: Colors.indigo.withValues(alpha: 0.3)),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -1489,9 +1244,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.teal.withOpacity(0.1),
+                                    color: Colors.teal.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.teal.withOpacity(0.3)),
+                                    border: Border.all(color: Colors.teal.withValues(alpha: 0.3)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -1556,18 +1311,18 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor.withOpacity(0.92),
+                      color: Theme.of(context).cardColor.withValues(alpha: 0.92),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 14, offset: const Offset(0, -2)),
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 14, offset: const Offset(0, -2)),
                       ],
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
                           child: const Icon(Icons.route_rounded, color: AppColors.primary, size: 22),
                         ),
                         const SizedBox(width: 12),
@@ -1591,14 +1346,14 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                     _byCar && _route!.durationInTrafficText != null
                                         ? 'Кептеліспен • ${_route!.distanceText ?? ''} • $arrText'
                                         : '${_route!.distanceText ?? ''} • $arrText',
-                                    style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
+                                    style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6)),
                                   ),
                                   if (_parkingData != null && _byCar) ...[
                                     const SizedBox(height: 8),
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
+                                        color: Colors.blue.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
@@ -1637,9 +1392,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.red.shade900.withOpacity(0.8) : Colors.red.shade50,
+                      ? Colors.red.shade900.withValues(alpha: 0.8) : Colors.red.shade50,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -1676,9 +1431,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)),
+            Icon(icon, size: 14, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5)),
             const SizedBox(width: 3),
-            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5))),
+            Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: active ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5))),
           ],
         ),
       ),
@@ -1692,9 +1447,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         height: 30,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.5),
+          color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
+          border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1719,7 +1474,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           padding: const EdgeInsets.symmetric(vertical: 4),
           shrinkWrap: true,
           itemCount: suggestions.length,
-          separatorBuilder: (_, __) => Divider(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.3)),
+          separatorBuilder: (_, __) => Divider(height: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.3)),
           itemBuilder: (context, i) {
             final p = suggestions[i];
             return InkWell(
@@ -1728,7 +1483,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Row(
                   children: [
-                    Icon(Icons.place_rounded, size: 18, color: AppColors.primary.withOpacity(0.7)),
+                    Icon(Icons.place_rounded, size: 18, color: AppColors.primary.withValues(alpha: 0.7)),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(p.description, style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color), maxLines: 2, overflow: TextOverflow.ellipsis),

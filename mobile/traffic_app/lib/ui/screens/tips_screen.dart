@@ -36,7 +36,7 @@ class _TipsScreenState extends State<TipsScreen> {
     try {
       final items = await api.getRoadSegments(horizon);
       final pHours = await api.getPeakHours();
-      final metrics = await api.getTrafficMetrics(); // Получаем реальный балл для AI-прогноза
+      await api.getTrafficMetrics(); // Получаем реальный балл для AI-прогноза
       
       final clean = items.where((s) => s.points.length >= 2).toList();
       clean.sort((a, b) => (b.value ?? -1).compareTo(a.value ?? -1));

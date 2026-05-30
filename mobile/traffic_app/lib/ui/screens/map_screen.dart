@@ -84,7 +84,7 @@ class _MapScreenState extends State<MapScreen> {
     
     // Shadow
     final Paint shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
     canvas.drawCircle(const Offset(radius, radius + 4), radius - 6, shadowPaint);
 
@@ -124,7 +124,7 @@ class _MapScreenState extends State<MapScreen> {
     
     // Shadow
     final Paint shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
     canvas.drawCircle(Offset(radius, radius + 4), radius - 4, shadowPaint);
 
@@ -1023,7 +1023,7 @@ class _MapScreenState extends State<MapScreen> {
               child: Container(
                 width: 40, height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)),
               ),
             ),
             const Text('Жол оқиғасын хабарлау', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -1062,7 +1062,7 @@ class _MapScreenState extends State<MapScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)],
             ),
             child: Text(emoji, style: const TextStyle(fontSize: 32)),
           ),
