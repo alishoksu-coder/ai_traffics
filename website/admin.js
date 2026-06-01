@@ -108,8 +108,8 @@ async function showDashboard(token) {
       // Group by timestamp to calculate average traffic across all segments
       const timeGroups = {};
       histData.items.forEach(item => {
-        const t = item[1]; // ts
-        const v = item[3]; // value
+        const t = item.ts; // ts
+        const v = item.value; // value
         if(!timeGroups[t]) timeGroups[t] = [];
         timeGroups[t].push(v);
       });
