@@ -178,6 +178,80 @@
             background: #ffffff; border: 1px solid var(--accent-blue);
             padding: 15px 25px; border-radius: 12px; font-weight: 600;
             box-shadow: 0 4px 15px var(--glow-blue); text-align: center; color: var(--text-main);
+            cursor: pointer; transition: all 0.3s ease; position: relative;
+        }
+        .flow-node:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
+        }
+        .flow-node.active-node {
+            border-color: var(--accent-cyan); border-width: 2px;
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+            transform: translateY(-5px) scale(1.05);
+        }
+        .flow-node.active-node::after {
+            content: ''; position: absolute; bottom: -12px; left: 50%;
+            transform: translateX(-50%); width: 0; height: 0;
+            border-left: 10px solid transparent; border-right: 10px solid transparent;
+            border-top: 10px solid var(--accent-cyan);
+        }
+
+        .detail-panel {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, padding 0.4s ease;
+            opacity: 0; padding: 0 30px;
+            background: var(--surface-color); border: 1px solid var(--card-border);
+            border-radius: 16px; margin-top: 20px;
+        }
+        .detail-panel.open {
+            max-height: 400px; opacity: 1; padding: 25px 30px;
+        }
+        .detail-panel h4 {
+            font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 700;
+            margin-bottom: 12px; color: var(--accent-cyan);
+        }
+        .detail-panel .detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .detail-panel .detail-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 12px; background: rgba(2, 132, 199, 0.04);
+            border-radius: 8px; border-left: 3px solid var(--accent-cyan);
+        }
+        .detail-panel .detail-item code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+            background: rgba(37, 99, 235, 0.08); padding: 2px 8px; border-radius: 6px;
+            color: var(--accent-blue); font-weight: 600; white-space: nowrap;
+        }
+        .detail-panel .detail-item span {
+            font-size: 0.95rem; color: var(--text-main);
+        }
+
+        .clickable-card {
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .clickable-card:hover {
+            transform: translateY(-5px); border-color: var(--accent-cyan);
+            box-shadow: 0 12px 35px rgba(2, 132, 199, 0.15);
+        }
+        .clickable-card .click-hint {
+            font-size: 0.75rem; color: var(--accent-cyan); margin-top: 8px;
+            opacity: 0.7; transition: opacity 0.3s;
+        }
+        .clickable-card:hover .click-hint { opacity: 1; }
+        .card-detail-panel {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.4s ease, margin 0.4s ease;
+            opacity: 0; margin-top: 0;
+        }
+        .card-detail-panel.open {
+            max-height: 500px; opacity: 1; margin-top: 15px;
+        }
+        .card-detail-panel .code-snippet {
+            background: #f1f5f9; border-radius: 8px; padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: #334155; border: 1px solid rgba(203, 213, 225, 0.6);
+            line-height: 1.5; white-space: pre-wrap;
         }
         .flow-arrow { color: var(--accent-cyan); font-size: 1.5rem; }
         
@@ -267,12 +341,12 @@
                             <li>Экологиялық және экономикалық шығындар.</li>
                         </ul>
                     </div>
-                    <div class="glass-card fade-up delay-2">
-                        <h3><i class="fa-solid fa-chart-line text-gradient"></i> Ағымдағы әдістердің шектеулері</h3>
+                    <div class="glass-card fade-up delay-2" style="border-left: 4px solid #ef4444;">
+                        <h3><i class="fa-solid fa-code-compare" style="color: #ef4444;"></i> Аналогтардың шектеулері (Yandex, 2GIS)</h3>
                         <ul class="custom-list">
-                            <li>Қолмен талдау және статикалық модельдердің шектеулігі.</li>
-                            <li>Проактивті интеллектуалды мониторинг қажеттілігі.</li>
-                            <li><strong>Data-driven urban mobility</strong> (деректерге негізделген қалалық ұтқырлық) жүйесіне көшу қажеттілігі.</li>
+                            <li><strong>Предиктивті аналитиканың жоқтығы:</strong> тек қазіргі кептелісті көрсетеді, ал біздің жүйе ИИ арқылы 30-60 минут алдын ала болжайды.</li>
+                            <li><strong>Инклюзивтіліктің жоқтығы:</strong> мүгедектер арбасына арналған кедергісіз (Barrier-Free) маршруттар (баспалдақсыз) қарастырылмаған.</li>
+                            <li><strong>Мультимодальдық кемшілігі:</strong> көлік + электросамокат тиімділігін AI арқылы нақты уақытта есептемейді.</li>
                         </ul>
                     </div>
                 </div>
@@ -357,60 +431,166 @@
             </div>
         </section>
 
-        <!-- 6. Архитектура системы -->
+        <!-- 6. Архитектура системы (Interactive) -->
         <section>
             <div class="content-wrapper">
-                <h2 class="fade-up">Жүйе архитектурасы</h2>
+                <h2 class="fade-up">Жүйе архитектурасы <small style="font-size: 0.5em; color: var(--accent-cyan); font-weight: 400;">← элементтерді басыңыз</small></h2>
                 <div class="flow-diagram fade-up delay-1">
-                    <div class="flow-node"><i class="fa-solid fa-satellite-dish"></i><br>Дереккөздер<br><small>(IoT / Traffic API)</small></div>
+                    <div class="flow-node" onclick="toggleArchDetail('datasource')" id="node-datasource"><i class="fa-solid fa-satellite-dish"></i><br>Дереккөздер<br><small>(IoT / Traffic API)</small></div>
                     <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="flow-node" style="border-color: #10b981;"><i class="fa-solid fa-server"></i><br>Backend API<br><small>(Django / DRF)</small></div>
+                    <div class="flow-node" onclick="toggleArchDetail('backend')" id="node-backend" style="border-color: #10b981;"><i class="fa-solid fa-server"></i><br>Backend API<br><small>(FastAPI / DRF)</small></div>
                     <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="flow-node" style="border-color: #3b82f6;"><i class="fa-solid fa-database"></i><br>PostgreSQL<br><small>(Time-Series DB)</small></div>
+                    <div class="flow-node" onclick="toggleArchDetail('database')" id="node-database" style="border-color: #3b82f6;"><i class="fa-solid fa-database"></i><br>PostgreSQL<br><small>(Time-Series DB)</small></div>
                     <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="flow-node" style="border-color: #ef4444;"><i class="fa-solid fa-brain"></i><br>ML Модулі<br><small>(Forecasting)</small></div>
+                    <div class="flow-node" onclick="toggleArchDetail('ml')" id="node-ml" style="border-color: #ef4444;"><i class="fa-solid fa-brain"></i><br>ML Модулі<br><small>(Forecasting)</small></div>
                     <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                    <div class="flow-node" style="border-color: #8b5cf6;"><i class="fa-solid fa-desktop"></i><br>Dashboard<br><small>(City Analyst)</small></div>
+                    <div class="flow-node" onclick="toggleArchDetail('dashboard')" id="node-dashboard" style="border-color: #8b5cf6;"><i class="fa-solid fa-desktop"></i><br>Dashboard<br><small>(City Analyst)</small></div>
                 </div>
-                <div class="glass-card fade-up delay-2" style="margin-top: 30px;">
-                    <ul class="custom-list">
-                        <li><strong>Backend API</strong> деректерді бағыттауды және бизнес-логиканы қамтамасыз етеді.</li>
-                        <li><strong>PostgreSQL</strong> уақыттық қатарлардың (Time-series records) тарихын сенімді сақтайды.</li>
-                        <li><strong>ML-модулі</strong> тарихты асинхронды түрде шығарып, жақын арадағы көкжиекке болжам жасайды.</li>
-                        <li><strong>Dashboard</strong> соңғы пайдаланушы үшін аналитиканы визуалдайды.</li>
-                    </ul>
+
+                <!-- Detail panels for each node -->
+                <div class="detail-panel fade-up delay-2" id="detail-datasource">
+                    <h4><i class="fa-solid fa-satellite-dish"></i> Дереккөздер — IoT & Traffic API</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><code>simulate.py</code><span>TrafficSimulator — 25+ Астана нүктесінен тірі деректер генерациясы, rush-hour факторлары (7-9: ×2.5, 17-19: ×3.0)</span></div>
+                        <div class="detail-item"><code>weather.py</code><span>OpenWeatherMap API арқылы ауа райы факторын алу, traffic_factor есептеу</span></div>
+                        <div class="detail-item"><code>seed.py</code><span>Астана қаласының 25 нүктесі + жол сегменттері + 20K тарихи жазба seed</span></div>
+                        <div class="detail-item"><code>vehicles.py</code><span>VehicleSimulator — нақты уақытта 40+ көлік қозғалысын имитациялау</span></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel fade-up delay-2" id="detail-backend">
+                    <h4><i class="fa-solid fa-server"></i> Backend API — FastAPI + 20+ Endpoint</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><code>/traffic/map</code><span>Нақты уақытта карта деректері (horizon: 0/30/60 мин), overall_points (0-10 балл)</span></div>
+                        <div class="detail-item"><code>/traffic/accuracy</code><span>MAE/RMSE метрикаларын есептеу — Naive, Moving Avg, Trend LR модельдерін салыстыру</span></div>
+                        <div class="detail-item"><code>/traffic/recommendation</code><span>AI маршрут кеңесі: EMA, аномалияны анықтау, ауа райы факторы ескерілген</span></div>
+                        <div class="detail-item"><code>/routes/calculate</code><span>Мультикритериялық маршрут: car_fast, anti_stress, multimodal режимдері</span></div>
+                        <div class="detail-item"><code>/parking</code><span>Smart Parking: AI болжамына сәйкес бос орындар саны (trend_factor)</span></div>
+                        <div class="detail-item"><code>/admin/dashboard</code><span>JWT аутентификация, locations/segments/friends/vehicles статистикасы</span></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel fade-up delay-2" id="detail-database">
+                    <h4><i class="fa-solid fa-database"></i> PostgreSQL — Time-Series Architecture</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><code>locations</code><span>Астана қаласының 25 мониторинг нүктесі (lat, lon, name), ID → бірегей координат</span></div>
+                        <div class="detail-item"><code>traffic_values</code><span>Уақыттық қатарлар: location_id + ts + value (0-100) + weather_factor, минутына 1 жазба</span></div>
+                        <div class="detail-item"><code>road_segments</code><span>Жол сегменттері: polyline (JSON координаттар), location_id байланысы</span></div>
+                        <div class="detail-item"><code>model_metrics</code><span>ML модельдерінің MAE/RMSE метрикалары: model_name, horizon, n, ts уақыт белгісімен</span></div>
+                        <div class="detail-item"><code>admin_users</code><span>JWT аутентификация үшін хэштелген парольдер (bcrypt)</span></div>
+                        <div class="detail-item"><code>user_events</code><span>Crowdsource: пайдаланушылар хабарлаған ЖКО, жөндеу, іс-шаралар</span></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel fade-up delay-2" id="detail-ml">
+                    <h4><i class="fa-solid fa-brain"></i> ML Модулі — 5 модель, нақты PyTorch LSTM</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><code>lstm_engine.py</code><span>LSTMModel(nn.Module): input_size=1, hidden_size=64, num_layers=2, dropout=0.2, Adam optimizer</span></div>
+                        <div class="detail-item"><code>predict.py</code><span>predict_naive(), predict_moving_avg(k=5), predict_ema(α=0.4), predict_trend_lr(k=10)</span></div>
+                        <div class="detail-item"><code>mae_rmse()</code><span>Қатаң метрика: MAE=1.54 (MA, 30min), RMSE=2.95 — ең жақсы baseline нәтиже</span></div>
+                        <div class="detail-item"><code>detect_anomaly()</code><span>Соңғы 10 нүктені талдау: sudden_spike > 25, critical > 70%, auto-wait 25-60 мин</span></div>
+                        <div class="detail-item"><code>ai_worker.py</code><span>Background ML worker: LSTM-ді автоматты оқыту, periodic retraining, model_metrics жазу</span></div>
+                        <div class="detail-item"><code>lookback=12</code><span>LSTM 12 уақыттық терезе, batch_size=64, epochs=20, MSELoss, val clamp [0, 100]</span></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel fade-up delay-2" id="detail-dashboard">
+                    <h4><i class="fa-solid fa-desktop"></i> Dashboard — Аналитик Интерфейсі</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item"><code>Leaflet.js</code><span>Интерактивті карта: жол сегменттері polyline, жүктеме бойынша түсі (жасыл → қызыл)</span></div>
+                        <div class="detail-item"><code>Chart.js</code><span>Трафик тарихының графиктері, 30/60 минутқа болжау визуализациясы</span></div>
+                        <div class="detail-item"><code>AR Points</code><span>/traffic/ar_points — congestion > 50% болған нүктелер, AR визуализация координаттары</span></div>
+                        <div class="detail-item"><code>Alerts</code><span>Автоматты ескертулер: аномалия → critical/warning, ДТП, час пик ескертуі</span></div>
+                        <div class="detail-item"><code>Vehicles</code><span>40+ көлік маркерлері нақты уақытта жаңартылады (2 сек интервал)</span></div>
+                        <div class="detail-item"><code>Digital Twin</code><span>What-If Engine: /traffic/simulate_closure — жолды жабу симуляциясы</span></div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 7. Стек технологий -->
+        <!-- 7. Стек технологий (Interactive) -->
         <section>
             <div class="content-wrapper">
-                <h2 class="fade-up">Технологиялық стек</h2>
-                <div class="grid-3 fade-up delay-1">
-                    <div class="glass-card">
+                <h2 class="fade-up">Технологиялық стек <small style="font-size: 0.5em; color: var(--accent-cyan); font-weight: 400;">← басып толық ақпаратты көріңіз</small></h2>
+                <div class="grid-3 fade-up delay-1" style="align-items: start;">
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-backend')">
                         <h3><i class="fa-brands fa-python"></i> Backend</h3>
-                        <p>Django, Django REST Framework, Gunicorn, Nginx</p>
+                        <p>FastAPI, Python 3, Uvicorn</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-backend">
+                            <div class="code-snippet">app = FastAPI(title="AI Traffic")
+# Фоновый AI-Worker каждые 45 секунд
+# Интеграция с wttr.in (погода)
+# Маршрутизация: алгоритм A* (А-жұлдыз)
+# Мультимодальный анализ: авто vs самокат
+# Эндпоинттер: /vehicles, /routes, /parking</div>
+                        </div>
                     </div>
-                    <div class="glass-card">
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-db')">
                         <h3><i class="fa-solid fa-database"></i> Деректер базасы</h3>
-                        <p>PostgreSQL, Psycopg2, Time-series optimization</p>
+                        <p>Supabase (PostgreSQL), SQLite</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-db">
+                            <div class="code-snippet">-- Supabase (Бұлтты PostgreSQL)
+1. Авторизация (Auth & Row Level Security)
+2. Әлеуметтік граф: Friends кестесі
+3. Нақты уақыт: Push-хабарламалар (Alerts)
+
+-- Локальная SQLite
+Цифрлық егіздің (Digital Twin) кэші</div>
+                        </div>
                     </div>
-                    <div class="glass-card">
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-ml')">
                         <h3><i class="fa-solid fa-network-wired"></i> ML Фреймворктер</h3>
-                        <p>PyTorch, scikit-learn, Pandas, NumPy</p>
+                        <p>PyTorch, scikit-learn, Pandas</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-ml">
+                            <div class="code-snippet"># PyTorch (Глубокое обучение)
+import torch.nn as nn
+# Scikit-learn (Машиналық оқыту)
+from sklearn.ensemble import RandomForestRegressor
+# Pandas & NumPy
+Деректерді тазарту (Feature Engineering)
+және Sliding Window матрицаларын құру</div>
+                        </div>
                     </div>
-                    <div class="glass-card">
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-models')">
                         <h3><i class="fa-solid fa-microchip"></i> ML Модельдері</h3>
-                        <p>LSTM, Random Forest, Moving Average, Naive, Linear Reg.</p>
+                        <p>LSTM, Random Forest, EMA</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-models">
+                            <div class="code-snippet"># 1. Глубокое обучение: LSTM
+(2 скрытых слоя по 64 нейрона, MSELoss)
+# 2. Ансамблевая модель: Random Forest
+(50 деревьев, мультифакторный анализ)
+# 3. Базалық статистика: EMA (α=0.3)
+Ағымдағы трендтерге лезде реакция жасау</div>
+                        </div>
                     </div>
-                    <div class="glass-card">
-                        <h3><i class="fa-brands fa-html5"></i> Frontend / UI</h3>
-                        <p>HTML5, CSS3, JavaScript, React, Chart.js / Leaflet</p>
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-front')">
+                        <h3><i class="fa-brands fa-flutter" style="color: #0ea5e9;"></i> Frontend (Mobile)</h3>
+                        <p>Flutter, Dart, BLoC / Provider</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-front">
+                            <div class="code-snippet">// Flutter Мобильді қосымшасы
+1. Кроссплатформа (iOS + Android)
+2. Интерактивті карта: Custom Heatmaps
+3. Кедергісіз бағдар (Barrier-Free AI)
+4. Достардың геопозициясын көру
+5. Толық асинхронды REST API байланысы</div>
+                        </div>
                     </div>
-                    <div class="glass-card">
-                        <h3><i class="fa-solid fa-table"></i> Деректер</h3>
-                        <p>Трафиктің тарихи жазбалары, Time-series traffic records</p>
+                    <div class="glass-card clickable-card" onclick="toggleTechDetail('tech-data')">
+                        <h3><i class="fa-solid fa-cloud"></i> Сыртқы API</h3>
+                        <p>2GIS, Yandex, wttr.in</p>
+                        <div class="click-hint"><i class="fa-solid fa-hand-pointer"></i> толығырақ</div>
+                        <div class="card-detail-panel" id="tech-data">
+                            <div class="code-snippet"># Сыртқы дереккөздер интеграциясы
+1. 2GIS / Yandex: Геометрия және ағымдағы
+кептелістерді тексеру (Baseline)
+2. OpenWeatherMap / wttr.in: Ауа райы:
+Ашық аспан=1.0 | Жаңбыр=1.4 | Қар=1.9</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -845,6 +1025,30 @@
             if (e.deltaY > 50) goToSlide(currentSlide + 1);
             else if (e.deltaY < -50) goToSlide(currentSlide - 1);
         }, { passive: true });
+
+        function toggleArchDetail(id) {
+            document.querySelectorAll('.flow-node').forEach(node => node.classList.remove('active-node'));
+            document.querySelectorAll('.detail-panel').forEach(panel => panel.classList.remove('open'));
+            
+            const activeNode = document.getElementById('node-' + id);
+            if (activeNode) activeNode.classList.add('active-node');
+            
+            const targetPanel = document.getElementById('detail-' + id);
+            if (targetPanel) targetPanel.classList.add('open');
+        }
+
+        function toggleTechDetail(id) {
+            if (window.event) window.event.stopPropagation();
+            const panel = document.getElementById(id);
+            if (!panel) return;
+            const isOpen = panel.classList.contains('open');
+            
+            document.querySelectorAll('.card-detail-panel').forEach(p => p.classList.remove('open'));
+            
+            if (!isOpen) {
+                panel.classList.add('open');
+            }
+        }
 
         setTimeout(() => updateUI(), 100);
     </script>

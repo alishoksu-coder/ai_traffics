@@ -154,14 +154,13 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```powershell
 # 1. Убедитесь что Flutter SDK и Android SDK установлены
 # 2. Подключите телефон по USB (включите USB Debugging)
-# 3. Настройте IP-адрес сервера:
-
-# Откройте mobile/traffic_app/lib/config.dart
-# Установите: baseUrl = "http://<ваш_IP>:8000"
+# 3. Настройте конфигурацию (API_BASE_URL и GOOGLE_MAPS_API_KEY) через --dart-define.
 
 cd mobile/traffic_app
 flutter pub get
-flutter run
+
+# Запуск с вашим Google Maps ключом и локальным API:
+flutter run --dart-define=GOOGLE_MAPS_API_KEY=your_key_here --dart-define=API_BASE_URL=http://10.0.2.2:8000
 ```
 
 ### API Документация

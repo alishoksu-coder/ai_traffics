@@ -4,6 +4,7 @@ import json
 import asyncio
 from contextlib import asynccontextmanager
 
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, Query, Header, HTTPException
 from pydantic import BaseModel
 
@@ -217,7 +218,7 @@ def traffic_map(horizon: int = Query(0, ge=0, le=60)):
         weighted = avg_val / 10.0 # переводим в 0-10
         
     # Округляем вверх, если есть хоть какой-то трафик > 1%, чтобы не было 0 при наличии машин
-    score = int(round(weighted))
+    score = round(weighted)
     if weighted > 0.1 and score == 0:
         score = 1
 
@@ -414,7 +415,7 @@ def traffic_metrics_ui():
     
     # Считаем среднее по всем точкам города
     avg_val = sum(it.get('value', 0.0) for it in items) / len(items)
-    score = int(round(avg_val / 10.0))
+    score = round(avg_val / 10.0)
     if avg_val > 1.0 and score == 0:
         score = 1
     score = max(0, min(10, score))
@@ -684,6 +685,8 @@ def admin_register(req: LoginRequest):
         
         # Сразу возвращаем токен авторизации
         user_new = get_admin_by_login(conn, req.login)
+        if not user_new:
+            raise HTTPException(status_code=500, detail="Тіркелу қатесі (Registration error)")
         token = create_admin_token(int(user_new["id"]))
         return {"token": token, "message": "Тіркелу сәтті аяқталды"}
     finally:
@@ -729,7 +732,7 @@ def admin_dashboard(authorization: str = Header(None)):
             "sim_running": sim.is_running(),
             "hotspots": sim.hotspots_count(),
             "avg_traffic_value": round(avg_val, 1),
-            "traffic_score": max(1, int(round(avg_val / 10.0))) if items else 0,
+            "traffic_score": max(1, round(avg_val / 10.0)) if items else 0,
             "vehicles_count": len(veh_sim.snapshot()),
         }
     finally:

@@ -11,37 +11,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Inter:wght@400;500;700;900&family=JetBrains+Mono&display=swap');
 
         :root {
-            --primary-text: #0f172a;
-            --secondary-text: #475569;
-            --bg-color: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            --accent-blue: #2563eb;
-            --accent-purple: #7c3aed;
-            --border-color: #e2e8f0;
-            --glow-color: rgba(37, 99, 235, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            --bg: #020817;
+            --p: #0f172a;
+            --primary-text: #e5edf8;
+            --secondary-text: #94a3b8;
+            --accent-blue: #22d3ee;
+            --accent-purple: #8b5cf6;
+            --accent-green: #34d399;
+            --accent-yellow: #fbbf24;
+            --accent-red: #fb7185;
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --surface-bg: rgba(2, 8, 23, 0.7);
+            --border-color: rgba(51, 65, 85, 0.6);
+            --glow-color: rgba(34, 211, 238, 0.15);
+            --accent-gradient: linear-gradient(90deg, #fff, var(--accent-blue), var(--accent-purple));
+            --shadow-lg: 0 24px 90px rgba(0, 0, 0, 0.4);
             --radius-lg: 32px;
             --radius-md: 20px;
         }
 
         .reveal .reveal-viewport,
         .reveal {
-            background: var(--bg-color);
+            background: var(--bg);
             background-image:
-                radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.1), transparent 80%),
-                radial-gradient(circle at 10% 100%, rgba(59, 130, 246, 0.05), transparent 50%),
-                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+                radial-gradient(circle at 10% 0%, rgba(22, 78, 99, 0.13), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(109, 40, 217, 0.13), transparent 35%);
+            background-color: var(--bg);
         }
 
         .reveal .slides {
             font-family: 'Inter', sans-serif;
-            color: var(--primary-text);
+            
         }
 
         .reveal h1,
@@ -50,7 +53,7 @@
         .reveal h4 {
             font-family: 'Outfit', sans-serif;
             text-transform: none;
-            color: var(--primary-text);
+            
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.01em;
@@ -59,6 +62,7 @@
         .reveal h1 {
             font-size: 3em;
             line-height: 1.1;
+            font-weight: 900;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -78,7 +82,7 @@
             left: 0;
             width: 80px;
             height: 6px;
-            background: var(--accent-gradient);
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
             border-radius: 10px;
         }
 
@@ -92,7 +96,7 @@
         }
 
         .reveal strong {
-            color: var(--primary-text);
+            
             font-weight: 600;
         }
 
@@ -115,441 +119,126 @@
             left: 0;
             top: 4px;
             font-size: 0.7em;
-            color: white;
-            background: var(--accent-gradient);
+            color: #020817;
+            background: var(--accent-blue);
             width: 26px;
             height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-        }
-
-        
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(30px); }
-            100% { opacity: 1; transform: translateY(0); }
+            box-shadow: 0 4px 15px rgba(34, 211, 238, 0.4);
         }
 
         .slide-card {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            background: rgba(255, 255, 255, 0.85) !important;
+            background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(15,23,42,0.5)) !important;
             backdrop-filter: blur(25px) !important;
             -webkit-backdrop-filter: blur(25px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
-
-            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
             border-radius: var(--radius-lg);
             padding: 60px;
-            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
             width: 95%;
             margin: 0 auto;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(15, 23, 42, 0.05);
+            
         }
 
-        
-            background: rgba(255, 255, 255, 0.95);
+        .info-box {
+            background: var(--card-bg) !important;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid var(--border-color) !important;
             border-radius: var(--radius-md);
             padding: 24px;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            color: var(--primary-text) !important;
         }
 
         .info-box:hover {
-            border-color: #3b82f6;
+            border-color: var(--accent-blue) !important;
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255,255,255,1);
-        {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 0 40px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-        .info-box:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Responsiveness */
-        @media screen and (max-width: 800px) {
-            .reveal h1 {
-                font-size: 1.5em !important;
-            }
-
-            .reveal h2 {
-                font-size: 1.2em !important;
-                margin-bottom: 20px !important;
-            }
-
-            .slide-card {
-                padding: 25px !important;
-                width: 98% !important;
-            }
-
-            .content-grid,
-            [style*="display: grid"] {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
-            }
-
-            [style*="display: flex"] {
-                flex-direction: column !important;
-                align-items: center !important;
-                gap: 15px !important;
-            }
-
-            .info-box {
-                padding: 15px !important;
-            }
-
-            .modern-table {
-                font-size: 0.5em !important;
-            }
-
-            .reveal p,
-            .reveal ul,
-            .reveal ol {
-                font-size: 0.7em !important;
-            }
-        }
-
-        .arch-diagram {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            font-size: 0.7em;
-            width: 100%;
-        }
-
-        .arch-group {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.02);
-            position: relative;
-        }
-
-        .arch-title {
-            position: absolute;
-            top: -14px;
-            left: 24px;
-            background: var(--accent-gradient);
-            padding: 5px 18px;
-            color: #020617;
-            font-size: 0.85em;
-            border-radius: 30px;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
-        }
-
-        .arch-box {
-            border: 1px solid var(--border-color);
-            background: rgba(15, 23, 42, 0.5);
-            padding: 18px;
-            border-radius: 12px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: var(--primary-text);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: all 0.25s ease;
-        }
-
-        .arch-box i {
-            font-size: 2.4em;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 10px rgba(34, 211, 238, 0.2));
-        }
-
-        .arch-box.interactive:hover {
-            border-color: var(--accent-blue);
-            background: rgba(34, 211, 238, 0.05);
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
-            transform: translateY(-4px);
-        }
-
-        .arch-box.active-selected {
-            border-color: var(--accent-blue);
-            background: rgba(34, 211, 238, 0.1);
-            box-shadow: 0 0 25px rgba(34, 211, 238, 0.25), inset 0 0 0 1px var(--accent-blue);
-        }
-
-        .arch-details-panel {
-            margin-top: 30px;
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--accent-purple);
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            min-height: 100px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 5px solid var(--accent-purple);
-        }
-
-        .arch-details-panel.highlighted {
-            background: rgba(34, 211, 238, 0.05);
-            border-left-color: var(--accent-blue);
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1);
+        .glow {
+            border-color: rgba(34, 211, 238, 0.4) !important;
+            box-shadow: 0 0 60px rgba(34, 211, 238, 0.15) !important;
         }
 
         .badge {
             display: inline-block;
             padding: 8px 16px;
-            background: rgba(34, 211, 238, 0.1);
-            color: var(--accent-blue);
+            background: rgba(34, 211, 238, 0.1) !important;
+            color: var(--accent-blue) !important;
             border-radius: 30px;
             font-weight: 600;
             font-size: 0.75em;
-            border: 1px solid rgba(34, 211, 238, 0.2);
+            border: 1px solid rgba(34, 211, 238, 0.2) !important;
             text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
         }
 
         .modern-table td {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(15, 23, 42, 0.6) !important;
             padding: 18px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-color) !important;
             color: var(--secondary-text);
         }
 
         .modern-table tr td:first-child {
-            color: var(--primary-text);
-        }
-
-        .formula-box {
-            background: #020617;
-            color: var(--accent-blue);
-            font-family: 'JetBrains Mono', monospace;
-            padding: 30px;
-            border-radius: var(--radius-md);
-            font-size: 1.4em;
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            box-shadow: 0 0 40px rgba(34, 211, 238, 0.1);
-            text-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
-        }
-
-        .tech-badges span {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: var(--primary-text);
-            padding: 10px 20px;
-        }
-
-        .speaker-badge {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            font-weight: 700;
         }
 
         .reveal .progress {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 6;
         }
 
         .reveal .progress span {
-            background: var(--accent-gradient);
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), #f472b6);
             box-shadow: 0 0 10px var(--accent-blue);
         }
-
-        /* Responsive Improvements */
-        @media screen and (max-width: 800px) {
-            .reveal h1 {
-                font-size: 1.6em !important;
-            }
-
-            .reveal h2 {
-                font-size: 1.2em !important;
-                margin-bottom: 20px !important;
-            }
-
-            .slide-card {
-                padding: 25px 15px !important;
-                width: 98% !important;
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
-            }
-
-            .arch-row {
-                flex-direction: column !important;
-                gap: 30px !important;
-                align-items: center !important;
-            }
-
-            .arch-group {
-                width: 100% !important;
-                flex: none !important;
-            }
-
-            .arrow-right {
-                transform: rotate(90deg);
-                margin: 10px 0;
-            }
-
-            .tech-badges span {
-                font-size: 0.7em !important;
-                padding: 6px 10px !important;
-            }
-
-            .modern-table {
-                font-size: 0.65em !important;
-            }
-
-            .modern-table td,
-            .modern-table th {
-                padding: 8px !important;
-            }
-
-            .arch-box {
-                width: 100% !important;
-                padding: 12px !important;
-            }
-
-            .arch-details-panel {
-                padding: 15px !important;
-                min-height: 120px !important;
-            }
+        
+        .grad {
+            background: linear-gradient(90deg, #fff, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        
+        /* Interactive Arch components */
+        .arch-box {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-color: var(--border-color) !important;
+            color: var(--primary-text) !important;
+        }
+        
+        .arch-box i {
+            background: var(--accent-gradient) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        
+        .arch-title {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)) !important;
+            color: #fff !important;
+        }
+        
+        /* Map dots adjustments */
+        .traffic-map-overlay .dot {
+            box-shadow: 0 0 15px currentColor !important;
         }
 
-        .active-selected {
-            animation: pulse-glow 2s infinite;
+        /* SVG Overrides */
+        svg text {
+            fill: var(--secondary-text) !important;
+        }
+        svg path, svg line, svg polyline {
+            stroke: var(--accent-blue) !important;
         }
 
-        @keyframes pulse-glow {
-            0% {
-                box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 0 1px var(--accent-blue);
-            }
-
-            50% {
-                box-shadow: 0 0 30px rgba(34, 211, 238, 0.4), inset 0 0 0 2px var(--accent-blue);
-            }
-
-            100% {
-                box-shadow: 0 0 15px rgba(34, 211, 238, 0.2), inset 0 0 0 1px var(--accent-blue);
-            }
-        }
-
-        @keyframes shimmer {
-            0% {
-                left: -100%;
-            }
-
-            100% {
-                left: 200%;
-            }
-        }
-
-        .glowing-btn {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: pulse-glow-btn 2s infinite;
-        }
-
-        .glowing-btn:hover {
-            transform: scale(1.3);
-            filter: brightness(1.2);
-        }
-
-        @keyframes pulse-glow-btn {
-            0% {
-                filter: drop-shadow(0 0 5px rgba(37, 99, 235, 0.4));
-            }
-
-            50% {
-                filter: drop-shadow(0 0 15px rgba(37, 99, 235, 0.9));
-            }
-
-            100% {
-                filter: drop-shadow(0 0 5px rgba(37, 99, 235, 0.4));
-            }
-        }
-
-        .glowing-dot-purple {
-            animation: pulse-glow-purple 2s infinite;
-        }
-
-        @keyframes pulse-glow-purple {
-            0% {
-                filter: drop-shadow(0 0 5px rgba(124, 58, 237, 0.4));
-            }
-
-            50% {
-                filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.9));
-            }
-
-            100% {
-                filter: drop-shadow(0 0 5px rgba(124, 58, 237, 0.4));
-            }
-        }
-
-        .interactive-row {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .interactive-row:hover {
-            background: rgba(37, 99, 235, 0.03) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1) !important;
-        }
-
-        .interactive-row.active {
-            border: 2px solid var(--accent-blue) !important;
-        }
-
-        .glowing-row {
-            animation: glow-row 2.5s infinite;
-        }
-
-        @keyframes glow-row {
-            0% {
-                box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
-            }
-
-            50% {
-                box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
-            }
-
-            100% {
-                box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-color);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(34, 211, 238, 0.3);
-        }
     </style>
 </head>
 
@@ -560,7 +249,7 @@
 
             <!-- 1. Титульный слайд -->
             <section>
-                <div class="slide-card" style="text-align: center; padding: 60px 40px; background: white;">
+                <div class="slide-card" style="text-align: center; padding: 60px 40px; ">
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
                         <div style="text-align: left;">
@@ -568,7 +257,7 @@
                                 style="background: var(--eff6ff); color: var(--accent-blue); border-color: rgba(37, 99, 235, 0.2);">Дипломдық
                                 жоба</span>
                             <span class="badge"
-                                style="background: #f8fafc; color: #64748b; border-color: #e2e8f0; margin-left: 10px;">2026
+                                style=" color: var(--secondary-text); border-color: #e2e8f0; margin-left: 10px;">2026
                                 Жыл</span>
                         </div>
                         <div style="display: flex; gap: 25px; align-items: center;">
@@ -579,9 +268,9 @@
                                     alishoksu-coder.github.io/ai_traffics/</div>
                             </div>
                             <div
-                                style="background: white; padding: 12px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+                                style=" padding: 12px; border-radius: 16px; box-shadow: var(--shadow-lg); ">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alishoksu-coder.github.io/ai_traffics/"
-                                    style="margin: 0; width: 150px; height: 150px; display: block;">
+                                    style="margin: 0; width: 150px; height: 150px; display: block; filter: invert(1) hue-rotate(180deg); opacity: 0.8;">
                             </div>
                         </div>
                     </div>
@@ -591,18 +280,18 @@
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
                         <div
-                            style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                            style="display: flex; align-items: center; gap: 15px;  padding: 15px 20px; border-radius: 16px; ">
                             <div
-                                style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                style="width: 40px; height: 40px;  border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                 <i class="fa-solid fa-microchip" style="color: var(--accent-blue);"></i>
                             </div>
                             <span style="font-size: 0.85em; text-align: left; font-weight: 500;">Нейрондық желілер мен
                                 Big Data талдауын қолдану</span>
                         </div>
                         <div
-                            style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 15px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                            style="display: flex; align-items: center; gap: 15px;  padding: 15px 20px; border-radius: 16px; ">
                             <div
-                                style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                style="width: 40px; height: 40px;  border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                 <i class="fa-solid fa-satellite-dish" style="color: var(--accent-purple);"></i>
                             </div>
                             <span style="font-size: 0.85em; text-align: left; font-weight: 500;">Нақты уақыттағы IoT
@@ -611,12 +300,12 @@
                     </div>
 
                     <div
-                        style="display: flex; gap: 40px; margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 30px;">
+                        style="display: flex; gap: 40px; margin-top: 50px;  padding-top: 30px;">
                         <div>
                             <span
                                 style="font-size: 0.7em; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px;">Студент</span>
                             <div
-                                style="font-weight: 700; font-size: 1.1em; color: var(--primary-text); margin-top: 5px;">
+                                style="font-weight: 700; font-size: 1.1em;  margin-top: 5px;">
                                 Сулейменов АЛИШЕР</div>
                         </div>
                         <div>
@@ -624,7 +313,7 @@
                                 style="font-size: 0.7em; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px;">Ғылыми
                                 жетекші</span>
                             <div
-                                style="font-weight: 700; font-size: 1.1em; color: var(--primary-text); margin-top: 5px;">
+                                style="font-weight: 700; font-size: 1.1em;  margin-top: 5px;">
                                 Кусаинова Айнур</div>
                         </div>
                     </div>
@@ -653,8 +342,8 @@
                                 </div>
                             </div>
                             <div class="info-box"
-                                style="background: #eff6ff; border-left: 4px solid var(--accent-blue);">
-                                <p style="font-size: 0.85em; margin: 0; color: var(--primary-text);">
+                                style=" border-left: 4px solid var(--accent-blue);">
+                                <p style="font-size: 0.85em; margin: 0; ">
                                     <i class="fa-solid fa-car-side"
                                         style="margin-right: 10px; color: var(--accent-blue);"></i>
                                     Қазақстанда <strong>6.8 млн</strong> автомобиль тіркелген (2025 ж. - өсім 21.6%).
@@ -714,8 +403,8 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px;">
                         <!-- Problem 1 -->
                         <div class="info-box"
-                            style="border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.02);">
-                            <h4 style="font-size: 1em; color: #b91c1c;"><i class="fa-solid fa-clock-rotate-left"></i>
+                            style="border-left: 5px solid var(--accent-red); background: rgba(239, 68, 68, 0.02);">
+                            <h4 style="font-size: 1em; color: var(--accent-red);"><i class="fa-solid fa-clock-rotate-left"></i>
                                 Прогноз тапшылығы</h4>
                             <p style="font-size: 0.8em; line-height: 1.5; margin: 0;">Қазақстандағы навигаторлар тек
                                 қазіргі жағдайды көрсетеді. Біздің AI <strong>келесі 60 минутты</strong> болжап, таңғы
@@ -723,8 +412,8 @@
                         </div>
                         <!-- Problem 2 -->
                         <div class="info-box"
-                            style="border-left: 5px solid #f59e0b; background: rgba(245, 158, 11, 0.02);">
-                            <h4 style="font-size: 1em; color: #b45309;"><i class="fa-solid fa-wheelchair"></i>
+                            style="border-left: 5px solid var(--accent-yellow); background: rgba(245, 158, 11, 0.02);">
+                            <h4 style="font-size: 1em; color: var(--accent-yellow);"><i class="fa-solid fa-wheelchair"></i>
                                 Инклюзивтілік (Кедергісіз орта)</h4>
                             <p style="font-size: 0.8em; line-height: 1.5; margin: 0;">Қалалық инфрақұрылымдағы
                                 кедергілерді (баспалдақ, жол жөндеу) ескермейтін карталар көп. Біз
@@ -732,8 +421,8 @@
                         </div>
                         <!-- Problem 3 -->
                         <div class="info-box"
-                            style="border-left: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.02);">
-                            <h4 style="font-size: 1em; color: #1d4ed8;"><i class="fa-solid fa-triangle-exclamation"></i>
+                            style="border-left: 5px solid var(--accent-blue); background: rgba(59, 130, 246, 0.02);">
+                            <h4 style="font-size: 1em; color: var(--accent-blue);"><i class="fa-solid fa-triangle-exclamation"></i>
                                 Жол апаты мен аномалиялар</h4>
                             <p style="font-size: 0.8em; line-height: 1.5; margin: 0;">Мегаполистердегі жол апаттарын
                                 (ДТП) жедел анықтау қиын. <strong>Z-Score</strong> арқылы біз қалалық диспетчерлік
@@ -741,8 +430,8 @@
                         </div>
                         <!-- Problem 4 -->
                         <div class="info-box"
-                            style="border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.02);">
-                            <h4 style="font-size: 1em; color: #047857;"><i class="fa-solid fa-snowflake"></i> Климаттық
+                            style="border-left: 5px solid var(--accent-green); background: rgba(16, 185, 129, 0.02);">
+                            <h4 style="font-size: 1em; color: var(--accent-green);"><i class="fa-solid fa-snowflake"></i> Климаттық
                                 факторлар</h4>
                             <p style="font-size: 0.8em; line-height: 1.5; margin: 0;">Астананың аязы мен Алматының
                                 нөсері трафикке тікелей әсер етеді. Біз бұл <strong>метео-деректерді</strong> AI
@@ -757,9 +446,9 @@
                 <div class="slide-card" style="text-align: center; padding: 60px 40px;">
                     <h2>2. Жұмыс мақсаты</h2>
                     <div
-                        style="background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px;">
+                        style=" padding: 40px; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px;">
                         <h3
-                            style="line-height: 1.6; font-size: 1.2em; font-weight: 600; color: var(--primary-text); max-width: 900px; margin: 0 auto; text-align: center;">
+                            style="line-height: 1.6; font-size: 1.2em; font-weight: 600;  max-width: 900px; margin: 0 auto; text-align: center;">
                             LSTM нейрондық желілік архитектурасы негізінде қалалық трафикті нақты уақыт режимінде <span
                                 style="color: var(--accent-blue);">мониторингтеуге</span> және көлік кептелісін <span
                                 style="color: var(--accent-purple);">алдын ала болжауға</span> мүмкіндік беретін кешенді
@@ -810,7 +499,7 @@
                             <i class="fa-solid fa-road"
                                 style="font-size: 3em; color: var(--accent-blue); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 15px;">Зерттеу нысаны</h4>
-                            <p style="text-align: center; color: var(--primary-text);">Қалалық ортадағы көлік ағындары
+                            <p style="text-align: center; ">Қалалық ортадағы көлік ағындары
                                 және олардың инфрақұрылымы
                                 (жол қозғалысы динамикасы).</p>
                         </div>
@@ -819,7 +508,7 @@
                             <i class="fa-solid fa-robot"
                                 style="font-size: 3em; color: var(--accent-purple); margin-bottom: 15px;"></i>
                             <h4 style="margin-bottom: 15px;">Зерттеу пәні</h4>
-                            <p style="text-align: center; color: var(--primary-text);">Трафикті талдауға, модельдеуге
+                            <p style="text-align: center; ">Трафикті талдауға, модельдеуге
                                 және болжауға арналған жасанды
                                 интеллект алгоритмдері (ML).</p>
                         </div>
@@ -927,11 +616,11 @@
                             <div style="margin-bottom: 25px;">
                                 <div
                                     style="display: flex; justify-content: space-between; font-size: 1.2em; margin-bottom: 10px;">
-                                    <span style="font-weight: bold; color: #334155;">2GIS (Доминант)</span>
-                                    <span style="font-weight: bold; color: #10b981;">73%</span>
+                                    <span style="font-weight: bold; color: var(--secondary-text);">2GIS (Доминант)</span>
+                                    <span style="font-weight: bold; color: var(--accent-green);">73%</span>
                                 </div>
                                 <div
-                                    style="width: 100%; height: 25px; background: #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden;">
                                     <div
                                         style="width: 73%; height: 100%; background: linear-gradient(90deg, #34d399, #10b981); border-radius: 12px; box-shadow: 0 0 10px rgba(16,185,129,0.5);">
                                     </div>
@@ -942,11 +631,11 @@
                             <div style="margin-bottom: 25px;">
                                 <div
                                     style="display: flex; justify-content: space-between; font-size: 1.2em; margin-bottom: 10px;">
-                                    <span style="font-weight: bold; color: #334155;">Google</span>
+                                    <span style="font-weight: bold; color: var(--secondary-text);">Google</span>
                                     <span style="font-weight: bold; color: #3b82f6;">24%</span>
                                 </div>
                                 <div
-                                    style="width: 100%; height: 25px; background: #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden;">
                                     <div
                                         style="width: 24%; height: 100%; background: linear-gradient(90deg, #60a5fa, #3b82f6); border-radius: 12px;">
                                     </div>
@@ -957,11 +646,11 @@
                             <div>
                                 <div
                                     style="display: flex; justify-content: space-between; font-size: 1.2em; margin-bottom: 10px;">
-                                    <span style="font-weight: bold; color: #334155;">Яндекс</span>
-                                    <span style="font-weight: bold; color: #ef4444;">3%</span>
+                                    <span style="font-weight: bold; color: var(--secondary-text);">Яндекс</span>
+                                    <span style="font-weight: bold; color: var(--accent-red);">3%</span>
                                 </div>
                                 <div
-                                    style="width: 100%; height: 25px; background: #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                    style="width: 100%; height: 25px; background: rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden;">
                                     <div
                                         style="width: 3%; height: 100%; background: linear-gradient(90deg, #f87171, #ef4444); border-radius: 12px;">
                                     </div>
@@ -981,31 +670,31 @@
                             <div style="display: flex; flex-direction: column; gap: 20px;">
                                 <!-- Yandex -->
                                 <div
-                                    style="display: flex; align-items: center; gap: 25px; background: #f8fafc; padding: 25px; border-radius: 15px; border-left: 8px solid #ef4444; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                    style="display: flex; align-items: center; gap: 25px;  padding: 25px; border-radius: 15px; border-left: 8px solid #ef4444; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                     <div
-                                        style="background: rgba(239, 68, 68, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; color: #ef4444; font-weight: 800;">
+                                        style="background: rgba(239, 68, 68, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; color: var(--accent-red); font-weight: 800;">
                                         1</div>
-                                    <span style="font-size: 1.8em; font-weight: bold; color: #334155;">Яндекс <span
-                                            style="font-size: 0.6em; color: #ef4444; font-weight: normal; margin-left: 10px; padding: 5px 12px; background: rgba(239,68,68,0.1); border-radius: 10px;">№1
+                                    <span style="font-size: 1.8em; font-weight: bold; color: var(--secondary-text);">Яндекс <span
+                                            style="font-size: 0.6em; color: var(--accent-red); font-weight: normal; margin-left: 10px; padding: 5px 12px; background: rgba(239,68,68,0.1); border-radius: 10px;">№1
                                             Таңдау</span></span>
                                 </div>
 
                                 <!-- 2GIS -->
                                 <div
-                                    style="display: flex; align-items: center; gap: 25px; background: #f8fafc; padding: 20px 25px; border-radius: 15px; border-left: 8px solid #10b981; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                    style="display: flex; align-items: center; gap: 25px;  padding: 20px 25px; border-radius: 15px; border-left: 8px solid #10b981; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                     <div
-                                        style="background: rgba(16, 185, 129, 0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #10b981; font-weight: bold;">
+                                        style="background: rgba(16, 185, 129, 0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: var(--accent-green); font-weight: bold;">
                                         2</div>
-                                    <span style="font-size: 1.5em; font-weight: bold; color: #334155;">2GIS</span>
+                                    <span style="font-size: 1.5em; font-weight: bold; color: var(--secondary-text);">2GIS</span>
                                 </div>
 
                                 <!-- Google -->
                                 <div
-                                    style="display: flex; align-items: center; gap: 25px; background: #f8fafc; padding: 20px 25px; border-radius: 15px; border-left: 8px solid #3b82f6; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                                    style="display: flex; align-items: center; gap: 25px;  padding: 20px 25px; border-radius: 15px; border-left: 8px solid #3b82f6; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                     <div
                                         style="background: rgba(59, 130, 246, 0.2); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #3b82f6; font-weight: bold;">
                                         3</div>
-                                    <span style="font-size: 1.5em; font-weight: bold; color: #334155;">Google</span>
+                                    <span style="font-size: 1.5em; font-weight: bold; color: var(--secondary-text);">Google</span>
                                 </div>
                             </div>
                         </div>
@@ -1028,25 +717,25 @@
 
                             <!-- Clients -->
                             <div class="arch-box"
-                                style="flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; flex-direction: column; justify-content: center; gap: 10px; align-items: center;">
+                                style="flex: 1;  border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; flex-direction: column; justify-content: center; gap: 10px; align-items: center;">
                                 <div class="arch-badge"
                                     style="position: absolute; top: -12px; left: 15px; background: #8b5cf6; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; display: flex; gap: 6px; align-items: center;">
                                     <i class="fa-solid fa-user"></i> Clients</div>
 
                                 <div id="arch-item-citizens" class="arch-item" onclick="showArchDetail('citizens')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; width: 100%; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 10px; text-align: center; width: 100%; cursor: pointer; transition: all 0.2s;">
                                     <i class="fa-solid fa-mobile-screen"
                                         style="font-size: 1.3em; color: #3b82f6; margin-bottom: 5px;"></i>
                                     <div style="font-size: 0.75em; font-weight: 600;">Азаматтар<br><span
-                                            style="font-size: 0.8em; color: #64748b; font-weight: normal;">(Mobile
+                                            style="font-size: 0.8em; color: var(--secondary-text); font-weight: normal;">(Mobile
                                             App)</span></div>
                                 </div>
                                 <div id="arch-item-operators" class="arch-item" onclick="showArchDetail('operators')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; width: 100%; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 10px; text-align: center; width: 100%; cursor: pointer; transition: all 0.2s;">
                                     <i class="fa-solid fa-desktop"
                                         style="font-size: 1.3em; color: #3b82f6; margin-bottom: 5px;"></i>
                                     <div style="font-size: 0.75em; font-weight: 600;">Операторлар<br><span
-                                            style="font-size: 0.8em; color: #64748b; font-weight: normal;">(Web
+                                            style="font-size: 0.8em; color: var(--secondary-text); font-weight: normal;">(Web
                                             Admin)</span></div>
                                 </div>
                             </div>
@@ -1058,36 +747,36 @@
 
                             <!-- API Gateway & Frontend -->
                             <div class="arch-box"
-                                style="flex: 2; border: 1px solid #e2e8f0; border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; gap: 10px; align-items: stretch;">
+                                style="flex: 2;  border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; gap: 10px; align-items: stretch;">
                                 <div class="arch-badge"
                                     style="position: absolute; top: -12px; left: 15px; background: #8b5cf6; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; display: flex; gap: 6px; align-items: center;">
                                     <i class="fa-solid fa-server"></i> API Gateway & Frontend</div>
 
                                 <div id="arch-item-flutter" class="arch-item" onclick="showArchDetail('flutter')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
                                     <i class="fa-brands fa-flutter"
                                         style="font-size: 1.3em; color: #0ea5e9; margin-bottom: 5px;"></i>
                                     <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 3px;">Flutter App
                                     </div>
-                                    <div style="font-size: 0.6em; color: #64748b;">User Navigation</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">User Navigation</div>
                                 </div>
 
                                 <div id="arch-item-vue" class="arch-item" onclick="showArchDetail('vue')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
                                     <i class="fa-brands fa-vuejs"
-                                        style="font-size: 1.3em; color: #10b981; margin-bottom: 5px;"></i>
+                                        style="font-size: 1.3em; color: var(--accent-green); margin-bottom: 5px;"></i>
                                     <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 3px;">Vue.js Panel
                                     </div>
-                                    <div style="font-size: 0.6em; color: #64748b;">City Dashboard</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">City Dashboard</div>
                                 </div>
 
                                 <div id="arch-item-fastapi" class="arch-item" onclick="showArchDetail('fastapi')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 10px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: all 0.2s;">
                                     <i class="fa-solid fa-network-wired"
                                         style="font-size: 1.3em; color: #6366f1; margin-bottom: 5px;"></i>
                                     <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 3px;">FastAPI
                                         Bridge</div>
-                                    <div style="font-size: 0.6em; color: #64748b;">WebSockets / REST</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">WebSockets / REST</div>
                                 </div>
                             </div>
 
@@ -1098,25 +787,25 @@
 
                             <!-- Python AI Pipeline -->
                             <div class="arch-box"
-                                style="flex: 1.8; border: 1px solid #e2e8f0; border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
+                                style="flex: 1.8;  border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; flex-direction: column; gap: 8px; align-items: stretch;">
                                 <div class="arch-badge"
                                     style="position: absolute; top: -12px; left: 15px; background: #8b5cf6; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; display: flex; gap: 6px; align-items: center;">
                                     <i class="fa-brands fa-python"></i> Python AI Pipeline</div>
 
                                 <div id="arch-item-lstm" class="arch-item" onclick="showArchDetail('lstm')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
                                     <span style="font-size: 0.75em; font-weight: 600;">LSTM Model</span>
                                     <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i>
                                 </div>
 
                                 <div id="arch-item-routing" class="arch-item" onclick="showArchDetail('routing')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
                                     <span style="font-size: 0.75em; font-weight: 600;">A* Routing Engine</span>
                                     <i class="fa-solid fa-route" style="color: #a855f7;"></i>
                                 </div>
 
                                 <div id="arch-item-anomaly" class="arch-item" onclick="showArchDetail('anomaly')"
-                                    style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
+                                    style="  border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s;">
                                     <span style="font-size: 0.75em; font-weight: 600;">Anomaly Detection</span>
                                     <i class="fa-solid fa-triangle-exclamation" style="color: #eab308;"></i>
                                 </div>
@@ -1125,48 +814,48 @@
 
                         <!-- Data & External APIs row -->
                         <div class="arch-box"
-                            style="border: 1px solid #e2e8f0; border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; gap: 10px;">
+                            style=" border-radius: 12px; background: rgba(0,0,0,0.02); padding: 20px 10px 10px 10px; position: relative; display: flex; gap: 10px;">
                             <div class="arch-badge"
                                 style="position: absolute; top: -12px; left: 15px; background: #3b82f6; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.65em; font-weight: bold; display: flex; gap: 6px; align-items: center;">
                                 <i class="fa-solid fa-database"></i> Data & External APIs</div>
 
                             <div id="arch-item-postgres" class="arch-item" onclick="showArchDetail('postgres')"
-                                style="flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
+                                style="flex: 1;   border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-solid fa-database"
                                     style="font-size: 1.3em; color: #3b82f6; min-width: 30px; text-align: center;"></i>
                                 <div>
                                     <div style="font-weight: bold; font-size: 0.75em; margin-bottom: 3px;">PostgreSQL +
                                         PostGIS</div>
-                                    <div style="font-size: 0.6em; color: #64748b;">Локалды гео-деректер</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">Локалды гео-деректер</div>
                                 </div>
                             </div>
 
                             <div id="arch-item-google" class="arch-item" onclick="showArchDetail('google')"
-                                style="flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
+                                style="flex: 1;   border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-brands fa-google"
-                                    style="font-size: 1.3em; color: #ef4444; min-width: 30px; text-align: center;"></i>
+                                    style="font-size: 1.3em; color: var(--accent-red); min-width: 30px; text-align: center;"></i>
                                 <div>
                                     <div style="font-weight: bold; font-size: 0.75em; margin-bottom: 3px;">Google Maps
                                         API</div>
-                                    <div style="font-size: 0.6em; color: #64748b;">Трафик және маршрут API</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">Трафик және маршрут API</div>
                                 </div>
                             </div>
 
                             <div id="arch-item-weather" class="arch-item" onclick="showArchDetail('weather')"
-                                style="flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
+                                style="flex: 1;   border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-solid fa-cloud-sun"
-                                    style="font-size: 1.3em; color: #f59e0b; min-width: 30px; text-align: center;"></i>
+                                    style="font-size: 1.3em; color: var(--accent-yellow); min-width: 30px; text-align: center;"></i>
                                 <div>
                                     <div style="font-weight: bold; font-size: 0.75em; margin-bottom: 3px;">Weather API
                                     </div>
-                                    <div style="font-size: 0.6em; color: #64748b;">Метео-факторлар</div>
+                                    <div style="font-size: 0.6em; color: var(--secondary-text);">Метео-факторлар</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Explanation Panel -->
                         <div id="arch-explanation"
-                            style="margin-top: 0px; background: #eff6ff; border: 1px solid #bfdbfe; border-left: 6px solid #3b82f6; border-radius: 12px; padding: 15px 20px; display: flex; gap: 15px; align-items: center; min-height: 80px; transition: all 0.3s ease;">
+                            style="margin-top: 0px;  border: 1px solid #bfdbfe; border-left: 6px solid #3b82f6; border-radius: 12px; padding: 15px 20px; display: flex; gap: 15px; align-items: center; min-height: 80px; transition: all 0.3s ease;">
                             <i id="arch-exp-icon" class="fa-solid fa-hand-pointer"
                                 style="font-size: 2em; color: #3b82f6; min-width: 50px; text-align: center;"></i>
                             <div>
@@ -1174,7 +863,7 @@
                                     style="font-weight: 800; font-size: 1em; color: #1e3a8a; margin-bottom: 5px;">
                                     Компонентті таңдаңыз</div>
                                 <div id="arch-exp-desc"
-                                    style="font-size: 0.8em; color: #334155; line-height: 1.5; text-align: left;">
+                                    style="font-size: 0.8em; color: var(--secondary-text); line-height: 1.5; text-align: left;">
                                     Бағдарламаның әр модулі туралы толық ақпарат алу үшін жоғарыдағы кез келген блокты
                                     басыңыз.</div>
                             </div>
@@ -1254,7 +943,7 @@
                                 </tr>
                             </table>
                             <div class="info-box" style="padding: 20px; border-left: 5px solid var(--accent-blue);">
-                                <h4 style="font-size: 1em; margin-bottom: 10px;"><i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> Неліктен LSTM?</h4>
+                                <h4 style="font-size: 1em; margin-bottom: 10px;"><i class="fa-solid fa-trophy" style="color: var(--accent-yellow);"></i> Неліктен LSTM?</h4>
                                 <ul style="font-size: 0.8em; padding-left: 20px; margin: 0;">
                                     <li style="margin-bottom: 8px;"><strong>Уақыттық қатарлар (Time-series):</strong> Өткен оқиғаларды (кептелістерді) есте сақтау қабілеті.</li>
                                     <li style="margin-bottom: 8px;"><strong>Ауа райы факторы:</strong> Ауа райының күрделі әсерлерін (қар, жаңбыр) тиімдірек өңдейді.</li>
@@ -1264,18 +953,18 @@
                         </div>
                         
                         <div style="display: flex; flex-direction: column; gap: 20px;">
-                            <div class="info-box" style="background: #f8fafc; padding: 25px; display: flex; align-items: center; justify-content: space-between;">
+                            <div class="info-box" style=" padding: 25px; display: flex; align-items: center; justify-content: space-between;">
                                 <div>
-                                    <div style="font-size: 0.9em; color: #64748b; margin-bottom: 5px;">Оқыту датасеті</div>
-                                    <div style="font-size: 1.5em; font-weight: bold; color: #0f172a;">20,000+</div>
+                                    <div style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 5px;">Оқыту датасеті</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; ">20,000+</div>
                                     <div style="font-size: 0.8em; color: var(--accent-blue);">тарихи жазбалар</div>
                                 </div>
                                 <i class="fa-solid fa-database" style="font-size: 3em; color: #cbd5e1;"></i>
                             </div>
-                            <div class="info-box" style="background: #f8fafc; padding: 25px; display: flex; align-items: center; justify-content: space-between;">
+                            <div class="info-box" style=" padding: 25px; display: flex; align-items: center; justify-content: space-between;">
                                 <div>
-                                    <div style="font-size: 0.9em; color: #64748b; margin-bottom: 5px;">PyTorch фреймворкі</div>
-                                    <div style="font-size: 1.5em; font-weight: bold; color: #0f172a;">Deep Learning</div>
+                                    <div style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 5px;">PyTorch фреймворкі</div>
+                                    <div style="font-size: 1.5em; font-weight: bold; ">Deep Learning</div>
                                     <div style="font-size: 0.8em; color: var(--accent-purple);">Екі қабатты LSTM архитектурасы</div>
                                 </div>
                                 <i class="fa-solid fa-layer-group" style="font-size: 3em; color: #cbd5e1;"></i>
@@ -1461,7 +1150,7 @@
 
                         <!-- Explanation Panel -->
                         <div id="ml-explanation"
-                            style="width: 100%; box-sizing: border-box; background: #eff6ff; border: 1px solid #bfdbfe; border-left: 6px solid #3b82f6; border-radius: 12px; padding: 15px 20px; display: flex; gap: 15px; align-items: center; min-height: 80px; transition: all 0.3s ease;">
+                            style="width: 100%; box-sizing: border-box;  border: 1px solid #bfdbfe; border-left: 6px solid #3b82f6; border-radius: 12px; padding: 15px 20px; display: flex; gap: 15px; align-items: center; min-height: 80px; transition: all 0.3s ease;">
                             <i id="ml-exp-icon" class="fa-solid fa-hand-pointer"
                                 style="font-size: 2em; color: #3b82f6; min-width: 50px; text-align: center;"></i>
                             <div>
@@ -1469,7 +1158,7 @@
                                     style="font-weight: 800; font-size: 1.15em; color: #1e3a8a; margin-bottom: 5px;">
                                     Модульді таңдаңыз</div>
                                 <div id="ml-exp-desc"
-                                    style="font-size: 0.9em; color: #334155; line-height: 1.5; text-align: left;">Осы
+                                    style="font-size: 0.9em; color: var(--secondary-text); line-height: 1.5; text-align: left;">Осы
                                     болжау жүйесінің қалай жұмыс істейтінін білу үшін схемадағы кез келген батырманы
                                     басыңыз.</div>
                             </div>
@@ -1507,16 +1196,16 @@
                         <div style="display: flex; flex-direction: column; gap: 20px;">
                             <div class="info-box" style="background: rgba(59, 130, 246, 0.05); padding: 25px; border-left: 5px solid var(--accent-blue); display: flex; align-items: center; justify-content: space-between;">
                                 <div>
-                                    <div style="font-size: 0.9em; color: #64748b; margin-bottom: 5px;">Модельдеу дәлдігі</div>
+                                    <div style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 5px;">Модельдеу дәлдігі</div>
                                     <div style="font-size: 1.8em; font-weight: bold; color: var(--accent-blue);">92%</div>
                                 </div>
                                 <i class="fa-solid fa-bullseye" style="font-size: 3em; color: rgba(59, 130, 246, 0.3);"></i>
                             </div>
                             
-                            <div class="info-box" style="background: rgba(16, 185, 129, 0.05); padding: 25px; border-left: 5px solid #10b981; display: flex; align-items: center; justify-content: space-between;">
+                            <div class="info-box" style="background: rgba(16, 185, 129, 0.05); padding: 25px; border-left: 5px solid var(--accent-green); display: flex; align-items: center; justify-content: space-between;">
                                 <div>
-                                    <div style="font-size: 0.9em; color: #64748b; margin-bottom: 5px;">Динамикалық қайта есептеу</div>
-                                    <div style="font-size: 1.8em; font-weight: bold; color: #10b981;">Нақты уақыт</div>
+                                    <div style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 5px;">Динамикалық қайта есептеу</div>
+                                    <div style="font-size: 1.8em; font-weight: bold; color: var(--accent-green);">Нақты уақыт</div>
                                 </div>
                                 <i class="fa-solid fa-bolt" style="font-size: 3em; color: rgba(16, 185, 129, 0.3);"></i>
                             </div>
@@ -1536,7 +1225,7 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
                         <!-- Multimodal Routing -->
                         <div class="info-box" style="border-top: 5px solid #10b981; padding: 25px;">
-                            <h4 style="font-size: 1.3em; margin-bottom: 15px;"><i class="fa-solid fa-person-biking" style="color: #10b981;"></i> Мультимодальді Маршруттар</h4>
+                            <h4 style="font-size: 1.3em; margin-bottom: 15px;"><i class="fa-solid fa-person-biking" style="color: var(--accent-green);"></i> Мультимодальді Маршруттар</h4>
                             <div style="font-size: 0.85em; background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #10b981;">
                                 <strong>Сценарий:</strong> «Егер алда 60 минуттық кептеліс болжамдалса, жүйе көлікті тұраққа қойып, соңғы 2 шақырымды <strong>электросамокатпен</strong> жүруді ұсынады (20 минут үнемдеу)».
                             </div>
@@ -1574,7 +1263,7 @@
                     <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px;">
                         <!-- Z-Score Anomaly Detection -->
                         <div class="info-box" style="border-top: 5px solid #ef4444; padding: 25px;">
-                            <h4 style="font-size: 1.3em; margin-bottom: 15px;"><i class="fa-solid fa-chart-line" style="color: #ef4444;"></i> Z-Score Аномалия Детекторы</h4>
+                            <h4 style="font-size: 1.3em; margin-bottom: 15px;"><i class="fa-solid fa-chart-line" style="color: var(--accent-red);"></i> Z-Score Аномалия Детекторы</h4>
                             <div style="font-size: 0.85em; background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #ef4444;">
                                 Статистикалық <strong>Z-Score</strong> алгоритмі қалыпты көлік ағынын күтпеген жағдайлардан (ДТП, ауа райы аномалиясы) автоматты түрде ажыратады.
                             </div>
@@ -1618,7 +1307,7 @@
                         </div>
                         <div class="info-box" style="text-align: center; background: #fff1f2;">
                             <div class="formula-box"
-                                style="background: white; color: #ef4444; border: 2px solid #fecaca; font-size: 1.6em; margin-top: 40px;">
+                                style=" color: var(--accent-red); border: 2px solid #fecaca; font-size: 1.6em; margin-top: 40px;">
                                 Z = (x - μ) / σ
                             </div>
                             <p style="font-size: 0.9em; margin-top: 30px; color: #991b1b;">Мұндағы: x - ағымдағы
@@ -1643,7 +1332,7 @@
                             </p>
                         </div>
                         <div class="info-box"
-                            style="background: #f8fafc; display: flex; align-items: center; justify-content: center;">
+                            style=" display: flex; align-items: center; justify-content: center;">
                             <div
                                 style="width: 150px; height: 150px; border: 8px solid var(--accent-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative;">
                                 <div style="font-size: 2.2em; font-weight: 800;">144</div>
@@ -1671,7 +1360,7 @@
                             </p>
                         </div>
                         <div class="info-box"
-                            style="display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 30px;">
+                            style="display: flex; align-items: center; justify-content: center;  padding: 30px;">
                             <svg viewBox="0 0 300 180" style="width: 100%; height: auto;">
                                 <rect x="20" y="50" width="60" height="80" rx="10" fill="#eff6ff" stroke="#3b82f6"
                                     stroke-width="2" />
@@ -1709,13 +1398,13 @@
                             </thead>
                             <tbody>
                                 <tr class="interactive-row" id="row-lr" onclick="showModelDetails('lr')"
-                                    style="background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
+                                    style=" box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
                                     <td
-                                        style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: 1px solid #e2e8f0; border-right: none;">
+                                        style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px;  border-right: none;">
                                         <div style="display: flex; align-items: center; gap: 15px;">
                                             <div
-                                                style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fa-solid fa-chart-line" style="color: #64748b;"></i>
+                                                style="width: 40px; height: 40px;  border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fa-solid fa-chart-line" style="color: var(--secondary-text);"></i>
                                             </div>
                                             <span style="font-weight: 600; color: var(--secondary-text);">Linear
                                                 Regression</span>
@@ -1728,24 +1417,24 @@
                                         style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">
                                         0.24</td>
                                     <td
-                                        style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 1px solid #e2e8f0; border-left: none; width: 45%;">
+                                        style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px;  border-left: none; width: 45%;">
                                         <div style="display: flex; align-items: center; gap: 15px;">
                                             <div
-                                                style="flex-grow: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                                                style="flex-grow: 1; height: 10px;  border-radius: 5px; overflow: hidden;">
                                                 <div
                                                     style="width: 72.1%; height: 100%; background: #94a3b8; border-radius: 5px;">
                                                 </div>
                                             </div>
                                             <span
-                                                style="font-weight: 700; color: #64748b; min-width: 60px;">72.1%</span>
+                                                style="font-weight: 700; color: var(--secondary-text); min-width: 60px;">72.1%</span>
                                         </div>
                                     </td>
                                 </tr>
 
                                 <tr class="interactive-row" id="row-rf" onclick="showModelDetails('rf')"
-                                    style="background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
+                                    style=" box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-radius: 16px;">
                                     <td
-                                        style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: 1px solid #e2e8f0; border-right: none;">
+                                        style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px;  border-right: none;">
                                         <div style="display: flex; align-items: center; gap: 15px;">
                                             <div
                                                 style="width: 40px; height: 40px; background: #eef2ff; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
@@ -1762,10 +1451,10 @@
                                         style="padding: 25px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: var(--secondary-text);">
                                         0.16</td>
                                     <td
-                                        style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: 1px solid #e2e8f0; border-left: none; width: 45%;">
+                                        style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px;  border-left: none; width: 45%;">
                                         <div style="display: flex; align-items: center; gap: 15px;">
                                             <div
-                                                style="flex-grow: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                                                style="flex-grow: 1; height: 10px;  border-radius: 5px; overflow: hidden;">
                                                 <div
                                                     style="width: 81.5%; height: 100%; background: #6366f1; border-radius: 5px;">
                                                 </div>
@@ -1778,7 +1467,7 @@
 
                                 <tr class="interactive-row active glowing-row" id="row-lstm"
                                     onclick="showModelDetails('lstm')"
-                                    style="background: #ffffff; box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15); transform: scale(1.02); position: relative; z-index: 10; border: 2px solid var(--accent-blue);">
+                                    style=" box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15); transform: scale(1.02); position: relative; z-index: 10; border: 2px solid var(--accent-blue);">
                                     <td
                                         style="padding: 25px; border-top-left-radius: 16px; border-bottom-left-radius: 16px; border: none; background: linear-gradient(90deg, rgba(37,99,235,0.05) 0%, #ffffff 100%);">
                                         <div style="display: flex; align-items: center; gap: 15px;">
@@ -1798,23 +1487,23 @@
                                     </td>
                                     <td style="padding: 25px; border: none;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <strong style="color: #10b981; font-size: 1.4em;">0.08</strong>
+                                            <strong style="color: var(--accent-green); font-size: 1.4em;">0.08</strong>
                                             <i class="fa-solid fa-arrow-trend-down"
-                                                style="color: #10b981; background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
+                                                style="color: var(--accent-green); background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
                                         </div>
                                     </td>
                                     <td style="padding: 25px; border: none;">
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <strong style="color: #10b981; font-size: 1.4em;">0.12</strong>
+                                            <strong style="color: var(--accent-green); font-size: 1.4em;">0.12</strong>
                                             <i class="fa-solid fa-arrow-trend-down"
-                                                style="color: #10b981; background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
+                                                style="color: var(--accent-green); background: #d1fae5; padding: 4px; border-radius: 50%; font-size: 0.7em;"></i>
                                         </div>
                                     </td>
                                     <td
                                         style="padding: 25px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border: none; width: 45%;">
                                         <div style="display: flex; align-items: center; gap: 15px;">
                                             <div
-                                                style="flex-grow: 1; height: 16px; background: #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                                                style="flex-grow: 1; height: 16px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
                                                 <div
                                                     style="width: 87.4%; height: 100%; background: var(--accent-gradient); border-radius: 8px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); position: relative; overflow: hidden;">
                                                     <div
@@ -1831,10 +1520,10 @@
                         </table>
 
                         <div id="model-explanation-panel" class="info-box"
-                            style="margin-top: 35px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 6px solid var(--accent-blue); padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.02)">
+                            style="margin-top: 35px;   border-left: 6px solid var(--accent-blue); padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.02)">
                             <div style="display: flex; gap: 20px; align-items: flex-start;">
                                 <div id="model-exp-icon"
-                                    style="min-width: 50px; height: 50px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                                    style="min-width: 50px; height: 50px;  border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); ">
                                     <i class="fa-solid fa-trophy"
                                         style="color: var(--accent-blue); font-size: 1.8em;"></i>
                                 </div>
@@ -1844,7 +1533,7 @@
                                         <strong>Қорытынды нәтиже:</strong> LSTM нейрондық желісі уақыттық
                                         тәуелділіктерді <i>(көлік қозғалысындағы Time Series)</i> есте сақтау
                                         қабілетінің арқасында
-                                        қателігі ең төмен <strong style="color: #10b981;">(MAE = 0.08)</strong> және
+                                        қателігі ең төмен <strong style="color: var(--accent-green);">(MAE = 0.08)</strong> және
                                         дәлдігі ең жоғары
                                         <strong
                                             style="color: var(--accent-blue); background: rgba(37,99,235,0.1); padding: 2px 8px; border-radius: 6px;">87.4%</strong>
@@ -1852,10 +1541,10 @@
                                     </p>
                                     <div style="display: flex; gap: 15px; margin-top: 15px;">
                                         <div
-                                            style="background: rgba(16,185,129,0.1); padding: 8px 12px; border-radius: 8px; color: #10b981; font-size: 0.85em; font-weight: 600;">
+                                            style="background: rgba(16,185,129,0.1); padding: 8px 12px; border-radius: 8px; color: var(--accent-green); font-size: 0.85em; font-weight: 600;">
                                             <i class="fa-solid fa-check"></i> Күрделі заңдылықтарды таниды</div>
                                         <div
-                                            style="background: rgba(16,185,129,0.1); padding: 8px 12px; border-radius: 8px; color: #10b981; font-size: 0.85em; font-weight: 600;">
+                                            style="background: rgba(16,185,129,0.1); padding: 8px 12px; border-radius: 8px; color: var(--accent-green); font-size: 0.85em; font-weight: 600;">
                                             <i class="fa-solid fa-check"></i> Соңғы 30 минуттық деректі ескереді</div>
                                     </div>
                                 </div>
@@ -1884,7 +1573,7 @@
                         </div>
                         <div class="info-box" style="border-top: 4px solid #10b981;">
                             <i class="fa-solid fa-desktop"
-                                style="font-size: 2em; color: #10b981; margin-bottom: 15px;"></i>
+                                style="font-size: 2em; color: var(--accent-green); margin-bottom: 15px;"></i>
                             <h4 style="font-size: 0.9em;">Web & Admin</h4>
                             <p style="font-size: 0.7em;">Қалалық мониторинг тақтасы және Лендинг беті.</p>
                         </div>
@@ -1957,7 +1646,7 @@
                             </div>
                             <div id="resp-btn-lr" class="info-box arch-box interactive" onclick="showRespDetail('lr')"
                                 style="padding: 15px; cursor: pointer;">
-                                <i class="fa-solid fa-chart-line" style="font-size: 1.5em; color: #10b981;"></i>
+                                <i class="fa-solid fa-chart-line" style="font-size: 1.5em; color: var(--accent-green);"></i>
                                 <div style="font-size: 0.65em; font-weight: 700; margin-top: 5px;">Regression</div>
                             </div>
                             <div id="resp-btn-dijkstra" class="info-box arch-box interactive"
@@ -1968,12 +1657,12 @@
                             <div id="resp-btn-zscore" class="info-box arch-box interactive"
                                 onclick="showRespDetail('zscore')" style="padding: 15px; cursor: pointer;">
                                 <i class="fa-solid fa-triangle-exclamation"
-                                    style="font-size: 1.5em; color: #ef4444;"></i>
+                                    style="font-size: 1.5em; color: var(--accent-red);"></i>
                                 <div style="font-size: 0.65em; font-weight: 700; margin-top: 5px;">Z-Score</div>
                             </div>
                             <div id="resp-btn-ema" class="info-box arch-box interactive" onclick="showRespDetail('ema')"
                                 style="padding: 15px; cursor: pointer;">
-                                <i class="fa-solid fa-filter" style="font-size: 1.5em; color: #f59e0b;"></i>
+                                <i class="fa-solid fa-filter" style="font-size: 1.5em; color: var(--accent-yellow);"></i>
                                 <div style="font-size: 0.65em; font-weight: 700; margin-top: 5px;">EMA Filter</div>
                             </div>
                         </div>
@@ -1982,7 +1671,7 @@
                             style="min-height: 180px; margin-top: 10px; border-left-width: 8px;">
                             <div style="display: flex; gap: 20px; align-items: flex-start; width: 100%;">
                                 <div
-                                    style="background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                                    style=" border-radius: 15px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                                     <i id="resp-exp-icon" class="fa-solid fa-hand-pointer"
                                         style="font-size: 2.5em; color: var(--accent-blue);"></i>
                                 </div>
@@ -1991,7 +1680,7 @@
                                         style="font-size: 1.2em; margin-bottom: 10px; color: #1e3a8a;">Модельді таңдаңыз
                                     </h4>
                                     <div id="resp-exp-desc"
-                                        style="font-size: 0.95em; color: #334155; line-height: 1.6;">
+                                        style="font-size: 0.95em; color: var(--secondary-text); line-height: 1.6;">
                                         Әр модельдің нақты неге жауап беретінін және оның дәлелдемелерін көру үшін
                                         жоғарыдағы батырмаларды басыңыз.
                                     </div>
@@ -2011,11 +1700,11 @@
                         <div class="info-box" style="padding: 30px;">
                             <h4 style="font-size: 1.5em; margin-bottom: 20px; color: #1e3a8a;"><i
                                     class="fa-solid fa-database"></i> Деректер мен Архитектура (Dataset)</h4>
-                            <p style="font-size: 0.9em; color: #475569; margin-bottom: 15px;">
+                            <p style="font-size: 0.9em; color: var(--secondary-text); margin-bottom: 15px;">
                                 Автокөлік кептелісін дәл болжау үшін Астана қаласы бойынша жинақталған үлкен массив
                                 қолданылды:
                             </p>
-                            <ul style="padding-left: 20px; font-size: 0.9em; color: #334155; line-height: 1.8;">
+                            <ul style="padding-left: 20px; font-size: 0.9em; color: var(--secondary-text); line-height: 1.8;">
                                 <li><strong>Жалпы көлемі:</strong> 1.2 миллионнан астам жазба (негізгі қиылыстар мен тас
                                     жолдар).</li>
                                 <li><strong>Ауқымы:</strong> 2023-2025 жылдар (Қысқы аяз, көктайғақ, жазғы жөндеу
@@ -2033,7 +1722,7 @@
 
                         <!-- Training Time -->
                         <div class="info-box"
-                            style="padding: 25px; text-align: center; border: 2px solid var(--accent-purple); border-radius: 16px; background: #ffffff; display: flex; flex-direction: column;">
+                            style="padding: 25px; text-align: center; border: 2px solid var(--accent-purple); border-radius: 16px;  display: flex; flex-direction: column;">
                             <h4 style="font-size: 1.25em; margin-bottom: 10px; color: #1e293b;"><i
                                     class="fa-solid fa-microchip"></i> Оқыту уақыты және Жабдық (Training Cost)</h4>
 
@@ -2080,15 +1769,15 @@
 
                             <!-- Detailed Calculation Box -->
                             <div
-                                style="background: #f8fafc; padding: 15px 20px; border-radius: 12px; border: 1px dashed #cbd5e1; text-align: left; margin-top: auto;">
+                                style=" padding: 15px 20px; border-radius: 12px; border: 1px dashed #cbd5e1; text-align: left; margin-top: auto;">
                                 <div style="font-weight: 700; font-size: 0.9em; margin-bottom: 10px; color: #1e293b;">
                                     Математикалық есептеу (Формула):</div>
                                 <div
-                                    style="font-size: 0.85em; color: #475569; font-family: 'JetBrains Mono', monospace; background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; display: inline-block;">
+                                    style="font-size: 0.85em; color: var(--secondary-text); font-family: 'JetBrains Mono', monospace;  padding: 8px 12px; border-radius: 6px;  display: inline-block;">
                                     T = Epochs × (Samples / Batch_Size) × T_step
                                 </div>
                                 <ul
-                                    style="font-size: 0.8em; color: #334155; margin-top: 15px; line-height: 1.6; padding-left: 20px;">
+                                    style="font-size: 0.8em; color: var(--secondary-text); margin-top: 15px; line-height: 1.6; padding-left: 20px;">
                                     <li><strong>Epochs (100):</strong> Итерация. Модель ақпарат базасын 100 рет толық
                                         оқып шықты.</li>
                                     <li><strong>Samples (1.2M) / Batch Size (64):</strong> Бір жолғы 1.2 миллион дерек
@@ -2097,10 +1786,10 @@
                                         итерация небәрі 0.15 миллисекунд алды.</li>
                                 </ul>
                                 <div
-                                    style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 0.85em; color: #334155;">
+                                    style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 0.85em; color: var(--secondary-text);">
                                     <strong>Қорытынды уақыт:</strong> 100 × 18,750 × 0.00015 сек = <strong
-                                        style="color: #10b981; font-size: 1.2em;">~46.8 минут</strong>.
-                                    <div style="color: #64748b; font-size: 0.9em; margin-top: 5px;">(Егер кәдімгі
+                                        style="color: var(--accent-green); font-size: 1.2em;">~46.8 минут</strong>.
+                                    <div style="color: var(--secondary-text); font-size: 0.9em; margin-top: 5px;">(Егер кәдімгі
                                         процессорда оқытылса 7-8 сағатқа созылар еді. NVIDIA RTX 3060 CUDA Core
                                         арқасында уақыт 10 есе үнемделді).</div>
                                 </div>
@@ -2127,7 +1816,7 @@
                             <div class="info-box" style="padding: 25px 30px; border-left: 6px solid #3b82f6;">
                                 <h4 style="font-size: 1.3em; margin-bottom: 10px; color: #1e293b;"><i
                                         class="fa-solid fa-circle-question"></i> Бұл нені білдіреді?</h4>
-                                <p style="font-size: 0.95em; line-height: 1.6; color: #334155; margin-bottom: 0;">
+                                <p style="font-size: 0.95em; line-height: 1.6; color: var(--secondary-text); margin-bottom: 0;">
                                     <strong>87.4% дәлдік</strong> — бұл жүйенің Яндекс.Кептеліс немесе Google Maps
                                     көрсеткіштерімен қаншалықты сәйкес келетінін көрсетеді. Яғни, біз оқытқан модель 10
                                     жағдайдың 9-ында трафиктің шынайы өсуі мен төмендеуін алдын-ала адам факторсыз
@@ -2141,30 +1830,30 @@
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                             <div class="info-box"
                                 style="padding: 20px; text-align: center; border-bottom: 5px solid #22c55e;">
-                                <div style="font-size: 0.9em; font-weight: bold; color: #64748b; margin-bottom: 5px;">
+                                <div style="font-size: 0.9em; font-weight: bold; color: var(--secondary-text); margin-bottom: 5px;">
                                     MAE (Абсолютті қателік)</div>
                                 <div style="font-size: 1.8em; font-weight: 800; color: #1e293b; margin-bottom: 10px;">
                                     0.74 бал</div>
-                                <div style="font-size: 0.8em; color: #475569;">Нақты кептелістен модельдің максималды
+                                <div style="font-size: 0.8em; color: var(--secondary-text);">Нақты кептелістен модельдің максималды
                                     ауытқуы небәрі ~0.7 бал. Яғни кептеліс 9 бал болса, модель кем дегенде 8.3 бал деп
                                     ескертеді.</div>
                             </div>
                             <div class="info-box"
                                 style="padding: 20px; text-align: center; border-bottom: 5px solid #eab308;">
-                                <div style="font-size: 0.9em; font-weight: bold; color: #64748b; margin-bottom: 5px;">
+                                <div style="font-size: 0.9em; font-weight: bold; color: var(--secondary-text); margin-bottom: 5px;">
                                     RMSE (Квадраттық қателік)</div>
                                 <div style="font-size: 1.8em; font-weight: 800; color: #1e293b; margin-bottom: 10px;">
                                     1.12 бал</div>
-                                <div style="font-size: 0.8em; color: #475569;">Кенеттен болатын қателіктерді (жол
+                                <div style="font-size: 0.8em; color: var(--secondary-text);">Кенеттен болатын қателіктерді (жол
                                     апатын) ескергендегі көрсеткіш. Модель мұндай ситуацияларда да өте стабильді.</div>
                             </div>
                             <div class="info-box"
                                 style="padding: 20px; text-align: center; border-bottom: 5px solid #a855f7;">
-                                <div style="font-size: 0.9em; font-weight: bold; color: #64748b; margin-bottom: 5px;">
+                                <div style="font-size: 0.9em; font-weight: bold; color: var(--secondary-text); margin-bottom: 5px;">
                                     Жылдамдық қателігі</div>
                                 <div style="font-size: 1.8em; font-weight: 800; color: #1e293b; margin-bottom: 10px;">±
                                     4 км/с</div>
-                                <div style="font-size: 0.8em; color: #475569;">Азаматтардың навигаторда жүзетін
+                                <div style="font-size: 0.8em; color: var(--secondary-text);">Азаматтардың навигаторда жүзетін
                                     жоспарланған жылдамдығының өмірдегі қозғалыстан ауытқуы небәрі +-4 км/сағат.</div>
                             </div>
                         </div>
@@ -2215,7 +1904,7 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
                         <div class="info-box" style="padding: 30px; border-left: 8px solid var(--accent-purple);">
                             <h4 style="font-size: 1.5em; margin-bottom: 20px; color: #1e293b;"><i class="fa-solid fa-microphone" style="color: var(--accent-purple);"></i> Сөйлеуді Тану (Voice Assistant)</h4>
-                            <p style="font-size: 1.1em; color: #475569; line-height: 1.6;">
+                            <p style="font-size: 1.1em; color: var(--secondary-text); line-height: 1.6;">
                                 Қосымшаға <strong>Natural Language Processing (NLP)</strong> алгоритмдері кіріктірілген. 
                                 Жүргізушілер рульде отырып: <i>"Ең жақын май құю бекетіне апар"</i> немесе <i>"Мегаға дейін кептеліс жоқ жолмен апар"</i> деп дауыстық пәрмен бере алады.
                             </p>
@@ -2245,7 +1934,7 @@
                             <div class="info-box" style="padding: 25px; border-left: 8px solid #3b82f6;">
                                 <h4 style="font-size: 1.3em; margin-bottom: 15px; color: #1e293b;"><i
                                         class="fa-solid fa-route"></i> Смарт-Маршруттау және Инклюзивтілік</h4>
-                                <ul style="padding-left: 20px; font-size: 0.95em; color: #475569; line-height: 1.6;">
+                                <ul style="padding-left: 20px; font-size: 0.95em; color: var(--secondary-text); line-height: 1.6;">
                                     <li style="margin-bottom: 10px;"><strong>Динамикалық A* алгоритмі:</strong> Кептеліс
                                         болжамына сүйене отырып, 150 миллисекунд ішінде ең тиімді балама жолдарды қайта
                                         құрып береді.</li>
@@ -2257,7 +1946,7 @@
                             <div class="info-box" style="padding: 25px; border-left: 8px solid #a855f7;">
                                 <h4 style="font-size: 1.3em; margin-bottom: 15px; color: #1e293b;"><i
                                         class="fa-solid fa-bolt"></i> Технологиялық ерекшеліктер</h4>
-                                <ul style="padding-left: 20px; font-size: 0.95em; color: #475569; line-height: 1.6;">
+                                <ul style="padding-left: 20px; font-size: 0.95em; color: var(--secondary-text); line-height: 1.6;">
                                     <li style="margin-bottom: 10px;"><strong>Cross-Platform кешен (Flutter):</strong>
                                         Қосымша бір кодтық база арқылы iOS пен Android-та бір уақытта жылдам (60 FPS)
                                         жұмыс істейді.</li>
@@ -2269,14 +1958,14 @@
 
                         <!-- Image Showcase -->
                         <div class="info-box"
-                            style="background: #f8fafc; padding: 25px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                            style=" padding: 25px;  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
                             <!-- Map App UI Representation placeholder -->
                             <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800"
                                 style="max-height: 380px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
 
                             <!-- UI Info Badge -->
                             <div
-                                style="position: absolute; bottom: 20px; right: 20px; background: white; padding: 12px 18px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px;">
+                                style="position: absolute; bottom: 20px; right: 20px;  padding: 12px 18px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px;">
                                 <img src="https://storage.googleapis.com/cms-storage-bucket/0dbfcc7a59cd1cf16282.png"
                                     alt="Flutter" style="width: 25px;">
                                 <div style="font-weight: 800; font-size: 0.9em; color: #1e293b; line-height: 1.2;">Made
@@ -2294,8 +1983,8 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
                         <div class="info-box" style="padding: 30px; border-left: 8px solid #f59e0b;">
                             <h4 style="font-size: 1.5em; margin-bottom: 20px; color: #1e293b;"><i
-                                    class="fa-solid fa-bell" style="color: #f59e0b;"></i> Болжамдық Ескертулер</h4>
-                            <p style="font-size: 1.1em; color: #475569; line-height: 1.6;">
+                                    class="fa-solid fa-bell" style="color: var(--accent-yellow);"></i> Болжамдық Ескертулер</h4>
+                            <p style="font-size: 1.1em; color: var(--secondary-text); line-height: 1.6;">
                                 LSTM нейрондық желісі <strong>ауа-райы (қар, жаңбыр)</strong> мен <strong>трафик
                                     трендтерін</strong> талдай отырып,
                                 алдағы 30 минуттағы жағдайды болжайды. Егер кептеліс күтілсе, жүйе пайдаланушыға
@@ -2303,21 +1992,21 @@
                             </p>
                             <div
                                 style="margin-top: 25px; background: #fffbeb; padding: 15px; border-radius: 12px; border: 1px solid #fde68a;">
-                                <strong style="color: #b45309;"><i class="fa-solid fa-snowflake"></i> Мысалы:</strong>
+                                <strong style="color: var(--accent-yellow);"><i class="fa-solid fa-snowflake"></i> Мысалы:</strong>
                                 "Ауа-райына байланысты кептеліс күтілуде. Жолға 15 минут ерте шығыңыз".
                             </div>
                         </div>
                         <div class="info-box"
-                            style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0;">
+                            style="display: flex; flex-direction: column; justify-content: center; align-items: center;  ">
                             <div
-                                style="width: 80%; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;">
+                                style="width: 80%;  border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;">
                                 <div style="background: #ef4444; padding: 15px 20px; color: white;">
                                     <div style="font-weight: 800; font-size: 1.1em;"><i
                                             class="fa-solid fa-triangle-exclamation"></i> Жолға ерте шығыңыз!</div>
                                     <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.9;">Алдағы 30 минутта қар
                                         жаууына байланысты 9 балдық кептеліс күтілуде.</div>
                                 </div>
-                                <div style="padding: 20px; text-align: center; color: #64748b;">
+                                <div style="padding: 20px; text-align: center; color: var(--secondary-text);">
                                     <i class="fa-solid fa-cloud-showers-heavy"
                                         style="font-size: 4em; color: #3b82f6; margin-bottom: 15px;"></i>
                                     <div style="font-weight: bold;">AI Болжамы: Жауын-шашын</div>
@@ -2335,39 +2024,39 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
                         <div class="info-box" style="padding: 30px; border-left: 8px solid #ef4444;">
                             <h4 style="font-size: 1.5em; margin-bottom: 20px; color: #1e293b;"><i
-                                    class="fa-solid fa-users" style="color: #ef4444;"></i> Нақты Уақыттағы Оқиғалар</h4>
-                            <p style="font-size: 1.1em; color: #475569; line-height: 1.6;">
+                                    class="fa-solid fa-users" style="color: var(--accent-red);"></i> Нақты Уақыттағы Оқиғалар</h4>
+                            <p style="font-size: 1.1em; color: var(--secondary-text); line-height: 1.6;">
                                 Пайдаланушылар картаны ұзақ басу (Long Press) арқылы <strong>Жол апаты 💥</strong>,
                                 <strong>Жөндеу 🚧</strong> немесе <strong>Камера 📸</strong> белгілерін қоя алады.
                             </p>
-                            <p style="font-size: 1.1em; color: #475569; line-height: 1.6; margin-top: 15px;">
+                            <p style="font-size: 1.1em; color: var(--secondary-text); line-height: 1.6; margin-top: 15px;">
                                 Бұл деректер лезде бэкендке жіберіліп, симуляторда <strong>Hotspot (Кептеліс
                                     ошағы)</strong> ретінде тіркеледі, сөйтіп A* маршруттау алгоритмі басқа көліктерді
                                 бұл аймақтан айналып өтуге бағыттайды.
                             </p>
                         </div>
                         <div class="info-box"
-                            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 30px;">
+                            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;   padding: 30px;">
                             <div class="interactive-row" style="background: linear-gradient(145deg, #ffffff, #f1f5f9); padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.1), inset 0 2px 0 rgba(255,255,255,1); text-align: center; width: 45%; border: 1px solid rgba(239, 68, 68, 0.1);">
                                 <div style="position: relative; display: inline-flex; justify-content: center; align-items: center; width: 70px; height: 70px; background: #fff1f2; border-radius: 50%; box-shadow: inset 0 4px 8px rgba(239,68,68,0.2), 0 8px 16px rgba(239,68,68,0.2); margin-bottom: 10px;">
                                     <div style="position: absolute; width: 100%; height: 100%; background: #ef4444; filter: blur(15px); opacity: 0.3; border-radius: 50%;"></div>
-                                    <i class="fa-solid fa-car-burst" style="font-size: 2em; color: #ef4444; position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.4));"></i>
+                                    <i class="fa-solid fa-car-burst" style="font-size: 2em; color: var(--accent-red); position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.4));"></i>
                                 </div>
-                                <div style="font-weight: 800; margin-top: 5px; color: #b91c1c; font-size: 1.1em; letter-spacing: -0.5px;">Жол апаты</div>
+                                <div style="font-weight: 800; margin-top: 5px; color: var(--accent-red); font-size: 1.1em; letter-spacing: -0.5px;">Жол апаты</div>
                             </div>
                             <div class="interactive-row" style="background: linear-gradient(145deg, #ffffff, #f1f5f9); padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1), inset 0 2px 0 rgba(255,255,255,1); text-align: center; width: 45%; border: 1px solid rgba(245, 158, 11, 0.1);">
                                 <div style="position: relative; display: inline-flex; justify-content: center; align-items: center; width: 70px; height: 70px; background: #fffbeb; border-radius: 50%; box-shadow: inset 0 4px 8px rgba(245,158,11,0.2), 0 8px 16px rgba(245,158,11,0.2); margin-bottom: 10px;">
                                     <div style="position: absolute; width: 100%; height: 100%; background: #f59e0b; filter: blur(15px); opacity: 0.3; border-radius: 50%;"></div>
-                                    <i class="fa-solid fa-person-digging" style="font-size: 2em; color: #f59e0b; position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));"></i>
+                                    <i class="fa-solid fa-person-digging" style="font-size: 2em; color: var(--accent-yellow); position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));"></i>
                                 </div>
-                                <div style="font-weight: 800; margin-top: 5px; color: #b45309; font-size: 1.1em; letter-spacing: -0.5px;">Жол жөндеу</div>
+                                <div style="font-weight: 800; margin-top: 5px; color: var(--accent-yellow); font-size: 1.1em; letter-spacing: -0.5px;">Жол жөндеу</div>
                             </div>
                             <div class="interactive-row" style="background: linear-gradient(145deg, #ffffff, #f1f5f9); padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(100, 116, 139, 0.1), inset 0 2px 0 rgba(255,255,255,1); text-align: center; width: 45%; border: 1px solid rgba(100, 116, 139, 0.1);">
-                                <div style="position: relative; display: inline-flex; justify-content: center; align-items: center; width: 70px; height: 70px; background: #f8fafc; border-radius: 50%; box-shadow: inset 0 4px 8px rgba(100,116,139,0.2), 0 8px 16px rgba(100,116,139,0.2); margin-bottom: 10px;">
+                                <div style="position: relative; display: inline-flex; justify-content: center; align-items: center; width: 70px; height: 70px;  border-radius: 50%; box-shadow: inset 0 4px 8px rgba(100,116,139,0.2), 0 8px 16px rgba(100,116,139,0.2); margin-bottom: 10px;">
                                     <div style="position: absolute; width: 100%; height: 100%; background: #64748b; filter: blur(15px); opacity: 0.3; border-radius: 50%;"></div>
-                                    <i class="fa-solid fa-video" style="font-size: 2em; color: #64748b; position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(100, 116, 139, 0.4));"></i>
+                                    <i class="fa-solid fa-video" style="font-size: 2em; color: var(--secondary-text); position: relative; z-index: 1; filter: drop-shadow(0 2px 4px rgba(100, 116, 139, 0.4));"></i>
                                 </div>
-                                <div style="font-weight: 800; margin-top: 5px; color: #475569; font-size: 1.1em; letter-spacing: -0.5px;">Камера</div>
+                                <div style="font-weight: 800; margin-top: 5px; color: var(--secondary-text); font-size: 1.1em; letter-spacing: -0.5px;">Камера</div>
                             </div>
                         </div>
                     </div>
@@ -2402,7 +2091,7 @@
                         </video>
                         <div style="display: flex; gap: 40px;">
                             <div class="info-box" style="padding: 20px 40px; border-bottom: 5px solid #10b981;">
-                                <div style="font-size: 1.5em; font-weight: 800; color: #10b981;">100 мс</div>
+                                <div style="font-size: 1.5em; font-weight: 800; color: var(--accent-green);">100 мс</div>
                                 <div style="font-size: 0.8em; color: var(--secondary-text);">Жауап беру жылдамдығы</div>
                             </div>
                             <div class="info-box"
@@ -2431,7 +2120,7 @@
                             </ul>
                         </div>
                         <div class="info-box"
-                            style="display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+                            style="display: flex; align-items: center; justify-content: center; ">
                             <div style="text-align: center;">
                                 <i class="fa-solid fa-unlock-keyhole"
                                     style="font-size: 5em; color: var(--accent-purple); margin-bottom: 20px;"></i>
@@ -2474,7 +2163,7 @@
                     <h2 style="font-size: 2.8em;">24. Тәжірибелік маңызы</h2>
                     <div class="content-grid" style="margin-top: 40px;">
                         <div
-                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
+                            style=" border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
                             <i class="fa-solid fa-building-columns"
                                 style="font-size: 3.5em; color: var(--accent-blue); margin-bottom: 25px;"></i>
                             <h4 style="margin-bottom: 20px;">Қала әкімшілігі</h4>
@@ -2482,7 +2171,7 @@
                                 басқару құралы.</p>
                         </div>
                         <div
-                            style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
+                            style=" border: 1px solid var(--border-color); padding: 40px; border-radius: var(--radius-md); text-align: center;">
                             <i class="fa-solid fa-car"
                                 style="font-size: 3.5em; color: var(--accent-purple); margin-bottom: 25px;"></i>
                             <h4 style="margin-bottom: 20px;">Тұрғындар үшін</h4>
@@ -2501,7 +2190,7 @@
                     </div>
                     <h2 style="font-size: 2.8em;">25. Қорытынды</h2>
                     <p
-                        style="font-size: 1.3em !important; max-width: 900px; margin: 0 auto; color: var(--primary-text); line-height: 1.8;">
+                        style="font-size: 1.3em !important; max-width: 900px; margin: 0 auto;  line-height: 1.8;">
                         Дипломдық жұмыстың мақсатына <strong style="color: var(--accent-blue);">толық қол
                             жеткізілді</strong>. <br><br>
                         Қалалық ортадағы трафикті бақылау мен болжауға арналған заманауи AI-қосымша әзірленіп,
@@ -2521,7 +2210,7 @@
                             <h4 style="font-size: 1.3em; margin-bottom: 20px; color: #1e3a8a;"><i
                                     class="fa-solid fa-microchip"></i> Технологиялық Интеграция</h4>
                             <ul class="icon-list"
-                                style="margin: 0; line-height: 1.8; font-size: 0.9em; color: #334155;">
+                                style="margin: 0; line-height: 1.8; font-size: 0.9em; color: var(--secondary-text);">
                                 <li style="margin-bottom: 15px;">
                                     <i class="fa-solid fa-camera"></i>
                                     <div><strong>Computer Vision (CV):</strong> Жолдағы бейнебақылау камералары арқылы
@@ -2547,7 +2236,7 @@
                             <h4 style="font-size: 1.3em; margin-bottom: 20px; color: #6b21a8;"><i
                                     class="fa-solid fa-flask"></i> Ғылыми Зерттеулер (Science & Research)</h4>
                             <ul class="icon-list"
-                                style="margin: 0; line-height: 1.8; font-size: 0.9em; color: #334155;">
+                                style="margin: 0; line-height: 1.8; font-size: 0.9em; color: var(--secondary-text);">
                                 <li style="margin-bottom: 15px;">
                                     <i class="fa-solid fa-database" style="color: #6b21a8;"></i>
                                     <div><strong>Open-Source Dataset:</strong> Жинақталған 1.2 млн-нан астам
@@ -2584,12 +2273,12 @@
                     <div style="display: flex; justify-content: center; gap: 100px; align-items: center; width: 100%;">
                         <div style="text-align: center;">
                             <div
-                                style="background: white; padding: 25px; border-radius: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); border: 1px solid var(--border-color);">
+                                style=" padding: 25px; border-radius: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); border: 1px solid var(--border-color);">
                                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://github.com/alishoksu-coder/ai_traffics"
                                     style="margin: 0; width: 250px; height: 250px; display: block;">
                             </div>
                             <div
-                                style="color: var(--primary-text); font-size: 1.1em; margin-top: 25px; font-weight: 700;">
+                                style=" font-size: 1.1em; margin-top: 25px; font-weight: 700;">
                                 Қосымшаны жүктеу (App Download)</div>
                         </div>
                         <div style="text-align: left;">
@@ -2599,7 +2288,7 @@
                                     <i class="fa-solid fa-envelope" style="font-size: 1.2em;"></i>
                                 </div>
                                 <span
-                                    style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">alishoksu@enu.kz</span>
+                                    style="font-size: 1.4em; font-weight: 600; ">alishoksu@enu.kz</span>
                             </div>
                             <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 20px;">
                                 <div
@@ -2607,14 +2296,14 @@
                                     <i class="fa-brands fa-github" style="font-size: 1.2em;"></i>
                                 </div>
                                 <span
-                                    style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">github.com/alishoksu-coder</span>
+                                    style="font-size: 1.4em; font-weight: 600; ">github.com/alishoksu-coder</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 20px;">
                                 <div
                                     style="width: 50px; height: 50px; background: var(--accent-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
                                     <i class="fa-solid fa-graduation-cap" style="font-size: 1.2em;"></i>
                                 </div>
-                                <span style="font-size: 1.4em; font-weight: 600; color: var(--primary-text);">ENU, IT
+                                <span style="font-size: 1.4em; font-weight: 600; ">ENU, IT
                                     Department, 2026</span>
                             </div>
                         </div>
@@ -2638,22 +2327,22 @@
         <!-- Edit Toggle -->
         <button id="btnEditMode" onclick="toggleEditMode()" style="
             display: flex; align-items: center; gap: 8px;
-            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+              border-radius: 12px;
             padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
-            color: #475569; transition: all 0.2s ease; font-size: 13px;
+            color: var(--secondary-text); transition: all 0.2s ease; font-size: 13px;
         " onmouseover="this.style.background='#e2e8f0'"
             onmouseout="this.style.background=window._editMode?'#eff6ff':'#f1f5f9'">
             <i class="fa-solid fa-pen-to-square"></i> Редактировать
         </button>
 
-        <div style="width: 1px; height: 28px; background: #e2e8f0;"></div>
+        <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1);"></div>
 
         <!-- Download PDF -->
         <button onclick="downloadPDF()" style="
             display: flex; align-items: center; gap: 8px;
-            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+              border-radius: 12px;
             padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
-            color: #475569; transition: all 0.2s ease; font-size: 13px;
+            color: var(--secondary-text); transition: all 0.2s ease; font-size: 13px;
         " onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626'"
             onmouseout="this.style.background='#f1f5f9';this.style.color='#475569'">
             <i class="fa-solid fa-file-pdf"></i> PDF
@@ -2662,15 +2351,15 @@
         <!-- Download PPTX -->
         <button onclick="downloadPPTX()" style="
             display: flex; align-items: center; gap: 8px;
-            background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px;
+              border-radius: 12px;
             padding: 10px 18px; cursor: pointer; font-family: inherit; font-weight: 600;
-            color: #475569; transition: all 0.2s ease; font-size: 13px;
+            color: var(--secondary-text); transition: all 0.2s ease; font-size: 13px;
         " onmouseover="this.style.background='#fff7ed';this.style.color='#ea580c'"
             onmouseout="this.style.background='#f1f5f9';this.style.color='#475569'">
             <i class="fa-solid fa-file-powerpoint"></i> PPTX
         </button>
 
-        <div style="width: 1px; height: 28px; background: #e2e8f0;"></div>
+        <div style="width: 1px; height: 28px; background: rgba(255,255,255,0.1);"></div>
 
         <!-- Slide Counter -->
         <div id="slideCounter" style="
@@ -2681,8 +2370,8 @@
 
         <!-- Minimize -->
         <button id="btnMinimize" onclick="toggleToolbar()" style="
-            width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
-            background: #f8fafc; cursor: pointer; display: flex; align-items: center;
+            width: 36px; height: 36px; border-radius: 50%; 
+             cursor: pointer; display: flex; align-items: center;
             justify-content: center; color: #94a3b8; transition: all 0.2s ease; font-size: 14px;
         " onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f8fafc'">
             <i class="fa-solid fa-chevron-up"></i>
@@ -2993,7 +2682,7 @@
                 icon: 'fa-trophy',
                 color: 'var(--accent-blue)',
                 title: 'LSTM (Біздің таңдау)',
-                desc: 'LSTM нейрондық желісі уақыттық тәуелділіктерді <i>(көлік қозғалысындағы Time Series)</i> есте сақтау қабілетінің арқасында қателігі ең төмен <strong style="color: #10b981;">(MAE = 0.08)</strong> және дәлдігі ең жоғары.',
+                desc: 'LSTM нейрондық желісі уақыттық тәуелділіктерді <i>(көлік қозғалысындағы Time Series)</i> есте сақтау қабілетінің арқасында қателігі ең төмен <strong style="color: var(--accent-green);">(MAE = 0.08)</strong> және дәлдігі ең жоғары.',
                 badges: ['<i class="fa-solid fa-check"></i> Күрделі заңдылықтарды таниды', '<i class="fa-solid fa-check"></i> Соңғы 30 минуттық деректі ескереді']
             }
         };

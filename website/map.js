@@ -24,7 +24,7 @@ let isDarkTheme = false;
 
 document.getElementById('btn-theme').addEventListener('click', () => {
   isDarkTheme = !isDarkTheme;
-  if(isDarkTheme) {
+  if (isDarkTheme) {
     map.removeLayer(lightLayer);
     darkLayer.addTo(map);
     document.body.classList.add('dark-theme');
@@ -63,7 +63,7 @@ tabs.forEach(tab => {
     panels.forEach(p => p.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
-    
+
     // Logic update
     if (tab.dataset.tab === 'traffic') {
       currentHorizon = 0;
@@ -99,26 +99,26 @@ async function fetchTrafficData(horizon) {
     const res = await fetch(`${API_BASE}/roads/segments?horizon=${horizon}`);
     if (!res.ok) throw new Error("API Error");
     const data = await res.json();
-    
+
     // Clear old lines
     trafficLayerGroup.clearLayers();
-    
+
     let totalScore = 0;
     let count = 0;
 
     data.items.forEach(seg => {
       if (!seg.polyline || seg.polyline.length === 0) return;
-      
+
       const v = seg.value; // 0 to 100
       totalScore += v;
       count++;
-      
+
       // Determine color
       let color = '#10B981'; // Green
       let weight = 4;
       if (v > 50) { color = '#F59E0B'; weight = 5; } // Yellow
       if (v >= 80) { color = '#EF4444'; weight = 6; } // Red
-      
+
       // Leaflet expects [lat, lng], backend gives [lat, lng]
       const poly = L.polyline(seg.polyline, {
         color: color,
@@ -126,25 +126,25 @@ async function fetchTrafficData(horizon) {
         opacity: 0.8,
         lineCap: 'round'
       });
-      
+
       // Tooltip
-      poly.bindTooltip(`${seg.name}<br>Жүктелу: ${Math.round(v)}%`, { 
-        className: 'custom-tooltip', sticky: true 
+      poly.bindTooltip(`${seg.name}<br>Жүктелу: ${Math.round(v)}%`, {
+        className: 'custom-tooltip', sticky: true
       });
-      
+
       trafficLayerGroup.addLayer(poly);
     });
-    
+
     // Update Score UI (0-10 scale)
     if (horizon === 0) {
       const elScore = document.getElementById('score-display');
       const elDesc = document.getElementById('score-desc');
-      
+
       if (count > 0) {
         const avg = totalScore / count;
         const score10 = Math.ceil(avg / 10);
         elScore.textContent = score10;
-        
+
         if (score10 <= 3) {
           elScore.style.color = '#10B981'; elScore.style.borderColor = '#10B981';
           elScore.style.background = 'rgba(16, 185, 129, 0.1)';
@@ -165,7 +165,7 @@ async function fetchTrafficData(horizon) {
     const elScore = document.getElementById('score-display');
     const elDesc = document.getElementById('score-desc');
     elScore.textContent = "!";
-    elScore.style.color = '#EF4444'; 
+    elScore.style.color = '#EF4444';
     elScore.style.borderColor = '#EF4444';
     elDesc.textContent = "Деректер алынбады (Сервер қосылуда...)";
   }
@@ -177,11 +177,11 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
     const res = await fetch(`${API_BASE}/traffic/ar_points?horizon=${currentHorizon}`);
     if (!res.ok) throw new Error("API Error");
     const data = await res.json();
-    
+
     arPointsLayerGroup.clearLayers();
     const listContainer = document.getElementById('ar-points-list');
     listContainer.innerHTML = '';
-    
+
     if (data.ar_points.length === 0) {
       listContainer.innerHTML = '<p style="color:#10B981; font-size:13px; font-weight:600;">Бұл уақытта проблемалы зоналар жоқ!</p>';
       return;
@@ -199,7 +199,7 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
       const marker = L.marker([pt.lat, pt.lng], { icon: aiIcon })
         .bindTooltip(`<b>${pt.segment_name}</b><br>${pt.message}`, { className: 'custom-tooltip' });
       arPointsLayerGroup.addLayer(marker);
-      
+
       // Add to Sidebar List
       const div = document.createElement('div');
       div.className = `ar-point-card ${pt.level}`;
@@ -210,7 +210,7 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
           Street View ашу
         </button>
       `;
-      
+
       // Click to fly to point and open Street View (simulated in new tab)
       div.addEventListener('click', () => {
         map.flyTo([pt.lat, pt.lng], 16, { duration: 1.5 });
@@ -219,14 +219,14 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
           window.open(url, '_blank');
         }, 1500);
       });
-      
+
       listContainer.appendChild(div);
     });
-    
+
     // Fit bounds to show all markers
     if (data.ar_points.length > 0) {
-       const group = L.featureGroup(arPointsLayerGroup.getLayers());
-       map.fitBounds(group.getBounds(), { padding: [50, 50] });
+      const group = L.featureGroup(arPointsLayerGroup.getLayers());
+      map.fitBounds(group.getBounds(), { padding: [50, 50] });
     }
 
   } catch (error) {
@@ -257,9 +257,9 @@ async function fetchVehicles() {
     const res = await fetch(`${API_BASE}/vehicles`);
     if (!res.ok) return;
     const data = await res.json();
-    
+
     vehiclesLayerGroup.clearLayers();
-    
+
     data.items.forEach(v => {
       const icon = v.type === 'bus' ? busIcon : carIcon;
       const marker = L.marker([v.lat, v.lon], { icon: icon });
@@ -301,21 +301,21 @@ async function fetchEvents() {
     const res = await fetch(`${API_BASE}/events`);
     if (!res.ok) return;
     const data = await res.json();
-    
+
     eventsLayerGroup.clearLayers();
-    
-    if(data.items) {
+
+    if (data.items) {
       data.items.forEach(e => {
         let icon = accidentIcon;
         let title = 'ДТП (Жол апаты)';
         if (e.event_type === 'repair') { icon = repairIcon; title = 'Ремонт (Жол жөндеу)'; }
         else if (e.event_type === 'camera') { icon = cameraIcon; title = 'Камера'; }
-        
+
         const marker = L.marker([e.lat, e.lng], { icon: icon });
-        
-        const minsAgo = Math.floor((Date.now()/1000 - e.created_at) / 60);
+
+        const minsAgo = Math.floor((Date.now() / 1000 - e.created_at) / 60);
         let timeStr = minsAgo <= 0 ? 'Жаңа ғана' : `${minsAgo} мин бұрын`;
-        
+
         marker.bindTooltip(`<b>${title}</b><br><span style="color:gray;font-size:11px;">${timeStr} добавлен</span>`, { className: 'custom-tooltip' });
         eventsLayerGroup.addLayer(marker);
       });
@@ -339,14 +339,14 @@ document.getElementById('btn-parking').addEventListener('click', async () => {
     isParkingVisible = false;
     return;
   }
-  
+
   try {
     const res = await fetch(`${API_BASE}/parking`);
     if (!res.ok) throw new Error("API Error");
     const data = await res.json();
-    
+
     parkingLayerGroup.clearLayers();
-    
+
     // Create Custom Parking Icon
     const parkingIcon = L.divIcon({
       className: 'custom-div-icon',
@@ -358,7 +358,7 @@ document.getElementById('btn-parking').addEventListener('click', async () => {
     data.items.forEach(p => {
       const color = p.available > 20 ? '#10B981' : (p.available > 0 ? '#F59E0B' : '#EF4444');
       const marker = L.marker([p.lat, p.lng], { icon: parkingIcon }).addTo(parkingLayerGroup);
-      
+
       const popupHtml = `
         <div style="font-family: 'Inter', sans-serif; min-width: 180px;">
           <h4 style="margin:0 0 8px 0; border-bottom:1px solid #eee; padding-bottom:4px;">${p.name}</h4>
@@ -379,11 +379,11 @@ document.getElementById('btn-parking').addEventListener('click', async () => {
       `;
       marker.bindPopup(popupHtml);
     });
-    
+
     parkingLayerGroup.addTo(map);
     document.getElementById('btn-parking').style.background = '#e2e8f0';
     isParkingVisible = true;
-    
+
   } catch (error) {
     console.error("Parking Fetch Error:", error);
     alert("Кешіріңіз, парковка деректері жүктелмеді.");
@@ -402,7 +402,7 @@ let searchTimeout;
 
 searchInput.addEventListener('input', (e) => {
   const query = e.target.value.trim();
-  
+
   if (query.length > 0) {
     clearBtn.style.display = 'block';
   } else {
@@ -425,15 +425,15 @@ searchInput.addEventListener('input', (e) => {
 
 async function performSearch(query) {
   searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ізделуде...</div>';
-  
+
   try {
     // OpenStreetMap Nominatim request (Astana focus)
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)} Astana&format=json&limit=15&viewbox=71.2,51.2,71.6,51.0&bounded=1`;
     const res = await fetch(url);
     const data = await res.json();
-    
+
     searchResults.innerHTML = '';
-    
+
     if (data.length === 0) {
       searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ештеңе табылмады</div>';
       return;
@@ -442,7 +442,7 @@ async function performSearch(query) {
     data.forEach(item => {
       const div = document.createElement('div');
       div.className = 'search-result-item';
-      
+
       // Parse Display Name
       const parts = item.display_name.split(', ');
       const title = parts[0];
@@ -455,22 +455,22 @@ async function performSearch(query) {
           <p>${subtitle}</p>
         </div>
       `;
-      
+
       div.addEventListener('click', () => {
         // Clear old marker
         searchMarkerLayer.clearLayers();
-        
+
         const lat = parseFloat(item.lat);
         const lon = parseFloat(item.lon);
-        
+
         // Add new marker
         const marker = L.marker([lat, lon]).addTo(searchMarkerLayer);
         marker.bindPopup(`<b>${title}</b><br>${subtitle}`).openPopup();
-        
+
         // Fly to location
         map.flyTo([lat, lon], 16, { duration: 1.5 });
       });
-      
+
       searchResults.appendChild(div);
     });
 
@@ -487,7 +487,7 @@ function closeSearch() {
   mainTabs.style.display = 'flex';
   panelContent.style.display = 'block';
   searchMarkerLayer.clearLayers();
-  
+
   // Return map to center
   map.flyTo([51.128, 71.430], 13);
 }
@@ -498,27 +498,27 @@ clearBtn.addEventListener('click', closeSearch);
 map.on('click', async (e) => {
   const lat = e.latlng.lat;
   const lon = e.latlng.lng;
-  
+
   // Кез-келген жерді басқанда ескі маркерлерді өшіреміз
   searchMarkerLayer.clearLayers();
-  
+
   // Күту маркерін қоямыз
   const marker = L.marker([lat, lon]).addTo(searchMarkerLayer);
   marker.bindPopup("Ізделуде...").openPopup();
-  
+
   try {
     // OpenStreetMap Nominatim арқылы координатты мекен-жайға айналдырамыз
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=kk`;
     const res = await fetch(url);
     const data = await res.json();
-    
+
     if (data && data.display_name) {
       const parts = data.display_name.split(', ');
       const title = parts[0];
       const subtitle = parts.length > 1 ? parts.slice(1).join(', ') : 'Астана';
-      
+
       marker.setPopupContent(`<b>${title}</b><br><span style="font-size:12px;color:gray;">${subtitle}</span>`).openPopup();
-      
+
       // Іздеу жолағына атын жазып қою
       searchInput.value = title;
       clearBtn.style.display = 'block';

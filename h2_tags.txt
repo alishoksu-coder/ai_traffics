@@ -1,0 +1,10 @@
+637:                     <h2>1. Тақырыптың өзектілігі</h2>
+708:                     <h2 style="font-size: 2.2em;">Қазақстан үшін маңызды мәселелер</h2>
+758:                     <h2 style="font-size: 2em; text-align: center; margin-bottom: 15px;">8. Жүйенің Контейнерлік
+928:                     <h2 style="font-size: 2.8em;">11.5 «Цифрлық Егіз» (Digital Twin) Режимі</h2>
+975:                     <h2 style="font-size: 2.8em;">13. Аномалияларды Анықтау & AR Интеграциясы</h2>
+1013:                     <h2 style="font-size: 2.8em;">12. Жол апаттары мен аномалияларды детекторлау</h2>
+1040:                     <h2 style="font-size: 2.8em;">14. ML Алгоритм: LSTM Нейрондық Желісі</h2>
+1074:                     <h2 style="font-size: 2.5em;">17. Болжаудың Математикалық Метрикалары</h2>
+1172:                     <h2 style="font-size: 2.8em;">18. NLP: Дауыспен интеллектуалды іздеу</h2>
+1199:                     <h2 style="font-size: 2.8em;">20. Web Admin Panel (Мониторинг)</h2>

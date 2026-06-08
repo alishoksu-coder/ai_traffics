@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
-import sys, io, re
+import sys, io, re, os
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 from docx import Document
+from docx.opc.exceptions import PackageNotFoundError
 
-doc = Document('Suleimenov_Alisher_VTIPO-45_REPORT_GOST_formatted.docx')
+if len(sys.argv) > 1:
+    filename = sys.argv[1]
+else:
+    filename = 'Suleimenov_Alisher_VTIPO-45_REPORT_GOST_formatted.docx'
+
+if not os.path.exists(filename):
+    print(f"Ошибка: Файл документа '{filename}' не найден.")
+    print("Укажите путь к .docx или поместите документ в корень проекта.")
+    print("Пример: python verify.py path/to/report.docx")
+    sys.exit(1)
+
+try:
+    doc = Document(filename)
+except PackageNotFoundError:
+    print(f"Ошибка: Файл '{filename}' не является корректным Word-документом (.docx).")
+    sys.exit(1)
 
 print("=== FINAL DOCUMENT STRUCTURE ===\n")
 

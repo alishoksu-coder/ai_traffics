@@ -1,0 +1,46 @@
+561:             <!-- 1. Титульный слайд -->
+634:             <!-- 2. Актуальность темы -->
+637:                     <h2>1. Тақырыптың өзектілігі</h2>
+705:             <!-- NEW SLIDE: Specific Problems Solved (1.1) -->
+708:                     <h2 style="font-size: 2.2em;">Қазақстан үшін маңызды мәселелер</h2>
+715:                         <!-- Problem 1 -->
+724:                         <!-- Problem 2 -->
+733:                         <!-- Problem 3 -->
+742:                         <!-- Problem 4 -->
+755:             <!-- 8. Жүйенің Контейнерлік Архитектурасы -->
+758:                     <h2 style="font-size: 2em; text-align: center; margin-bottom: 15px;">8. Жүйенің Контейнерлік
+764:                         <!-- Top Row: 3 main blocks -->
+767:                             <!-- Clients -->
+792:                             <!-- Arrows -->
+797:                             <!-- API Gateway & Frontend -->
+832:                             <!-- Arrows -->
+837:                             <!-- Python AI Pipeline -->
+864:                         <!-- Data & External APIs row -->
+905:                         <!-- Explanation Panel -->
+925:             <!-- 11.5 Цифрлық егіз (Digital Twin) -->
+928:                     <h2 style="font-size: 2.8em;">11.5 «Цифрлық Егіз» (Digital Twin) Режимі</h2>
+972:             <!-- 13. Z-Score Аномалиялар және AR-Интеграция -->
+975:                     <h2 style="font-size: 2.8em;">13. Аномалияларды Анықтау & AR Интеграциясы</h2>
+981:                         <!-- Z-Score Anomaly Detection -->
+994:                         <!-- AR Visualization -->
+1010:             <!-- 12. Аномалияларды анықтау (Z-Score) -->
+1013:                     <h2 style="font-size: 2.8em;">12. Жол апаттары мен аномалияларды детекторлау</h2>
+1037:             <!-- 14. ML Алгоритм: LSTM Нейрондық Желісі -->
+1040:                     <h2 style="font-size: 2.8em;">14. ML Алгоритм: LSTM Нейрондық Желісі</h2>
+1071:             <!-- 17. Болжамдау Метрикалары -->
+1074:                     <h2 style="font-size: 2.5em;">17. Болжаудың Математикалық Метрикалары</h2>
+1077:                         <!-- Top Section: Accuracy & What it means -->
+1098:                         <!-- Middle Section: Technical Metrics (MAE, RMSE, MAPE) -->
+1130:                         <!-- Bottom Section: The Table -->
+1169:             <!-- 18. NLP: Дауыстық басқару және ИИ -->
+1172:                     <h2 style="font-size: 2.8em;">18. NLP: Дауыспен интеллектуалды іздеу</h2>
+1196:             <!-- 19. Web Admin: Қалалық Мониторинг -->
+1199:                     <h2 style="font-size: 2.8em;">20. Web Admin Panel (Мониторинг)</h2>
+1212:             <!-- Финальный слайд -->
+1259:             </section><!-- Floating Toolbar -->
+1269:         <!-- Edit Toggle -->
+1282:         <!-- Download PDF -->
+1293:         <!-- Download PPTX -->
+1306:         <!-- Slide Counter -->
+1313:         <!-- Minimize -->
+1323:     <!-- Toast Notification -->

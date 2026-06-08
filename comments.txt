@@ -1,0 +1,105 @@
+ 1. Титульный слайд 
+ 2. Актуальность темы 
+ NEW SLIDE: Specific Problems Solved (1.1) 
+ Problem 1 
+ Problem 2 
+ Problem 3 
+ Problem 4 
+ 3. Цель работы 
+ 4. Задачи исследования 
+ 5. Объект и предмет исследования 
+ 6. Методы и технологии 
+ 7. Анализ существующих решений 
+ 7. Аналогтарды Талдау (Соңы) 
+ 7.5 Вывод: Две реальности 
+ Блок 1: Общее использование 
+ 2GIS 
+ Google 
+ Yandex 
+ Блок 2: Использование для пробок 
+ Yandex 
+ 2GIS 
+ Google 
+ 8. Жүйенің Контейнерлік Архитектурасы 
+ Top Row: 3 main blocks 
+ Clients 
+ Arrows 
+ API Gateway & Frontend 
+ Arrows 
+ Python AI Pipeline 
+ Data & External APIs row 
+ Explanation Panel 
+ 9. Клиенттік деңгей 
+ 10. ML Модельдерін Бағалау 
+ 11. Болжау Жүйесінің Архитектурасы (Prediction Pipeline) 
+ Groups / Background Containers 
+ Connectors 
+ DB to RF 
+ API to RF 
+ API to EMA 
+ API to Linear Regression 
+ API to Anomaly Detector 
+ RF to Predict 
+ EMA to Predict 
+ LR to Trend 
+ Anomaly to Status 
+ Nodes & Items 
+ Supabase 
+ API 
+ Machine Learning 
+ Analytics 
+ Outputs 
+ Explanation Panel 
+ 11.5 Цифрлық егіз (Digital Twin) 
+ 12. AI-Экожүйе: Multimodal & Smart Parking 
+ Multimodal Routing 
+ Smart Parking 
+ 13. Z-Score Аномалиялар және AR-Интеграция 
+ Z-Score Anomaly Detection 
+ AR Visualization 
+ 12. Аномалияларды анықтау (Z-Score) 
+ 13. Трафик Симуляторы (Simulation Logic) 
+ 14. ML Алгоритм: LSTM Нейрондық Желісі 
+ 15. Модельдерді салыстыру (Model Comparison) 
+ NEW SLIDE: System Modules (15.1) 
+ NEW SLIDE: Algorithms (15.2) 
+ NEW SLIDE: Dataset & Features (15.3) 
+ NEW SLIDE: Model Responsibilities (15.4) 
+ 16. Модельді Оқыту және Деректер 
+ Dataset Features 
+ Training Time 
+ Grid Lines 
+ Axes Labels Y (Loss) 
+ Axes Labels X (Epochs) 
+ Axes 
+ Descending Loss Curve Outline & Line 
+ Detailed Calculation Box 
+ 17. Болжамдау Метрикалары 
+ Top Section: Accuracy & What it means 
+ Middle Section: Technical Metrics (MAE, RMSE, MAPE) 
+ Bottom Section: The Table 
+ 18. NLP: Дауыстық басқару және ИИ 
+ 19. Мобильді Қосымша: Интерфейс 
+ Text Blocks 
+ Image Showcase 
+ Map App UI Representation placeholder 
+ UI Info Badge 
+ 18.1. Smart Alerts 
+ 18.2. Crowdsourcing 
+ 19. Web Admin: Қалалық Мониторинг 
+ 17. Жүйе Жұмысының Демонстрациясы 
+ 20. Деректерді қорғау және Аутентификация 
+ 23. Пайдаланылған әдебиеттер 
+ 24. Тәжірибелік маңызы 
+ 25. Қорытынды 
+ 26. Даму перспективалары 
+ Engineering & Tech 
+ Science & Research 
+ Финальный слайд 
+ Floating Toolbar 
+ Edit Toggle 
+ Download PDF 
+ Download PPTX 
+ Slide Counter 
+ Minimize 
+ Toast Notification 
