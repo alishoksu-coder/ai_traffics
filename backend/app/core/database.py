@@ -3,8 +3,8 @@ import sqlite3
 from pathlib import Path
 from typing import Generator
 
-from app.config import settings
-from app.db.schema import ensure_schema
+from app.core.config import settings
+from app.core.schema import ensure_schema
 
 def _default_db_path() -> str:
     """Возвращает путь к базе по умолчанию."""

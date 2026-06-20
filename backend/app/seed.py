@@ -1,16 +1,18 @@
 import time, random, math, json
 import sqlite3
 import httpx
-from app.db.repository import (
+from app.repositories.traffic_repository import (
     insert_traffic_values,
     get_locations,
     upsert_location,
     upsert_road_segment,
+)
+from app.repositories.user_repository import (
     get_admin_by_login,
     create_admin,
 )
-from app.auth import hash_for_storage
-from app.config import settings
+from app.core.security import hash_for_storage
+from app.core.config import settings
 
 def seed_history_if_empty(conn: sqlite3.Connection, sim, minutes: int = 43200) -> None:
     """

@@ -1,112 +1,151 @@
-import sys
 import os
-import sqlite3
+import sys
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.linear_model import LinearRegression
-import time
-import torch
 
-# Добавляем путь к backend
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Add backend directory to sys.path so we can import app modules
+BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
 
-from app.lstm_engine import ai_lstm_brain
-from app.config import settings
+from app.ml.baselines import NaiveForecast, MovingAverageForecast, LinearRegressionForecast, RandomForestForecast
+from app.ml.lstm_model import TrafficLSTM
+from app.ml.metrics import mae_rmse, mape
+from app.ml.plots import plot_prediction_vs_actual, plot_model_comparison, plot_lstm_loss
+
+PROJECT_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
+DATASET_PATH = os.path.join(PROJECT_ROOT, "yesil_traffic_history_dataset.csv")
+REPORTS_DIR = os.path.join(BACKEND_DIR, "reports")
 
 def main():
-    print("Starting evaluation of traffic prediction models...")
-    db_path = settings.db_path
-    if not os.path.exists(db_path):
-        print(f"Database not found: {db_path}")
+    os.makedirs(REPORTS_DIR, exist_ok=True)
+    
+    print("Loading dataset...")
+    if not os.path.exists(DATASET_PATH):
+        print(f"Error: Dataset not found at {DATASET_PATH}")
         return
-
-    conn = sqlite3.connect(db_path)
-    # Берем последние 10,000 записей для теста
-    query = "SELECT value FROM traffic_values ORDER BY ts DESC LIMIT 10000"
-    df = pd.read_sql_query(query, conn)
+        
+    df = pd.read_csv(DATASET_PATH)
     
-    if len(df) < 500:
-        print("Not enough data for evaluation (need at least 500 records).")
-        conn.close()
-        return
-
-    data = df['value'].values.tolist()[::-1]
-    split = int(len(data) * 0.8)
-    train_data = data[:split]
-    test_data = data[split:]
+    # Preprocessing
+    df['dt'] = pd.to_datetime(df['timestamp'])
+    df['value'] = df['congestion_level'] * 100.0
     
-    horizons = [30, 60] # минуты
+    # Filter to one intersection to evaluate pure time series performance
+    intersection_id = df['intersection_id'].iloc[0]
+    df = df[df['intersection_id'] == intersection_id].sort_values('dt')
     
-    for h in horizons:
-        print(f"\n--- Prediction Horizon: {h} min ---")
+    print(f"Total rows for {intersection_id}: {len(df)}")
+    
+    # Train / Test split (80/20)
+    split_idx = int(len(df) * 0.8)
+    train_df = df.iloc[:split_idx].copy()
+    test_df = df.iloc[split_idx:].copy()
+    print(f"Train size: {len(train_df)}, Test size: {len(test_df)}")
+    
+    # Initialize Models
+    models = {
+        "Naive": NaiveForecast(),
+        "Moving Average (1h)": MovingAverageForecast(window_size=4),
+        "Linear Regression": LinearRegressionForecast(),
+        "Random Forest": RandomForestForecast(),
+    }
+    
+    # Train baselines
+    print("Training baselines...")
+    for name, model in models.items():
+        print(f"  Training {name}...")
+        model.fit(train_df)
         
-        y_true = []
-        y_naive = []
-        y_ma = []
-        y_lr = []
-        y_lstm = []
+    # Train LSTM
+    print("Training LSTM...")
+    lstm_model = TrafficLSTM(model_path="data/lstm_eval.pth")
+    # For evaluation, we force a quick retrain on train_df
+    lstm_model.train_on_dataset(df=train_df, epochs=10, batch_size=32)
+    models["LSTM"] = lstm_model
+    
+    if hasattr(lstm_model, 'loss_history') and lstm_model.loss_history:
+        plot_lstm_loss(lstm_model.loss_history, os.path.join(REPORTS_DIR, "lstm_loss_curve.png"))
+        print("Saved lstm_loss_curve.png")
+    
+    # Evaluation configuration
+    horizons = {"30m": 2, "60m": 4} # 1 step = 15 min
+    results = []
+    
+    # We will also collect predictions for a visual plot for 60m horizon
+    plot_actuals = []
+    plot_preds = {name: [] for name in models.keys()}
+    
+    # Rolling origin evaluation on Test set
+    # We use a sliding window of recent data to predict the future
+    print("Evaluating on test set...")
+    lookback = 24 # Use last 6 hours as context
+    
+    # Pre-extract values for fast access
+    test_dts = test_df['dt'].values
+    test_vals = test_df['value'].values
+    
+    for h_name, steps_ahead in horizons.items():
+        print(f"Evaluating horizon {h_name}...")
         
-        lookback = 12
+        y_true_all = []
+        y_preds_all = {name: [] for name in models.keys()}
         
-        # Для простоты теста будем идти по шагам
-        for i in range(lookback, len(test_data) - h):
-            target = test_data[i + h]
-            current = test_data[i]
-            window = test_data[i-lookback:i]
+        for i in range(lookback, len(test_df) - steps_ahead):
+            # The "current" time is i
+            recent_data = test_df.iloc[i-lookback:i+1].copy()
             
-            # 1. Naive (Просто текущее значение)
-            y_naive.append(current)
+            # The target time is i + steps_ahead
+            target_val = test_vals[i + steps_ahead]
+            y_true_all.append(target_val)
             
-            # 2. Moving Average (k=5)
-            y_ma.append(np.mean(window[-5:]))
+            # Predict
+            for name, model in models.items():
+                preds = model.predict_future(recent_data, steps_ahead=steps_ahead)
+                pred_val = preds[-1] # We want the value exactly at steps_ahead
+                y_preds_all[name].append(pred_val)
+                
+                # If evaluating 60m, save for plotting (only need to do this once per step)
+                if h_name == "60m":
+                    plot_preds[name].append(pred_val)
+                    
+        if h_name == "60m":
+            plot_actuals = y_true_all.copy()
             
-            # 3. Linear Regression (на окне lookback)
-            X_lr = np.arange(lookback).reshape(-1, 1)
-            model_lr = LinearRegression().fit(X_lr, window)
-            y_lr.append(model_lr.predict([[lookback + h]])[0])
+        # Calculate Metrics
+        for name in models.keys():
+            m_rmse = mae_rmse(y_true_all, y_preds_all[name])
+            m_mape = mape(y_true_all, y_preds_all[name])
             
-            # 4. LSTM
-            if ai_lstm_brain.is_trained:
-                pred_lstm = ai_lstm_brain.predict_future(window, steps_ahead=h)[-1]
-                y_lstm.append(pred_lstm)
+            results.append({
+                "Model": name,
+                "Horizon_min": 30 if h_name == "30m" else 60,
+                "MAE": m_rmse["mae"],
+                "RMSE": m_rmse["rmse"],
+                "MAPE": m_mape["mape"]
+            })
             
-            y_true.append(target)
-            
-        # Считаем метрики
-        def calc(true, pred, name):
-            mae = mean_absolute_error(true, pred)
-            rmse = np.sqrt(mean_squared_error(true, pred))
-            print(f"  [{name}] MAE: {mae:.2f}, RMSE: {rmse:.2f}")
-            return mae, rmse
-
-        metrics_to_save = []
-        now = int(time.time())
-        
-        m_mae, m_rmse = calc(y_true, y_naive, "Naive")
-        metrics_to_save.append(("Naive", h, m_mae, m_rmse, len(y_true), now))
-        
-        m_mae, m_rmse = calc(y_true, y_ma, "Moving Avg")
-        metrics_to_save.append(("Moving Avg", h, m_mae, m_rmse, len(y_true), now))
-        
-        m_mae, m_rmse = calc(y_true, y_lr, "Trend LR")
-        metrics_to_save.append(("Trend LR", h, m_mae, m_rmse, len(y_true), now))
-        
-        if y_lstm:
-            m_mae, m_rmse = calc(y_true, y_lstm, "LSTM")
-            metrics_to_save.append(("LSTM", h, m_mae, m_rmse, len(y_true), now))
-
-        # Сохраняем в БД
-        cur = conn.cursor()
-        cur.executemany("""
-            INSERT INTO model_metrics (model_name, horizon, mae, rmse, n, ts)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, metrics_to_save)
-        conn.commit()
-        print(f"Metrics for horizon {h} saved to DB.")
-
-    conn.close()
-    print("\nEvaluation finished successfully!")
+    # Save metrics
+    results_df = pd.DataFrame(results)
+    metrics_path = os.path.join(REPORTS_DIR, "metrics_summary.csv")
+    results_df.to_csv(metrics_path, index=False)
+    print(f"Saved {metrics_path}")
+    
+    # Generate Plots
+    print("Generating plots...")
+    # 1. Actual vs Predicted (take a slice of 100 points for readability)
+    slice_end = min(200, len(plot_actuals))
+    sliced_actuals = plot_actuals[:slice_end]
+    sliced_preds = {name: preds[:slice_end] for name, preds in plot_preds.items()}
+    plot_prediction_vs_actual(sliced_actuals, sliced_preds, os.path.join(REPORTS_DIR, "prediction_vs_actual.png"))
+    
+    # 2. Model comparison MAE
+    plot_model_comparison(results_df, "MAE", os.path.join(REPORTS_DIR, "model_comparison_mae.png"))
+    
+    # 3. Model comparison RMSE
+    plot_model_comparison(results_df, "RMSE", os.path.join(REPORTS_DIR, "model_comparison_rmse.png"))
+    
+    print("Evaluation completed successfully.")
 
 if __name__ == "__main__":
     main()

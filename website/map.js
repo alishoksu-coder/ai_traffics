@@ -73,6 +73,8 @@ tabs.forEach(tab => {
       const val = document.getElementById('horizon-slider').value;
       currentHorizon = parseInt(val);
       fetchTrafficData(currentHorizon);
+    } else if (tab.dataset.tab === 'friends') {
+      loadFriends();
     }
   });
 });
@@ -199,28 +201,26 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
       const marker = L.marker([pt.lat, pt.lng], { icon: aiIcon })
         .bindTooltip(`<b>${pt.segment_name}</b><br>${pt.message}`, { className: 'custom-tooltip' });
       arPointsLayerGroup.addLayer(marker);
-
-      // Add to Sidebar List
-      const div = document.createElement('div');
-      div.className = `ar-point-card ${pt.level}`;
-      div.innerHTML = `
+      
+      // Add to sidebar list
+      const card = document.createElement('div');
+      card.className = `ar-point-card ${pt.level}`;
+      card.innerHTML = `
         <strong>${pt.segment_name}</strong>
         <div class="desc">${pt.message}</div>
         <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; width: 100%;">
           Street View ашу
         </button>
       `;
-
-      // Click to fly to point and open Street View (simulated in new tab)
-      div.addEventListener('click', () => {
+      // Click to fly to point and open Street View
+      card.addEventListener('click', () => {
         map.flyTo([pt.lat, pt.lng], 16, { duration: 1.5 });
         setTimeout(() => {
           const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${pt.lat},${pt.lng}`;
           window.open(url, '_blank');
         }, 1500);
       });
-
-      listContainer.appendChild(div);
+      listContainer.appendChild(card);
     });
 
     // Fit bounds to show all markers
@@ -231,6 +231,275 @@ document.getElementById('btn-ar-points').addEventListener('click', async () => {
 
   } catch (error) {
     console.error("AR Data Error:", error);
+  }
+});
+
+// 6. FRIENDS & SMART MEET (SUPABASE INTEGRATION)
+const SUPABASE_URL = 'https://nxmefixitnmfzgaxlzsl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54bWVmaXhpdG5tZnpnYXhsenNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjIzNzYsImV4cCI6MjA4OTQzODM3Nn0.g-fY2uUmraHS-Vs9zLcoF1mPuwnhlZzHPlrR_cYXOTU';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+// Auth State Listener
+supabase.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+});
+
+function updateAuthUI() {
+  const authContainer = document.getElementById('auth-container');
+  const friendsContainer = document.getElementById('friends-container');
+  const userEmailDisplay = document.getElementById('user-email-display');
+  
+  if (currentUser) {
+    authContainer.style.display = 'none';
+    friendsContainer.style.display = 'block';
+    userEmailDisplay.textContent = currentUser.email;
+    loadFriends();
+  } else {
+    authContainer.style.display = 'block';
+    friendsContainer.style.display = 'none';
+  }
+}
+
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('auth-error').textContent = error.message;
+  } else {
+    document.getElementById('auth-error').style.display = 'none';
+  }
+});
+
+document.getElementById('btn-register').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const { error } = await supabase.auth.signUp({ email, password });
+  if (error) {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('auth-error').textContent = error.message;
+  } else {
+    document.getElementById('auth-error').style.display = 'none';
+    document.getElementById('auth-success').style.display = 'block';
+    document.getElementById('auth-success').textContent = 'Тіркелу сәтті өтті! Енді кіре аласыз.';
+  }
+});
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+});
+
+// Search Users
+document.getElementById('btn-search-users').addEventListener('click', async () => {
+  const query = document.getElementById('friend-search-input').value.trim();
+  const resultsDiv = document.getElementById('user-search-results');
+  resultsDiv.innerHTML = '<div style="padding: 8px; font-size: 12px; color: var(--text-muted);">Іздеуде...</div>';
+  
+  if (!query) {
+    resultsDiv.innerHTML = '';
+    return;
+  }
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, first_name, last_name, email')
+    .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%`)
+    .neq('id', currentUser.id)
+    .limit(10);
+    
+  if (error) {
+    resultsDiv.innerHTML = '<div style="padding: 8px; font-size: 12px; color: #EF4444;">Іздеу қатесі</div>';
+    return;
+  }
+  
+  if (!data || data.length === 0) {
+    resultsDiv.innerHTML = '<div style="padding: 8px; font-size: 12px; color: var(--text-muted);">Табылмады</div>';
+    return;
+  }
+  
+  resultsDiv.innerHTML = '';
+  data.forEach(u => {
+    const name = (u.first_name || u.last_name) ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : u.email.split('@')[0];
+    const item = document.createElement('div');
+    item.style = 'display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border);';
+    item.innerHTML = `
+      <div>
+        <div style="font-weight: 600; font-size: 13px; color: var(--text-main);">${name}</div>
+        <div style="font-size: 11px; color: var(--text-muted);">${u.email}</div>
+      </div>
+      <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="addFriend('${u.id}', '${name.replace(/'/g, "\\'")}')">Қосу</button>
+    `;
+    resultsDiv.appendChild(item);
+  });
+});
+
+window.addFriend = async function(friendId, friendName) {
+  if (!currentUser) return;
+  
+  const { data: existing } = await supabase
+    .from('friends')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('friend_id', friendId)
+    .maybeSingle();
+    
+  if (existing) {
+    alert('Сұраныс жіберілген немесе достар тізімінде бар');
+    return;
+  }
+  
+  await supabase.from('friends').insert({
+    user_id: currentUser.id,
+    friend_id: friendId,
+    friend_name: friendName
+  });
+  
+  alert('Сұраныс жіберілді!');
+  loadFriends();
+};
+
+window.acceptRequest = async function(friendId, friendName) {
+  if (!currentUser) return;
+  await supabase.from('friends').insert({
+    user_id: currentUser.id,
+    friend_id: friendId,
+    friend_name: friendName
+  });
+  loadFriends();
+};
+
+async function loadFriends() {
+  if (!currentUser) return;
+  const flist = document.getElementById('friends-list');
+  const rlist = document.getElementById('requests-list');
+  
+  flist.innerHTML = '<li>Жүктелуде...</li>';
+  rlist.innerHTML = '';
+  
+  try {
+    const { data: myAdded } = await supabase
+      .from('friends')
+      .select('friend_id, friend_name')
+      .eq('user_id', currentUser.id);
+      
+    const { data: addedMe } = await supabase
+      .from('friends')
+      .select('user_id, profiles!friends_user_id_fkey(first_name, last_name, email)')
+      .eq('friend_id', currentUser.id);
+
+    const myAddedIds = new Set((myAdded || []).map(e => e.friend_id));
+    const addedMeData = addedMe || [];
+    
+    const friends = [];
+    const requests = [];
+    
+    addedMeData.forEach(r => {
+      if (!myAddedIds.has(r.user_id)) {
+        const p = Array.isArray(r.profiles) ? r.profiles[0] : (r.profiles || {});
+        const name = (p.first_name || p.last_name) ? `${p.first_name||''} ${p.last_name||''}` : (p.email?.split('@')[0] || 'Белгісіз');
+        requests.push({ id: r.user_id, name: name });
+      }
+    });
+    
+    (myAdded || []).forEach(f => {
+      const isMutual = addedMeData.some(r => r.user_id === f.friend_id);
+      friends.push({
+        id: f.friend_id,
+        name: f.friend_name,
+        isMutual: isMutual
+      });
+    });
+
+    rlist.innerHTML = '';
+    if (requests.length === 0) {
+      rlist.innerHTML = '<li style="font-size: 11px; color: var(--text-muted); padding: 4px;">Жаңа сұраныстар жоқ</li>';
+    } else {
+      requests.forEach(req => {
+        const li = document.createElement('li');
+        li.className = 'friend-item';
+        li.style.border = '1px solid var(--border)';
+        li.innerHTML = `
+          <div class="friend-avatar" style="background: rgba(245,158,11,0.2); color: #F59E0B;">${req.name.charAt(0).toUpperCase()}</div>
+          <div style="flex: 1;">
+            <strong style="font-size: 13px; color: var(--text-main);">${req.name}</strong>
+            <div style="font-size:11px; color:var(--text-muted);">Дос болғысы келеді</div>
+          </div>
+          <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="acceptRequest('${req.id}', '${req.name.replace(/'/g, "\\'")}')">Қабылдау</button>
+        `;
+        rlist.appendChild(li);
+      });
+    }
+    
+    flist.innerHTML = '';
+    if (friends.length === 0) {
+      flist.innerHTML = '<li style="font-size: 11px; color: var(--text-muted); padding: 4px;">Достар жоқ. Жоғарыда іздеп қосыңыз.</li>';
+    } else {
+      friends.forEach(f => {
+        const li = document.createElement('li');
+        li.className = 'friend-item';
+        li.innerHTML = `
+          <div class="friend-avatar">${f.name.charAt(0).toUpperCase()}</div>
+          <div style="flex: 1;">
+            <strong style="font-size: 13px; color: var(--text-main);">${f.name}</strong>
+            <div style="font-size:11px; color:var(--text-muted);">${f.isMutual ? 'Достар' : 'Жауап күтілуде...'}</div>
+          </div>
+        `;
+        flist.appendChild(li);
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    flist.innerHTML = '<li>Қате шықты</li>';
+  }
+}
+
+
+document.getElementById('btn-smart-meet').addEventListener('click', async () => {
+  const resultDiv = document.getElementById('smart-meet-result');
+  resultDiv.style.display = 'block';
+  resultDiv.textContent = 'ИИ есептеуде... (LSTM + RF)';
+  
+  try {
+    const reqData = {
+      user_locations: [
+        {lat: 51.128, lng: 71.430},
+        {lat: 51.140, lng: 71.450}
+      ],
+      meeting_time_offset_min: 60
+    };
+    
+    const res = await fetch(`${API_BASE}/smart_meet`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(reqData)
+    });
+    const data = await res.json();
+    
+    if (data.optimal_meeting_point) {
+      const pt = data.optimal_meeting_point;
+      resultDiv.innerHTML = `
+        <strong>${pt.name}</strong><br>
+        <span style="color:var(--text-main);">${pt.suggestion}</span>
+      `;
+      const meetIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<div style='font-size:24px;'>🎯</div>",
+        iconSize: [30, 30], iconAnchor: [15, 15]
+      });
+      L.marker([pt.lat, pt.lng], {icon: meetIcon})
+        .bindTooltip(`<b>Оңтайлы кездесу орны</b><br>${pt.name}`, {permanent: true})
+        .addTo(map);
+        
+      map.setView([pt.lat, pt.lng], 14);
+    } else {
+      resultDiv.textContent = 'Нәтиже табылмады';
+    }
+  } catch (e) {
+    resultDiv.textContent = 'ИИ Серверіне қосылу қатесі';
   }
 });
 
@@ -427,26 +696,25 @@ async function performSearch(query) {
   searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ізделуде...</div>';
 
   try {
-    // OpenStreetMap Nominatim request (Astana focus)
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)} Astana&format=json&limit=15&viewbox=71.2,51.2,71.6,51.0&bounded=1`;
+    // Photon request (Astana focus)
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)} Astana&lat=51.128&lon=71.430&limit=15`;
     const res = await fetch(url);
     const data = await res.json();
 
     searchResults.innerHTML = '';
 
-    if (data.length === 0) {
+    if (!data.features || data.features.length === 0) {
       searchResults.innerHTML = '<div style="padding:20px; text-align:center; color:gray;">Ештеңе табылмады</div>';
       return;
     }
 
-    data.forEach(item => {
+    data.features.forEach(feature => {
       const div = document.createElement('div');
       div.className = 'search-result-item';
 
-      // Parse Display Name
-      const parts = item.display_name.split(', ');
-      const title = parts[0];
-      const subtitle = parts.slice(1).join(', ');
+      const props = feature.properties;
+      const title = props.name || props.street || "Белгісіз орын";
+      const subtitle = [props.city, props.state, props.street].filter(Boolean).join(', ') || 'Астана';
 
       div.innerHTML = `
         <div class="sr-icon">📍</div>
@@ -460,8 +728,8 @@ async function performSearch(query) {
         // Clear old marker
         searchMarkerLayer.clearLayers();
 
-        const lat = parseFloat(item.lat);
-        const lon = parseFloat(item.lon);
+        const lat = feature.geometry.coordinates[1];
+        const lon = feature.geometry.coordinates[0];
 
         // Add new marker
         const marker = L.marker([lat, lon]).addTo(searchMarkerLayer);
@@ -507,15 +775,15 @@ map.on('click', async (e) => {
   marker.bindPopup("Ізделуде...").openPopup();
 
   try {
-    // OpenStreetMap Nominatim арқылы координатты мекен-жайға айналдырамыз
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=kk`;
+    // Photon API арқылы координатты мекен-жайға айналдырамыз
+    const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
     const res = await fetch(url);
     const data = await res.json();
 
-    if (data && data.display_name) {
-      const parts = data.display_name.split(', ');
-      const title = parts[0];
-      const subtitle = parts.length > 1 ? parts.slice(1).join(', ') : 'Астана';
+    if (data && data.features && data.features.length > 0) {
+      const props = data.features[0].properties;
+      const title = props.name || props.street || "Белгісіз орын";
+      const subtitle = [props.city, props.state].filter(Boolean).join(', ') || 'Астана';
 
       marker.setPopupContent(`<b>${title}</b><br><span style="font-size:12px;color:gray;">${subtitle}</span>`).openPopup();
 

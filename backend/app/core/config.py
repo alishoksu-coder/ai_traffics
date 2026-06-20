@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     multimodal_scooter_only_dist_m: int = 2000
 
     class Config:
-        env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
+        env_file = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
 
 settings = Settings()
 # Убедимся, что папка data существует

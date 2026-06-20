@@ -5,8 +5,8 @@ import time
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from app.db.database import get_conn
-from app.db.repository import get_locations, insert_traffic_values
+from app.core.database import get_conn
+from app.repositories.traffic_repository import get_locations, insert_traffic_values
 
 
 def clamp(x: float, lo: float, hi: float) -> float:
@@ -79,9 +79,17 @@ class TrafficSimulator:
 
                 cur = float(st["value"])
 
-                # простейший "прогноз": тренд + шум
-                trend = (cur - 50.0) * 0.10
-                pred = cur + trend * factor * 2.0 + random.uniform(-4.0, 4.0) * (0.3 + factor)
+                if horizon > 0:
+                    from app.ml.ensemble import traffic_ensemble
+                    import datetime as _dt_mod
+                    dt = _dt_mod.datetime.now()
+                    # Запрос к ML ансамблю
+                    pred = traffic_ensemble.predict(lid, dt.hour, dt.weekday(), self._weather_factor, None)
+                    # Плавный переход от текущего состояния к прогнозу
+                    mix_factor = min(1.0, horizon / 60.0)
+                    pred = cur * (1.0 - mix_factor) + pred * mix_factor
+                else:
+                    pred = cur
                 pred = clamp(pred, 0.0, 100.0)
 
                 # визуальное движение точки

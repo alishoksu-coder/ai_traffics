@@ -285,6 +285,7 @@ class _MapScreenState extends State<MapScreen> {
     if (!mounted) return;
     final enabled = await Geolocator.isLocationServiceEnabled();
     if (!enabled) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Включите геолокацию в настройках устройства'),
@@ -890,17 +891,50 @@ class _MapScreenState extends State<MapScreen> {
                       ],
                     ),
                   ),
-                  // Horizon Chips
+                  // Time Machine Slider (Glassmorphism)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: Row(
-                      children: [
-                        Expanded(child: _horizonChip(0, 'Қазір')),
-                        const SizedBox(width: 8),
-                        Expanded(child: _horizonChip(30, '30 мин')),
-                        const SizedBox(width: 8),
-                        Expanded(child: _horizonChip(60, '60 мин')),
-                      ],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('⏳ Time Machine', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text(horizon == 0 ? 'Қазір' : '+$horizon мин', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                          SliderTheme(
+                            data: SliderThemeData(
+                              activeTrackColor: AppColors.primary,
+                              inactiveTrackColor: AppColors.primary.withValues(alpha: 0.2),
+                              thumbColor: AppColors.primary,
+                              trackHeight: 6,
+                            ),
+                            child: Slider(
+                              value: horizon.toDouble(),
+                              min: 0,
+                              max: 120,
+                              divisions: 4,
+                              onChanged: (val) {
+                                setState(() => horizon = val.toInt());
+                              },
+                              onChangeEnd: (val) {
+                                _load();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

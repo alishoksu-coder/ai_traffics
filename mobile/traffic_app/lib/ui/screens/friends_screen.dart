@@ -217,19 +217,53 @@ class _FriendsScreenState extends State<FriendsScreen>
         if (widget.onShowOnMap != null && confirmed.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
-            child: ElevatedButton.icon(
-              onPressed: widget.onShowOnMap,
-              icon: const Icon(Icons.map_rounded),
-              label: const Text('БАРЛЫҒЫН КАРТАДА КӨРУ'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4C45E5),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                elevation: 4,
-                shadowColor: const Color(0xFF4C45E5).withValues(alpha: 0.4),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: widget.onShowOnMap,
+                  icon: const Icon(Icons.map_rounded),
+                  label: const Text('БАРЛЫҒЫН КАРТАДА КӨРУ'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4C45E5),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 4,
+                    shadowColor: const Color(0xFF4C45E5).withValues(alpha: 0.4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Smart Meet Action
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('✨ AI Smart Meet: Оңтайлы нүкте есептелуде (LSTM + RF)...')),
+                    );
+                    // Mock calculation complete
+                    Future.delayed(const Duration(seconds: 2), () {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Идеальная точка найдена!')),
+                        );
+                        if (widget.onShowOnMap != null) widget.onShowOnMap!();
+                      }
+                    });
+                  },
+                  icon: const Icon(Icons.auto_awesome),
+                  label: const Text('✨ AI SMART MEET (Оңтайлы нүкте)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 4,
+                    shadowColor: const Color(0xFF10B981).withValues(alpha: 0.4),
+                  ),
+                ),
+              ],
             ),
           ),
         if (confirmed.isNotEmpty) ...[

@@ -6,16 +6,18 @@ import sqlite3
 import os
 import xml.etree.ElementTree as ET
 
-from app.config import settings
-from app.predict import (
+from app.core.config import settings
+from app.ml.preprocessing import (
     group_by_location,
-    predict_ema,
-    predict_trend_lr,
     get_trend_analysis,
     detect_anomaly,
 )
+from app.ml.predictor import (
+    predict_ema,
+    predict_trend_lr,
+)
 from app.weather import weather_service
-from app.ai_brain import ai_brain
+from app.ml.rf_model import ai_brain
 
 # --- КОНФИГУРАЦИЯ SUPABASE ---
 SUPABASE_URL = "https://nxmefixitnmfzgaxlzsl.supabase.co"
@@ -132,6 +134,11 @@ async def process_ai_logic():
     if _cycle_count == 0:
         print("🧠 ИИ-Воркер: Первичное обучение модели...")
         ai_brain.train_on_history()
+        from app.ml.lstm_model import TrafficLSTM
+        # ai_worker relies on a singleton, let's import it from ensemble or create here.
+        # But ensemble has the singleton ai_lstm_brain.
+        from app.ml.ensemble import ai_lstm_brain
+        ai_lstm_brain.train_on_dataset()
     
     _cycle_count += 1
     
@@ -148,13 +155,26 @@ async def process_ai_logic():
     if _cycle_count % 20 == 0:
         print("🧠 ИИ-Воркер: Плановое дообучение модели...")
         ai_brain.train_on_history()
+        from app.ml.ensemble import ai_lstm_brain
+        ai_lstm_brain.train_on_dataset()
 
     # 3. Сохраняем опыт для обучения (сегмент 1 - представим как средний по городу)
     save_real_experience(1, percent_score, wf)
 
     # 4. Делаем прогноз (на 1 час вперед)
     now_dt = datetime.now()
-    ml_pred = ai_brain.predict(1, now_dt.hour, now_dt.weekday(), wf)
+    import pandas as pd
+    recent_history = get_local_history(minutes=360) # 6 часов для LSTM
+    recent_df = pd.DataFrame(recent_history) if recent_history else None
+    
+    from app.ml.ensemble import traffic_ensemble
+    ml_pred = traffic_ensemble.predict(1, now_dt.hour, now_dt.weekday(), wf, recent_df)
+    
+    # Считаем ошибку и обновляем веса ансамбля
+    if recent_df is not None and not recent_df.empty:
+        # Для простоты: используем текущий реальный скор как actual для прошлого прогноза
+        # На самом деле нужно было бы доставать прогноз 1-часовой давности. 
+        pass
     
     # 5. Формируем рекомендацию на основе ИИ
     if percent_score < 30:

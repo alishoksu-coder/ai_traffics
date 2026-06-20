@@ -301,10 +301,12 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                                 setStateSheet(() => sheetLoading = true);
                                 try {
                                   final res = await getPlaceFromQuery(addressControl.text);
+                                  if (!ctx.mounted) return;
                                   Navigator.pop(ctx, res);
                                 } catch (e) {
                                   setStateSheet(() => sheetLoading = false);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Ештеңе табылмады, сұранысты нақтылаңыз')));
+                                  if (!ctx.mounted) return;
+                                  ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Ештеңе табылмады, сұранысты нақтылаңыз')));
                                 }
                               },
                               child: sheetLoading 

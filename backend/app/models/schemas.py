@@ -32,3 +32,8 @@ class UserEventRequest(BaseModel):
     event_type: str
     lat: float
     lng: float
+
+from typing import List
+class SmartMeetRequest(BaseModel):
+    user_locations: List[dict]  # list of {lat, lng}
+    meeting_time_offset_min: int = 60 # how many minutes in future

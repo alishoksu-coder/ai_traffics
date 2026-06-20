@@ -102,6 +102,19 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     """)
 
     cur.execute("""
+    CREATE TABLE IF NOT EXISTS model_predictions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        model_name TEXT NOT NULL,
+        segment_id INTEGER NOT NULL,
+        predicted_value REAL NOT NULL,
+        actual_value REAL,
+        horizon_min INTEGER NOT NULL,
+        predicted_at INTEGER NOT NULL,
+        verified_at INTEGER
+    );
+    """)
+
+    cur.execute("""
     INSERT INTO locations (id, name, lat, lon)
     SELECT 1, 'Левый Берег (Байтерек)', 51.1283, 71.4305 WHERE NOT EXISTS (SELECT 1 FROM locations WHERE id=1);
     """)

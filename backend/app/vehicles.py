@@ -142,3 +142,15 @@ class VehicleSimulator:
                     "route_name": v.get("route_name", ""),
                 })
         return result
+from app.core.database import get_conn
+from app.repositories.traffic_repository import get_road_segments
+from app.core.config import settings
+
+def _get_all_segments():
+    conn = get_conn(settings.db_path)
+    try:
+        return get_road_segments(conn)
+    finally:
+        conn.close()
+
+veh_sim = VehicleSimulator(_get_all_segments)
